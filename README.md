@@ -20,27 +20,61 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **折线图 (line)**
 - **区域图 (area)**
 - **山峰图 (mount)**
+- **散点图 (scatter)**
+- **气泡图 (bubble)**
+- **混合图 (mix)**
 - **更多类型持续开发中...**
 
 ## 快速开始
 
 ```typescript
-import { UCharts } from '@qiuyun/ucharts-v3';
+// 鸿蒙版
+import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
 
-const chart = new UCharts({
-  type: 'column',
-  context: canvasContext, // 由平台适配层提供
-  categories: ['一月', '二月', '三月', '四月'],
-  series: [{ name: '销量', data: [15, 20, 45, 27] }],
-  extra: {
-    column: {
-      type: 'group',
-      seriesGap: 2,
-      linearType: 'opacity',
-      linearOpacity: 0.8
+@Entry
+@Component
+struct Index {
+  @State chart: UChartsController = new UChartsController();
+  private opts: Partial<ChartOptions> = {
+    type: "column",
+    categories: ["2018","2019","2020","2021","2022","2023"],
+    series: series: [
+      {
+        name: "目标值",
+        data: [35,36,31,33,13,34]
+      },
+      {
+        name: "完成量",
+        data: [18,27,21,24,6,28]
+      }
+    ],
+    padding: [15,15,0,5],
+    xAxis: {
+      disableGrid: true
+    },
+    yAxis: {
+      data: [{min: 0}]
+    },
+    extra: {
+      column: {
+        type: "group",
+        width: 30,
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08
+      }
     }
   }
-});
+
+  build() {
+    Column(){
+      UCharts({ controller: this.chart, onReady: () => {
+          this.chart.updateData(this.opts)
+      }})
+    }
+    .height('100%')
+    .width('100%')
+  }
+}
 ```
 
 > 具体平台的 context 获取方式请参考各自适配层文档。
@@ -70,7 +104,7 @@ const chart = new UCharts({
 ## 跨平台适配层说明
 
 - 每个平台在 `adapters/` 下有独立目录，负责将平台 API 适配为统一的底层渲染接口。
-- 适配层需实现统一的适配接口（如 `IAdapter`），并暴露标准的 context、事件等能力。
+- 适配层需实现统一的适配接口，并暴露标准的 context、事件等能力，可参考h5实现。
 - 新增平台时，仅需在 `adapters/` 下新增目录并实现适配接口，无需修改 core 层代码。
 - **CanvasContext 统一接口**：
   - `ChartOptions.context` 字段要求传入的 canvas context 必须兼容 `interface/CanvasContext` 类型。
@@ -83,15 +117,15 @@ const chart = new UCharts({
 
 - 在 `core/chart/` 下创建新的渲染器类，**需继承 `BaseRenderer`**，实现通用渲染逻辑。
 - 在 `core/factory.ts` 中注册新图表类型。
-- 在 `core/types/extra.ts` 中添加扩展配置类型。
+- 在 `core/types/extra.ts` 和 `core/types/series.ts` 中添加扩展配置类型。
 - 更新文档和示例。
 
 ### 新增平台适配层
 
 1. 在 `adapters/` 下新建平台目录（如 `myplatform/`）。
-2. 实现统一适配接口（如 `IAdapter`），封装平台 canvas、事件等能力。
+2. 实现统一适配接口，封装平台 canvas、事件等能力。
 3. 在平台入口文件（如 `index.ts`）中暴露适配能力。
-4. 如有需要暴露给用户层的适配层类型，在 `interface/` 下新建对于平台目录并导出。
+4. 如有需要暴露给用户层的适配层类型，在 `interface/` 下新建对应平台目录并导出。
 5. 更新文档说明。
 
 ## 配置选项
@@ -123,9 +157,10 @@ import type { WechatCanvasContext } from 'UCharts/interface/wechat';
 
 ## 兼容性
 
-- **鸿蒙系统**：支持 HarmonyOS 3.0 及以上
-- **微信小程序**：支持主流小程序平台
-- **uniapp**：支持主流 uniapp 运行环境
+- **鸿蒙系统**：支持 HarmonyOS 5.0 及以上
+- **浏览器**：支持浏览器等H5运行环境
+- **微信小程序**：支持主流小程序平台（适配中...）
+- **uniapp**：支持主流 uniapp 运行环境（适配中...）
 
 ## 许可证
 
@@ -133,7 +168,7 @@ import type { WechatCanvasContext } from 'UCharts/interface/wechat';
 
 - 允许自由使用、修改、分发和商业应用
 - 需保留原始版权声明和许可证文件
-- 详细条款请见根目录 LICENSE 文件或访问 https://www.apache.org/licenses/LICENSE-2.0
+- 详细条款请见根目录 LICENSE 文件
 
 ## 致谢
 
