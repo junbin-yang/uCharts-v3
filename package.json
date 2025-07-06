@@ -1,0 +1,40 @@
+{
+  "name": "ucharts-v3",
+  "version": "1.0.0",
+  "description": "多平台图表库",
+  "main": "adapters/dist/h5/ucharts-h5.min.js",
+  "module": "adapters/dist/h5/ucharts-h5.esm.js",
+  "types": "adapters/dist/h5/types/index.d.ts",
+  "exports": {
+    "./h5": {
+      "import": "./adapters/dist/h5/ucharts-h5.esm.js",
+      "require": "./adapters/dist/h5/ucharts-h5.min.js",
+      "types": "./adapters/dist/h5/types/index.d.ts"
+    },
+    "./wechat": {
+      "import": "./adapters/dist/wechat/ucharts-wechat.esm.js",
+      "require": "./adapters/dist/wechat/ucharts-wechat.js",
+      "types": "./adapters/dist/wechat/types/index.d.ts"
+    },
+    "./uniapp": {
+      "import": "./adapters/dist/uniapp/ucharts-uniapp.esm.js",
+      "require": "./adapters/dist/uniapp/ucharts-uniapp.js",
+      "types": "./adapters/dist/uniapp/types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "node adapters/build.js",
+    "build:h5": "node adapters/build.js build h5",
+    "build:wechat": "node adapters/build.js build wechat",
+    "build:uniapp": "node adapters/build.js build uniapp",
+    "dev": "node adapters/build.js build h5 --watch",
+    "clean": "node adapters/build.js clean",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "keywords": ["chart", "multi-platform", "typescript"],
+  "author": ["junbin.yang", "qiuyun"],
+  "license": "Apache License 2.0"
+} 

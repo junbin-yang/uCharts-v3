@@ -1,0 +1,24 @@
+{
+  "name": "ucharts-h5",
+  "version": "1.0.0",
+  "description": "uCharts H5平台适配器",
+  "main": "../../dist/h5/ucharts-h5.min.js",
+  "module": "../../dist/h5/ucharts-h5.esm.js",
+  "types": "../../dist/h5/types/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && rollup -c rollup.config.js",
+    "build:watch": "rollup -c rollup.config.js -w",
+    "build:prod": "npm run clean && rollup -c rollup.config.js --environment NODE_ENV:production",
+    "clean": "rimraf ../dist/h5"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "rollup": "^3.20.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "typescript": "^5.0.0",
+    "tslib": "^2.6.0",
+    "rimraf": "^5.0.0"
+  }
+} 

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uCharts-v3 H5 Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .chart-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>uCharts-v3 H5 演示</h1>
+        
+        <div class="controls">
+            <button onclick="createLineChart()">折线图</button>
+            <button onclick="createColumnChart()">柱状图</button>
+            <button onclick="createBarChart()">条形图</button>
+            <button onclick="createAreaChart()">面积图</button>
+            <button onclick="createMixChart()">混合图</button>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart" width="600px" height="400px"></canvas>
+        </div>
+    </div>
+
+    <!-- 引入构建后的uCharts库 -->
+    <script src="../adapters/dist/h5/ucharts-h5.min.js"></script>
+    <script language="JavaScript">
+        function createLineChart() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "line",
+                context: ctx,
+                categories: ["2018","2019","2020","2021","2022","2023"],
+                series: [
+                    {
+                        name: "成交量A",
+                        data: [35,8,25,37,4,20]
+                    },
+                    {
+                        name: "成交量B",
+                        data: [70,40,65,100,44,68]
+                    },
+                    {
+                        name: "成交量C",
+                        data: [100,80,95,150,112,132]
+                    }
+                ],
+                animation: true,
+                background: "#FFFFFF",
+                color: ["#1890FF","#91CB74","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+                padding: [15,10,0,15],
+                enableScroll: false,
+                legend: {},
+                xAxis: {
+                    disableGrid: true
+                },
+                yAxis: {
+                    gridType: "dash",
+                    dashLength: 2
+                },
+                extra: {
+                    line: {
+                        type: "straight",
+                        width: 2,
+                        activeType: "hollow"
+                    }
+                }
+            });
+        }
+
+        function createColumnChart() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "column",
+                context: ctx,
+                categories: ["2018","2019","2020","2021","2022","2023"],
+                series: [
+                  {
+                    name: "目标值",
+                    data: [35,36,31,33,13,34]
+                  },
+                  {
+                    name: "完成量",
+                    data: [18,27,21,24,6,28]
+                  }
+                ],
+                animation: true,
+                background: "#FFFFFF",
+                color: ["#FAC858","#EE6666","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+                padding: [15,15,0,5],
+                enableScroll: false,
+                legend: {},
+                xAxis: {
+                  disableGrid: true
+                },
+                yAxis: {
+                  data: [
+                    {
+                      min: 0
+                    }
+                  ]
+                },
+                extra: {
+                  column: {
+                    type: "group",
+                    width: 30,
+                    activeBgColor: "#000000",
+                    activeBgOpacity: 0.08,
+                    linearType: "custom",
+                    seriesGap: 5,
+                    linearOpacity: 0.5,
+                    barBorderCircle: true,
+                    customColor: [
+                      "#FA7D8D",
+                      "#EB88E2"
+                    ]
+                  }
+                }
+            });
+        }
+
+        function createBarChart() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "bar",
+                context: ctx,
+                categories: ["2018","2019","2020","2021","2022","2023"],
+                series: [
+                  {
+                    name: "目标值",
+                    data: [35,36,31,33,13,34]
+                  },
+                  {
+                    name: "完成量",
+                    data: [18,27,21,24,6,28]
+                  }
+                ],
+                animation: true,
+                background: "#FFFFFF",
+                color: ["#1890FF","#91CB74","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+                padding: [15,30,0,5],
+                enableScroll: false,
+                legend: {},
+                xAxis: {
+                  boundaryGap: "justify",
+                  disableGrid: false,
+                  min: 0,
+                  axisLine: false,
+                  max: 40
+                },
+                yAxis: {},
+                extra: {
+                  bar: {
+                    type: "group",
+                    width: 30,
+                    meterBorde: 1,
+                    meterFillColor: "#FFFFFF",
+                    activeBgColor: "#000000",
+                    activeBgOpacity: 0.08,
+                    linearType: "custom",
+                    barBorderCircle: true,
+                    seriesGap: 2,
+                    categoryGap: 2
+                  }
+                }
+            });
+        }
+
+        function createAreaChart() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "area",
+                context: ctx,
+                categories: ["2018","2019","2020","2021","2022","2023"],
+                series: [
+                    {
+                        name: "成交量A",
+                        data: [35,8,25,37,4,20]
+                    },
+                    {
+                        name: "成交量B",
+                        data: [70,40,65,100,44,68]
+                    },
+                    {
+                        name: "成交量C",
+                        data: [100,80,95,150,112,132]
+                    }
+                ],
+                animation: true,
+                background: "#FFFFFF",
+                color: ["#1890FF","#91CB74","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+                padding: [15,15,0,15],
+                enableScroll: false,
+                legend: {},
+                xAxis: {
+                  disableGrid: true
+                },
+                yAxis: {
+                  gridType: "dash",
+                  dashLength: 2
+                },
+                extra: {
+                  area: {
+                    type: "curve",
+                    opacity: 0.2,
+                    addLine: true,
+                    width: 2,
+                    gradient: true,
+                    activeType: "hollow"
+                  }
+                }
+            })
+        }
+
+        function createMixChart() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+              type: "mix",
+              context: ctx,
+              categories: ["2018","2019","2020","2021","2022","2023"],
+              series: [
+                {
+                  name: "曲面",
+                  type: "area",
+                  style: "curve",
+                  data: [70,50,85,130,64,88]
+                },
+                {
+                  name: "柱1",
+                  index: 1,
+                  type: "column",
+                  data: [40,{"value":30,"color":"#f04864"},55,110,24,58]
+                },
+                {
+                  name: "柱2",
+                  index: 1,
+                  type: "column",
+                  data: [50,20,75,60,34,38]
+                },
+                {
+                  name: "曲线",
+                  type: "line",
+                  style: "curve",
+                  color: "#1890ff",
+                  disableLegend: true,
+                  data: [70,50,85,130,64,88]
+                },
+                {
+                  name: "折线",
+                  type: "line",
+                  color: "#2fc25b",
+                  data: [120,140,105,170,95,160]
+                },
+                {
+                  name: "点",
+                  index: 2,
+                  type: "point",
+                  color: "#f04864",
+                  data: [100,80,125,150,112,132]
+                }
+              ],
+              animation: true,
+              background: "#FFFFFF",
+              color: ["#1890FF","#91CB74","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+              padding: [15,15,0,15],
+              enableScroll: false,
+              legend: {},
+              xAxis: {
+                disableGrid: true,
+                title: "单位：年"
+              },
+              yAxis: {
+                disabled: false,
+                disableGrid: false,
+                splitNumber: 5,
+                gridType: "dash",
+                dashLength: 4,
+                gridColor: "#CCCCCC",
+                padding: 10,
+                showTitle: true,
+                data: [
+                  {
+                    position: "left",
+                    title: "折线"
+                  },
+                  {
+                    position: "right",
+                    min: 0,
+                    max: 200,
+                    title: "柱状图",
+                    textAlign: "left"
+                  },
+                  {
+                    position: "right",
+                    min: 0,
+                    max: 200,
+                    title: "点",
+                    textAlign: "left"
+                  }
+                ]
+              },
+              extra: {
+                mix: {
+                  column: {
+                    width: 20
+                  }
+                }
+              }
+            });
+        }
+
+        // 页面加载完成后默认显示折线图
+        window.onload = function() {
+            createLineChart();
+        };
+    </script>
+</body>
+</html> 

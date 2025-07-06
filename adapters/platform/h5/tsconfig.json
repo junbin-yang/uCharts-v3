@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "rootDir": "../../../",
+    "outDir": "../../../dist/h5",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false
+  },
+  "include": [
+    "../../../core/**/*.ts",
+    "../../../interface/**/*.ts",
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "../../../adapters/dist",
+    "../../../examples"
+  ]
+} 
