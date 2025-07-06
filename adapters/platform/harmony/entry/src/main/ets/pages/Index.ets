@@ -1,13 +1,9 @@
-import { CanvasContext, ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
-import { HMCharts } from './hmcharts'
+import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
 
 @Entry
 @Component
 struct Index {
-  private settings: RenderingContextSettings = new RenderingContextSettings(true);
-  private context: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.settings);
-  private chart: HMCharts|undefined = undefined
-  @State uchart: UChartsController = new UChartsController()
+  @State chart: UChartsController = new UChartsController()
 
   private opts: Partial<ChartOptions> = {
     type: "mix",
@@ -102,20 +98,9 @@ struct Index {
   build() {
     RelativeContainer() {
       Column({space: 20}){
-        UCharts({ controller: this.uchart, onReady: () => {
-          this.uchart.updateData(this.opts)
+        UCharts({ controller: this.chart, onReady: () => {
+          this.chart.updateData(this.opts)
         }})
-
-        Canvas(this.context)
-          .width('100%')
-          .height('840px')
-          .onReady(()=>{
-            let opt2 = this.opts
-            opt2.context = this.context as CanvasContext
-            this.chart = new HMCharts(opt2 as ESObject)
-          })
-          .onMouse((event: MouseEvent) => this.chart?.onMouseEvent(event))
-          .onTouch((event: TouchEvent) => this.chart?.onTouchEvent(event))
       }.height('840px')
     }
     .height('100%')
