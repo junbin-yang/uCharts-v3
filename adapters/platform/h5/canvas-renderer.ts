@@ -2,6 +2,7 @@ import { Factory } from '../../../core/factory';
 import { BaseRenderer } from '../../../core/chart/base';
 import { H5CanvasContext } from './canvas-adapter';
 import { setGlobalConfig, ChartOptions, Point } from '../../../interface';
+import { EventType, EventListener } from '../../../core/event';
 
 /**
  * H5平台Canvas渲染器
@@ -32,6 +33,13 @@ export class UCharts {
         this.chartRenderer?.translate(distance)
     }
 
+    addEventListener(type: EventType, listener: EventListener) {
+        this.chartRenderer?.on(type, listener)
+    }
+
+    delEventListener(type: EventType) {
+        this.chartRenderer?.off(type)
+    }
 
     private onclick(e: MouseEvent) {
         const p: Point = {

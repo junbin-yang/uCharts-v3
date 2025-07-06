@@ -1,4 +1,5 @@
 import { BaseRenderer } from '../_core_link/core/chart/base';
+import { EventType, EventListener } from '../_core_link/core/event';
 import { Factory } from '../_core_link/core/factory';
 import { CanvasContext, ChartOptions, Point } from '../_core_link/interface';
 
@@ -61,6 +62,14 @@ export class UChartsController {
     } else if(event.type == TouchType.Up) {
       this.chartRenderer?.scrollEnd()
     }
+  }
+
+  addEventListener(type: EventType, listener: EventListener) {
+    this.chartRenderer?.on(type, listener)
+  }
+
+  delEventListener(type: EventType) {
+    this.chartRenderer?.off(type)
   }
 }
 
