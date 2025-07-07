@@ -2,8 +2,8 @@
   "app": {
     "bundleName": "com.harmony.ucharts",
     "vendor": "example",
-    "versionCode": 3000000,
-    "versionName": "3.0.0",
+    "versionCode": 1000000,
+    "versionName": "1.0.0",
     "icon": "$media:layered_image",
     "label": "$string:app_name"
   }

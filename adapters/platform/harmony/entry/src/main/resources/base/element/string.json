@@ -10,7 +10,79 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "uCharts"
+    },
+    {
+      "name": "tab1",
+      "value": "图表演示"
+    },
+    {
+      "name": "tab2",
+      "value": "关于"
+    },
+    {
+      "name": "head_description",
+      "value": "鸿蒙原生Canvas可视化图表"
+    },
+    {
+      "name": "app_description",
+      "value": "一个基于鸿蒙原生Canvas的轻量、可定制化的可视化图表库"
+    },
+    {
+      "name": "app_version",
+      "value": "应用版本"
+    },
+    {
+      "name": "charts_version",
+      "value": "图表版本"
+    },
+    {
+      "name": "charts_docs",
+      "value": "图表文档"
+    },
+    {
+      "name": "privacy_policy",
+      "value": "隐私政策"
+    },
+    {
+      "name": "app_record",
+      "value": "吉IPC备18000454号-2"
+    },
+    {
+      "name": "app_ownership",
+      "value": "Copyright © 2025-2026 uCharts All Rights Reserved. 秋云科技 版权所有"
+    },
+    {
+      "name": "charts_column",
+      "value": "柱状图"
+    },
+    {
+      "name": "charts_mount",
+      "value": "山峰图"
+    },
+    {
+      "name": "charts_bar",
+      "value": "条状图"
+    },
+    {
+      "name": "charts_line",
+      "value": "折线图"
+    },
+    {
+      "name": "charts_area",
+      "value": "区域图"
+    },
+    {
+      "name": "charts_scatter",
+      "value": "散点图"
+    },
+    {
+      "name": "charts_bubble",
+      "value": "气泡图"
+    },
+    {
+      "name": "charts_mix",
+      "value": "混合图"
     }
   ]
 }

@@ -1,109 +1,253 @@
 import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
+import { bundleManager } from '@kit.AbilityKit';
+import { router, window } from '@kit.ArkUI';
+import { IBestCell, IBestCellGroup, IBestNavBar, IBestNoticeBar, IBestToast } from '@ibestservices/ibest-ui';
+import { ColumnChart } from './ColumnChart';
+import RouterUtil from './common/utils';
+import { chartListType, Tab } from './common/type';
+import { MountChart } from './MountChart';
+import { BarChart } from './BarChart';
+import { LineChart } from './LineChart';
+import { AreaChart } from './AreaChart';
+import { ScatterChart } from './ScatterChart';
+import { BubbleChart } from './BubbleChart';
+import { MixChart } from './MixChart';
 
 @Entry
 @Component
 struct Index {
-  @State chart: UChartsController = new UChartsController()
+  @State notice: string = "uCharts是一款高性能、模块化、可扩展的跨平台图表库。以鸿蒙原生Canvas进行适配开发。"
 
-  private opts: Partial<ChartOptions> = {
-    type: "mix",
-    categories: ["2018","2019","2020","2021","2022","2023"],
-    series: [
-      {
-        name: "曲面",
-        type: "area",
-        style: "curve",
-        data: [70,50,85,130,64,88]
-      },
-      {
-        name: "柱1",
-        index: 1,
-        type: "column",
-        data: [40,{"value":30,"color":"#f04864"},55,110,24,58]
-      },
-      {
-        name: "柱2",
-        index: 1,
-        type: "column",
-        data: [50,20,75,60,34,38]
-      },
-      {
-        name: "曲线",
-        type: "line",
-        style: "curve",
-        color: "#1890ff",
-        disableLegend: true,
-        data: [70,50,85,130,64,88]
-      },
-      {
-        name: "折线",
-        type: "line",
-        color: "#2fc25b",
-        data: [120,140,105,170,95,160]
-      },
-      {
-        name: "点",
-        index: 2,
-        type: "point",
-        color: "#f04864",
-        data: [100,80,125,150,112,132]
-      }
-    ],
-    padding: [15,15,0,15],
-    enableScroll: false,
-    legend: {},
-    xAxis: {
-      disableGrid: true,
-      title: "单位：年"
+  private navPathStack: NavPathStack = new NavPathStack();
+  private tabsList: Tab[] = [
+    {
+      name: $r("app.string.tab1"),
+      icon: $r("app.media.icon_base")
     },
-    yAxis: {
-      disabled: false,
-      disableGrid: false,
-      splitNumber: 5,
-      gridType: "dash",
-      dashLength: 4,
-      gridColor: "#CCCCCC",
-      padding: 10,
-      showTitle: true,
-      data: [
-        {
-          position: "left",
-          title: "折线"
-        },
-        {
-          position: "right",
-          min: 0,
-          max: 200,
-          title: "柱状图",
-          textAlign: "left"
-        },
-        {
-          position: "right",
-          min: 0,
-          max: 200,
-          title: "点",
-          textAlign: "left"
-        }
-      ]
-    },
-    extra: {
-      mix: {
-        column: {
-          width: 20
-        }
+    {
+      name: $r("app.string.tab2"),
+      icon: $r("app.media.icon_about")
+    }
+  ]
+  @State currentTab: number = 0
+  @Provide bottomBarHeight: number = 0
+  @Provide topBarHeight: number = 0
+
+  /**
+   * 获取应用版本
+   */
+  getAppVersion() {
+    return bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT).versionName
+  }
+
+  async getWindowAvoidSize() {
+    let mainWindow: window.Window = await window.getLastWindow(getContext(this))
+    let avoidArea = mainWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
+    let systemDht = mainWindow.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR)
+    let res: Record<string, number> = {
+      "topSize": px2vp(avoidArea.topRect.height),
+      "bottomSize": px2vp(avoidArea.bottomRect.height),
+      "leftSize": px2vp(avoidArea.leftRect.width),
+      "rightSize": px2vp(avoidArea.rightRect.width),
+      "navigationSize": px2vp(systemDht.bottomRect.height)
+    }
+    return res;
+  }
+
+  private primaryColor: string = "#1989fa"
+  private textColor4: string = "#969799"
+  @Builder tabBuilder(index: number){
+    Column({space: 5}) {
+      Image(this.tabsList[index].icon)
+        .width(16)
+        .aspectRatio(1)
+        .fillColor(this.currentTab == index ? this.primaryColor : this.textColor4)
+      Text(this.tabsList[index].name)
+        .fontColor(this.currentTab == index ? this.primaryColor : this.textColor4)
+        .fontSize(12)
+    }.width('100%').padding({top: 10, bottom: this.bottomBarHeight})
+  }
+
+  readonly chartList: chartListType [] = [
+    { key: "column", name: $r("app.string.charts_column"), icon: $r("app.media.column") },
+    { key: "mount", name: $r("app.string.charts_mount"), icon: $r("app.media.mount") },
+    { key: "bar", name: $r("app.string.charts_bar"), icon: $r("app.media.bar") },
+    { key: "line", name: $r("app.string.charts_line"), icon: $r("app.media.line") },
+    { key: "area", name: $r("app.string.charts_area"), icon: $r("app.media.area") },
+    { key: "scatter", name: $r("app.string.charts_scatter"), icon: $r("app.media.scatter") },
+    { key: "bubble", name: $r("app.string.charts_bubble"), icon: $r("app.media.bubble") },
+    { key: "mix", name: $r("app.string.charts_mix"), icon: $r("app.media.mix") },
+  ]
+  @State isPressed: Array<boolean> = new Array(this.chartList.length)
+
+  @Builder tabContentBuilder(index: number) {
+    if (index == 0) {
+      Scroll() {
+        Column() {
+          Stack({alignContent: Alignment.Center}) {
+            Image($r("app.media.charts_cover")).width("100%").height("30%").zIndex(0)
+            Column() {
+              Image($r("app.media.ucharts_r")).scale({ x: 0.6, y: 0.6})
+              Text($r("app.string.head_description")).fontSize(18).fontColor("#323232")
+            }.zIndex(1)
+          }
+          .padding({top: this.topBarHeight})
+          IBestNoticeBar({
+            leftIcon: "volume-o",
+            text: this.notice
+          })
+
+          Flex({ direction: FlexDirection.Row,
+            alignItems: ItemAlign.Center,
+            justifyContent: FlexAlign.Center,
+            wrap: FlexWrap.Wrap }) {
+            ForEach(this.chartList, (item: chartListType, i: number) => {
+              Column() {
+                Image(item.icon)
+                  .fitOriginalSize(true)
+                  .alignSelf(ItemAlign.Center)
+
+                Text(item.name)
+                  .fontSize(14)
+                  .textAlign(TextAlign.Center)
+              }
+              .width(90).height(90)
+              .padding({top: 10, bottom: 10})
+              .margin({bottom: 5})
+              .alignItems(HorizontalAlign.Center)
+              .transition(TransitionEffect.move(TransitionEdge.BOTTOM).animation({ duration: 1000, curve: Curve.Ease, delay: i * 100 }))
+              .backgroundColor(this.isPressed[i] ? '#CCCCCC' : '#FFFFFF')
+              .borderRadius(10)
+              .onTouch((e: TouchEvent)=>{
+                if(e.type == TouchType.Down) this.isPressed[i] = true
+                if(e.type == TouchType.Up) this.isPressed[i] = false
+              })
+              .onClick(() =>{
+                RouterUtil.push(item.key, item)
+              })
+            })
+          }
+          .backgroundColor($r('sys.color.comp_background_list_card'))
+          .padding(10)
+          .width('auto')
+          .borderRadius(16)
+          .layoutWeight(1)
+        }.width('100%')
       }
+      .layoutWeight(1)
+      .align(Alignment.Top)
+    } else {
+      Column() {
+        Scroll(){
+          Column({ space: 16 }) {
+            Image($r("app.media.mascot")).width(100).borderRadius(6)
+              .transition(TransitionEffect.move(TransitionEdge.BOTTOM).animation({ duration: 1000, curve: Curve.Ease }))
+            Text($r("app.string.app_name"))
+              .fontSize(32)
+              .fontColor("#323232")
+              .transition(TransitionEffect.move(TransitionEdge.BOTTOM).animation({ duration: 1000, curve: Curve.Ease, delay: 100 }))
+            Text($r("app.string.app_description"))
+              .width("80%")
+              .textAlign(TextAlign.Center)
+              .fontSize(14)
+              .fontColor("#969799")
+              .transition(TransitionEffect.move(TransitionEdge.BOTTOM).animation({ duration: 1000, curve: Curve.Ease, delay: 200 }))
+            Column(){
+              IBestCellGroup({inset: true}){
+                IBestCell({
+                  title: $r("app.string.app_version"),
+                  value: `v${this.getAppVersion()}`
+                })
+                IBestCell({
+                  title: $r("app.string.charts_version"),
+                  value: "3.0.0"
+                })
+                IBestCell({
+                  title: $r("app.string.charts_docs"),
+                  isLink: true,
+                  onCellClick: () => {
+                    IBestToast.show("建设中...")
+                  }
+                })
+                IBestCell({
+                  title: $r("app.string.privacy_policy"),
+                  isLink: true,
+                  hasBorder: false,
+                  onCellClick: () => {
+                    router.pushUrl({
+                      url: "pages/PrivacyPolicy"
+                    })
+                  }
+                })
+              }
+            }
+            .transition(TransitionEffect.move(TransitionEdge.BOTTOM).animation({ duration: 1000, curve: Curve.Ease, delay: 300 }))
+          }.padding({top: 80})
+        }
+        .layoutWeight(1)
+        .align(Alignment.Top)
+        Column({ space: 4 }){
+          Text($r("app.string.app_record")).fontColor(this.primaryColor).fontSize(10)
+          Text($r("app.string.app_ownership")).fontSize(10).textAlign(TextAlign.Center)
+        }.padding(4)
+      }
+      .width('100%')
+      .height('100%')
+    }
+  }
+
+  aboutToAppear(): void {
+    RouterUtil.navPathStackList.push(this.navPathStack)
+  }
+  onPageShow(): void {
+    this.getWindowAvoidSize().then((res)=>{
+      this.bottomBarHeight = res["navigationSize"]
+      this.topBarHeight = res["topSize"]
+    })
+  }
+
+  @Builder
+  PageMap(name: string) {
+    if(name === 'column') {
+      ColumnChart()
+    } else if(name === 'mount') {
+      MountChart()
+    } else if(name === 'bar') {
+      BarChart()
+    } else if(name === 'line') {
+      LineChart()
+    } else if(name === 'area') {
+      AreaChart()
+    } else if(name === 'scatter') {
+      ScatterChart()
+    } else if(name === 'bubble') {
+      BubbleChart()
+    } else if(name === 'mix') {
+      MixChart()
     }
   }
 
   build() {
-    RelativeContainer() {
-      Column({space: 20}){
-        UCharts({ controller: this.chart, onReady: () => {
-          this.chart.updateData(this.opts)
-        }})
-      }.height('840px')
+    Navigation(this.navPathStack){
+      Tabs({barPosition: BarPosition.End, index: $$this.currentTab}){
+        TabContent(){
+          this.tabContentBuilder(0)
+        }
+        .tabBar(this.tabBuilder(0))
+        TabContent(){
+          this.tabContentBuilder(1)
+        }.tabBar(this.tabBuilder(1))
+      }
+      .width('100%')
+      .barHeight(70)
+      .barBackgroundColor("#fff")
+      .divider({strokeWidth: 1, color: "#f2f3f5"})
+      .layoutWeight(1)
     }
-    .height('100%')
-    .width('100%')
+    .navDestination(this.PageMap)
+    .mode(NavigationMode.Stack)
+    .hideTitleBar(true)
+    .mode(NavigationMode.Stack)
+    .backgroundColor("#f7f8fa")
   }
 }

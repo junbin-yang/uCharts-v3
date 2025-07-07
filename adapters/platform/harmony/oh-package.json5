@@ -3,6 +3,7 @@
   "name": "uCharts-v3",
   "description": "一款基于TypeScript的高性能跨平台数据可视化图表库，支持H5、小程序、鸿蒙等不同设备平台。",
   "dependencies": {
+    "@ibestservices/ibest-ui": "2.1.2",
     "@qiuyun/ucharts-v3": "file:library"
   },
   "devDependencies": {
