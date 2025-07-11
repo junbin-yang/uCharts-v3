@@ -17,7 +17,8 @@ export default struct ComponentShowContainer {
           left: this.titlePaddingLeft
         })
         .textAlign(TextAlign.Start)
-        .fontColor("#969799")
+        .fontWeight(FontWeight.Medium)
+        .fontColor("#ff1a1919")
       Column() {
         if (this.defaultBuilder) {
           this.defaultBuilder()

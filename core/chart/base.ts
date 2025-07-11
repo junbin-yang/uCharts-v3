@@ -10,103 +10,6 @@ import {
 import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData } from '../types/series';
 import { ChartsUtil } from "../utils";
 
-const DefaultOptions: ChartOptions = {
-  type: "column",
-  context: undefined,
-  pixelRatio: 1,
-  fontSize: GlobalConfig.fontSize,
-  fontColor: GlobalConfig.fontColor,
-  background: GlobalConfig.background,
-  title: {
-    value: undefined,
-    fontSize: GlobalConfig.titleFontSize,
-    color: GlobalConfig.fontColor,
-    offsetX: 0,
-    offsetY: 0
-  },
-  subtitle: {
-    value: undefined,
-    fontSize: GlobalConfig.subtitleFontSize,
-    color: "#7cb5ec",
-    offsetX: 0,
-    offsetY: 0
-  },
-  animation: true,
-  timing: "easeOut",
-  duration: GlobalConfig.duration,
-  enableScroll: false,
-  scrollPosition: "current",
-  yAxis: {
-    disabled: false,
-    disableGrid: false,
-    splitNumber: 5,
-    gridType: "solid",
-    dashLength: 8,
-    gridColor: "#CCCCCC",
-    padding: 10,
-    showTitle: false,
-    data: []
-  },
-  xAxis: {
-    disabled: false,
-    axisLine: true,
-    axisLineColor: "#CCCCCC",
-    calibration: false,
-    fontColor: GlobalConfig.fontColor,
-    fontSize: GlobalConfig.fontSize,
-    lineHeight: 20,
-    marginTop: 0,
-    rotateLabel: false,
-    rotateAngle: 45,
-    labelCount: 0,
-    itemCount: 5,
-    boundaryGap: 'center',
-    disableGrid: true,
-    splitNumber: 5,
-    gridColor: "#CCCCCC",
-    gridType: 'solid',
-    dashLength: 4,
-    gridEval: 1,
-    scrollShow: false,
-    scrollAlign: 'left',
-    scrollColor: "#A6A6A6",
-    scrollBackgroundColor: "#EFEBEF",
-    min: undefined,          // 默认数据中的最小值
-    max: undefined,          // 默认数据中的最大值
-    title: undefined,
-    titleFontSize: GlobalConfig.fontSize,
-    titleOffsetY: 0,
-    titleOffsetX: 0,
-    titleFontColor: GlobalConfig.fontColor
-  },
-  rotate: false,
-  rotateLock: false,
-  padding: GlobalConfig.padding,
-  categories: [],
-  series: [],
-  legend: {
-    show: true,
-    position: 'bottom',
-    float: 'center',
-    padding: 5,
-    margin: 0,
-    backgroundColor: "rgba(0,0,0,0)",
-    borderColor: "rgba(0,0,0,0)",
-    borderWidth: 0,
-    fontSize: GlobalConfig.fontSize,
-    fontColor: GlobalConfig.fontColor,
-    lineHeight: 11,
-    hiddenColor: "#CECECE",
-    itemGap: 10
-  },
-  extra: {},
-  touchMoveLimit: 60,
-  dataLabel: true,
-  dataPointShape: true,
-  dataPointShapeType: 'solid',
-  enableMarkLine: false
-}
-
 export abstract class BaseRenderer {
   protected opts: ChartOptions;
   protected context: CanvasContext;
@@ -117,6 +20,103 @@ export abstract class BaseRenderer {
   constructor(opts: Partial<ChartOptions>) {
     this.context = opts.context!
     if(!this.context) throw new Error('未获取到context')
+
+    const DefaultOptions: ChartOptions = {
+      type: "column",
+      context: undefined,
+      pixelRatio: 1,
+      fontSize: GlobalConfig.fontSize,
+      fontColor: GlobalConfig.fontColor,
+      background: GlobalConfig.background,
+      title: {
+        value: undefined,
+        fontSize: GlobalConfig.titleFontSize,
+        color: GlobalConfig.fontColor,
+        offsetX: 0,
+        offsetY: 0
+      },
+      subtitle: {
+        value: undefined,
+        fontSize: GlobalConfig.subtitleFontSize,
+        color: "#7cb5ec",
+        offsetX: 0,
+        offsetY: 0
+      },
+      animation: true,
+      timing: "easeOut",
+      duration: GlobalConfig.duration,
+      enableScroll: false,
+      scrollPosition: "current",
+      yAxis: {
+        disabled: false,
+        disableGrid: false,
+        splitNumber: 5,
+        gridType: "solid",
+        dashLength: 8,
+        gridColor: "#CCCCCC",
+        padding: 10,
+        showTitle: false,
+        data: []
+      },
+      xAxis: {
+        disabled: false,
+        axisLine: true,
+        axisLineColor: "#CCCCCC",
+        calibration: false,
+        fontColor: GlobalConfig.fontColor,
+        fontSize: GlobalConfig.fontSize,
+        lineHeight: 20,
+        marginTop: 0,
+        rotateLabel: false,
+        rotateAngle: 45,
+        labelCount: 0,
+        itemCount: 5,
+        boundaryGap: 'center',
+        disableGrid: true,
+        splitNumber: 5,
+        gridColor: "#CCCCCC",
+        gridType: 'solid',
+        dashLength: 4,
+        gridEval: 1,
+        scrollShow: false,
+        scrollAlign: 'left',
+        scrollColor: "#A6A6A6",
+        scrollBackgroundColor: "#EFEBEF",
+        min: undefined,          // 默认数据中的最小值
+        max: undefined,          // 默认数据中的最大值
+        title: undefined,
+        titleFontSize: GlobalConfig.fontSize,
+        titleOffsetY: 0,
+        titleOffsetX: 0,
+        titleFontColor: GlobalConfig.fontColor
+      },
+      rotate: false,
+      rotateLock: false,
+      padding: GlobalConfig.padding,
+      categories: [],
+      series: [],
+      legend: {
+        show: true,
+        position: 'bottom',
+        float: 'center',
+        padding: 5,
+        margin: 0,
+        backgroundColor: "rgba(0,0,0,0)",
+        borderColor: "rgba(0,0,0,0)",
+        borderWidth: 0,
+        fontSize: GlobalConfig.fontSize,
+        fontColor: GlobalConfig.fontColor,
+        lineHeight: 11,
+        hiddenColor: "#CECECE",
+        itemGap: 10
+      },
+      extra: {},
+      touchMoveLimit: 60,
+      dataLabel: true,
+      dataPointShape: true,
+      dataPointShapeType: 'solid',
+      enableMarkLine: false
+    }
 
     this.opts = ChartsUtil.objectAssign({} as ChartOptions, DefaultOptions, opts)
 
@@ -202,7 +202,6 @@ export abstract class BaseRenderer {
         this.opts._scrollDistance_ = offsetLeft;
         break;
     }
-
     this.render()
   }
 

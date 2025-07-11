@@ -45,6 +45,10 @@
       "value": "隐私政策"
     },
     {
+      "name": "doc",
+      "value": "文档"
+    },
+    {
       "name": "app_record",
       "value": "吉IPC备18000454号-2"
     },
@@ -83,6 +87,10 @@
     {
       "name": "charts_mix",
       "value": "混合图"
+    },
+    {
+      "name": "app_doc_url",
+      "value": "https://www.ucharts.cn/v2/#/document/index"
     }
   ]
 }

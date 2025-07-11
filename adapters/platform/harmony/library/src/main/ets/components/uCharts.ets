@@ -7,12 +7,14 @@ import { CanvasContext, ChartOptions, Point } from '../_core_link/interface';
 export class UChartsController {
   private chartRenderer: BaseRenderer|undefined;
   public context: CanvasRenderingContext2D;
+  private opts: Partial<ChartOptions>|undefined;
 
   constructor() {
     this.context = new CanvasRenderingContext2D(new RenderingContextSettings(true));
   }
 
   updateData(data: Partial<ChartOptions>) {
+    this.opts = data
     if(this.chartRenderer == undefined) {
       data.context = this.context as CanvasContext
       try {
@@ -40,7 +42,7 @@ export class UChartsController {
       this.chartRenderer?.showToolTip(p)
     } else if(event.action == MouseAction.Move) {
       this.chartRenderer?.scroll(p)
-      this.chartRenderer?.showToolTip(p)
+      if(!this.opts?.enableScroll) this.chartRenderer?.showToolTip(p)
     } else if(event.action == MouseAction.Release) {
       this.chartRenderer?.scrollEnd()
     }
@@ -58,7 +60,7 @@ export class UChartsController {
       this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Move) {
       this.chartRenderer?.scroll(p)
-      this.chartRenderer?.showToolTip(p)
+      if(!this.opts?.enableScroll) this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Up) {
       this.chartRenderer?.scrollEnd()
     }

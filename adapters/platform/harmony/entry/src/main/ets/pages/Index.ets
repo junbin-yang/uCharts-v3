@@ -1,4 +1,3 @@
-import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
 import { bundleManager } from '@kit.AbilityKit';
 import { router, window } from '@kit.ArkUI';
 import { IBestCell, IBestCellGroup, IBestNavBar, IBestNoticeBar, IBestToast } from '@ibestservices/ibest-ui';
@@ -166,7 +165,10 @@ struct Index {
                   title: $r("app.string.charts_docs"),
                   isLink: true,
                   onCellClick: () => {
-                    IBestToast.show("建设中...")
+                    //IBestToast.show("建设中...")
+                    router.pushUrl({
+                      url: "pages/Doc"
+                    })
                   }
                 })
                 IBestCell({

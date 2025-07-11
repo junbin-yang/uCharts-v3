@@ -115,7 +115,6 @@ export class ColumnChartRenderer extends BaseRenderer {
       this.scrollOption["lastMoveTime"] = 0;
       this.opts._scrollDistance_ = offsetLeft;
     }
-
     this.animation = new Animation({
       timing: this.opts.timing,
       duration: duration,

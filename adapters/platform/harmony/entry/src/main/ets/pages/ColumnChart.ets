@@ -1,13 +1,17 @@
-import { IBestButton, IBestNavBar } from "@ibestservices/ibest-ui"
+import { IBestButton, IBestDialogUtil, IBestNavBar } from "@ibestservices/ibest-ui"
 import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
-import { chartListType } from "./common/type"
+import { ChartOptions, Series, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
+import { chartDemoType } from "./common/type"
+import { CollapseAndExpand } from "./CollapseAndExpand"
+import { GetColumnDemoCodeStr } from "./common/desc"
 
 @Component
 export struct ColumnChart {
   @State title: string = ""
   @State icon: Resource = $r("app.media.column")
+  private demoData = SetColumnChartDemo()
 
   aboutToAppear(): void {
     const Param: Record<string, object> = RouterUtil.navPathStack.getParamByName("column")[0] as Record<string, object>
@@ -27,23 +31,250 @@ export struct ColumnChart {
         }
       })
       List() {
-        ListItem() {
-          ComponentShowContainer({title: "?????"}) {
-            Flex({
-              wrap: FlexWrap.Wrap,
-              space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
-            }) {
-              IBestButton({
-                text: "?????",
-                type: 'primary'
-              })
+        ForEach(this.demoData, (item: chartDemoType, index: number)=>{
+          ListItem() {
+            ComponentShowContainer({title: item.title}) {
+              Flex({
+                wrap: FlexWrap.Wrap,
+                space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
+              }) {
+                UCharts({controller: item.ctl, onReady: () => {
+                  item.ctl.updateData(item.opts)
+                }}).height(260)
+
+                CollapseAndExpand({ value: GetColumnDemoCodeStr(index) })
+              }
             }
           }
-        }
+        }, (item: chartDemoType) => {
+          return item.title
+        })
+        ListItem() {}.margin({bottom: 20})
       }
       .layoutWeight(1)
       .padding({ left: 12, right: 12 })
     }.hideTitleBar(true)
     .backgroundColor("#f7f8fa")
   }
+}
+
+
+const SetColumnChartDemo = () => {
+  const categories = ["2018","2019","2020","2021","2022","2023"];
+  const series: Series[] =  [
+    {
+      name: "目标值",
+      data: [35,36,31,33,13,34]
+    },
+    {
+      name: "完成量",
+      data: [18,27,21,24,6,28]
+    }
+  ]
+  return [
+    {
+      title: "基础柱状图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "group",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "堆叠柱状图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "stack",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            labelPosition: "center"
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "圆角+渐变+半透明柱状图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "group",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            linearType: "custom",
+            seriesGap: 5,
+            linearOpacity: 0.5,
+            barBorderCircle: true,
+            customColor: [
+              "#FA7D8D",
+              "#EB88E2"
+            ]
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "温度计图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "meter",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            meterBorder: 3,
+            meterFillColor: "#EBFBD6"
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "圆角温度计图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        legend: { show: false },
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "meter",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            meterBorder: 1,
+            meterFillColor: "#EBFBD6",
+            barBorderRadius: [16,16,16,16]
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "正负柱状图",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: [
+          {
+            name: "成交量A",
+            data: [20,-20,25,-25,30,-30]
+          }
+        ],
+        padding: [15,15,0,5],
+        legend: { show: false },
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: -40, max: 40 }], splitNumber: 4 },
+        extra: {
+          column: {
+            type: "group",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            barBorderCircle: true,
+            linearType: "custom"
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "柱状图滚动条",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: series,
+        padding: [15,15,0,5],
+        touchMoveLimit: 24,
+        enableScroll: true,
+        xAxis: {
+          disableGrid: true,
+          scrollShow: true,
+          itemCount: 4
+        },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "group",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+    {
+      title: "圆角柱状图+标记线",
+      opts: {
+        type: "column",
+        categories: categories,
+        series: [
+          {
+            name: "目标值",
+            data: [35,36,31,33,13,34]
+          },
+          {
+            name: "完成量",
+            data: [18,27,{"value":21,"color":"#EE6666"},24,6,28]
+          }
+        ],
+        padding: [15,15,0,5],
+        enableMarkLine: true,
+        xAxis: { disableGrid: true },
+        yAxis: { data: [{ min: 0 }] },
+        extra: {
+          column: {
+            type: "group",
+            width: 30,
+            activeBgColor: "#000000",
+            activeBgOpacity: 0.08,
+            seriesGap: 5,
+            barBorderRadius: [6, 6, 6, 6]
+          },
+          markLine: {
+            data: [{ value: 21, showLabel: true }]
+          }
+        }
+      },
+      ctl: new UChartsController()
+    },
+  ] as chartDemoType[]
 }
