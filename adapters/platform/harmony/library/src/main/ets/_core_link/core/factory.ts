@@ -8,6 +8,7 @@ import { AreaChartRenderer } from "./chart/area";
 import { ScatterChartRenderer } from "./chart/scatter";
 import { BubbleChartRenderer } from "./chart/bubble";
 import { MixChartRenderer } from "./chart/mix";
+import { PieChartRenderer } from "./chart/pie";
 
 /**
  * 图表工厂类
@@ -37,6 +38,8 @@ export class Factory {
         return new BubbleChartRenderer(opts);
       case 'mix':
         return new MixChartRenderer(opts);
+      case 'pie':
+        return new PieChartRenderer(opts);
       // TODO: 添加其他图表类型的渲染器
       // TODO: 每次新增图表后getCurrentDataIndex和showToolTip方法内需要适配图表操作逻辑
       default:

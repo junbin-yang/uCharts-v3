@@ -113,6 +113,14 @@ export class H5CanvasContext implements CanvasContext {
     this.ctx.shadowBlur = value;
   }
 
+  get lineJoin(): CanvasLineJoin {
+    return this.ctx.lineJoin;
+  }
+
+  set lineJoin(value: CanvasLineJoin) {
+    this.ctx.lineJoin = value;
+  }
+
   // 方法
   beginPath(): void {
     this.ctx.beginPath();
@@ -196,5 +204,9 @@ export class H5CanvasContext implements CanvasContext {
 
   quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void {
     this.ctx.quadraticCurveTo(cpx, cpy, x, y);
+  }
+
+  createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient {
+    return this.ctx.createRadialGradient(x0, y0, r0, x1, y1, r1)
   }
 } 

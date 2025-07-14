@@ -1,6 +1,7 @@
-import { AnyType, ChartOptions } from '../types';
+import { AnyType, ChartOptions, Point } from '../types';
 import { NameAndValueData, Series, ValueAndColorData } from '../types/series';
 import { GlobalConfig } from "../types/config";
+import { textObjectType } from '../chart/pie';
 
 export class ChartsUtil {
    /**
@@ -301,5 +302,32 @@ export class ChartsUtil {
       }
     }
     return newcolor;
+  }
+
+  static isSameSign(num1: number, num2: number) {
+    return Math.abs(num1) === num1 && Math.abs(num2) === num2 || Math.abs(num1) !== num1 && Math.abs(num2) !== num2;
+  }
+
+  static isSameXCoordinateArea(p1: Point, p2: Point) {
+    return this.isSameSign(p1.x, p2.x);
+  }
+
+  static isCollision(obj1: textObjectType, obj2: textObjectType) {
+    obj1.end.x = obj1.start.x + obj1.width;
+    obj1.end.y = obj1.start.y - obj1.height;
+    obj2.end.x = obj2.start.x + obj2.width;
+    obj2.end.y = obj2.start.y - obj2.height;
+    // 检测是否碰撞（AABB碰撞检测）
+    return !(obj2.start.x > obj1.end.x ||
+      obj2.end.x < obj1.start.x ||
+      obj2.end.y > obj1.start.y ||
+      obj2.start.y < obj1.end.y);
+  }
+
+  static convertCoordinateOrigin(x: number, y: number, center: Point) {
+    return {
+      x: center.x + x,
+      y: center.y - y
+    };
   }
 }

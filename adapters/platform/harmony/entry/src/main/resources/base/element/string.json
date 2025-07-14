@@ -91,6 +91,10 @@
     {
       "name": "app_doc_url",
       "value": "https://www.ucharts.cn/v2/#/document/index"
+    },
+    {
+      "name": "charts_pie",
+      "value": "饼状图"
     }
   ]
 }

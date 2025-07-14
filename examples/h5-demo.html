@@ -58,6 +58,7 @@
             <button onclick="createBarChart()">条形图</button>
             <button onclick="createAreaChart()">面积图</button>
             <button onclick="createMixChart()">混合图</button>
+            <button onclick="createPieChart()">饼状图</button>
         </div>
         
         <div class="chart-container">
@@ -354,6 +355,37 @@
                   }
                 }
               }
+            });
+        }
+
+        function createPieChart() {
+          const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "pie",
+                context: ctx,
+                series: [{
+                  data: [
+                    {"name":"一班","value":50},
+                    {"name":"二班","value":30},
+                    {"name":"三班","value":20},
+                    {"name":"四班","value":18},
+                    {"name":"五班","value":8}
+                  ]
+                }],
+                padding: [5,5,5,5],
+                extra: {
+                  pie: {
+                    activeOpacity: 0.5,
+                    activeRadius: 10,
+                    offsetAngle: 0,
+                    labelWidth: 15,
+                    border: true,
+                    borderWidth: 3,
+                    borderColor: "#FFFFFF",
+                    linearType: "custom"
+                  }
+                }
             });
         }
 

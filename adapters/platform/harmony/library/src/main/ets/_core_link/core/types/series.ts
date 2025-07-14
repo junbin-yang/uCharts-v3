@@ -10,6 +10,7 @@ export type Series =
     | ScatterSeries
     | BubbleSeries
     | MixedSeries
+    | PieSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -64,6 +65,16 @@ export interface MixedSeries extends BaseSeries {
   disableLegend?: boolean                 //混合图表中禁止显示ToolTip图例，默认false即默认显示该类别图例
   style?: 'curve'|'straight'              //混合图表折线图或区域图样式，可选值：'curve'曲线,'straight'直线，默认直线
   addPoint?: boolean                      //混合图中，是否增加折线或区域图上的标记点，仅针对line,area,mix有效
+}
+
+// 饼图数据系列
+export interface PieSeries extends BaseSeries {
+  data: Array<HasLabelSeriesData>       //数据值
+}
+
+export interface HasLabelSeriesData extends NameAndValueData {
+  labelText?: string    //自定义标签文字
+  labelShow?: boolean   //是否显示标签，默认true
 }
 
 export interface NameAndValueData extends BaseSeries {

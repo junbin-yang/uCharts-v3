@@ -9,6 +9,7 @@ import {
   BarExtra, ColumnExtra, LineExtra, MarkLineData, MarkLineOptions, TooltipOptions } from '../types/extra';
 import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData } from '../types/series';
 import { ChartsUtil } from "../utils";
+import { pieDataPointsRes } from './pie';
 
 export abstract class BaseRenderer {
   protected opts: ChartOptions;
@@ -250,6 +251,31 @@ export abstract class BaseRenderer {
   private isInExactChartArea(currentPoints: Point) {
     return currentPoints.x <= this.opts.width - this.opts.area[1] + 10 && currentPoints.x >= this.opts.area[3] - 10 && currentPoints.y >= this.opts.area[0] && currentPoints.y <= this.opts.height - this.opts.area[2];
   }
+  private isInExactPieChartArea(currentPoints: Point, center: Point, radius: number) {
+    return Math.pow(currentPoints.x - center.x, 2) + Math.pow(currentPoints.y - center.y, 2) <= Math.pow(radius, 2);
+  }
+  private isInAngleRange(angle: number, startAngle: number, endAngle: number) {
+    const adjust = (angle: number) => {
+      while (angle < 0) {
+        angle += 2 * Math.PI;
+      }
+      while (angle > 2 * Math.PI) {
+        angle -= 2 * Math.PI;
+      }
+      return angle;
+    }
+    angle = adjust(angle);
+    startAngle = adjust(startAngle);
+    endAngle = adjust(endAngle);
+    if (startAngle > endAngle) {
+      endAngle += 2 * Math.PI;
+      if (angle < startAngle) {
+        angle += 2 * Math.PI;
+      }
+    }
+    return angle >= startAngle && angle <= endAngle;
+  }
+
   private getSeriesDataItem(series: Series[], index: number|number[], group: number[]) {
     let data: Series[] = [];
     let newSeries: Series[] = [];
@@ -424,10 +450,31 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findPieChartCurrentIndex = (currentPoints: Point, pieData: pieDataPointsRes) => {
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      let series = this.getPieDataPoints(pieData.series);
+      if (pieData && pieData.center && this.isInExactPieChartArea(currentPoints, pieData.center, pieData.radius)) {
+        let angle = Math.atan2(pieData.center.y - currentPoints.y, currentPoints.x - pieData.center.x);
+        angle = -angle;
+        if(this.opts.extra.pie && this.opts.extra.pie.offsetAngle){
+          angle = angle - this.opts.extra.pie.offsetAngle * Math.PI / 180;
+        }
+        if(this.opts.extra.ring && this.opts.extra.ring.offsetAngle){
+          angle = angle - this.opts.extra.ring.offsetAngle * Math.PI / 180;
+        }
+        for (var i = 0, len = series.length; i < len; i++) {
+          if (this.isInAngleRange(angle, series[i]._start_, series[i]._start_ + series[i]._proportion_ * 2 * Math.PI)) {
+            current.index = i;
+            break;
+          }
+        }
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
-      //return findPieChartCurrentIndex(_touches, this.opts.chartData.pieData, this.opts);
+      return findPieChartCurrentIndex(_touches, this.opts.chartData.pieData);
     } else if (this.opts.type === 'rose') {
       //return findRoseChartCurrentIndex(_touches, this.opts.chartData.pieData, this.opts);
     } else if (this.opts.type === 'radar') {
@@ -575,6 +622,36 @@ export abstract class BaseRenderer {
       }
     }
 
+    if (this.opts.type === 'pie' || this.opts.type === 'ring' || this.opts.type === 'rose' || this.opts.type === 'funnel') {
+      let index = option?.index == undefined ? this.getCurrentDataIndex(touches).index : option.index;
+      if (typeof index == "number" && index > -1) {
+        this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, {
+          animation: false
+        });
+
+        let seriesData = ChartsUtil.objectAssign({} as AnyType, this.opts._series_[index]);
+        let textList = [{
+          text: option?.formatter ? option.formatter(seriesData, "", index, this.opts) : seriesData.name + ': ' + seriesData.data,
+          color: seriesData.color,
+          legendShape: this.opts.extra.tooltip?.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip?.legendShape
+        }];
+        let offset: Point = {
+          x: _touches.x,
+          y: _touches.y
+        };
+        this.opts.tooltip = {
+          textList: option?.textList !== undefined ? option.textList : textList,
+          offset: option?.offset !== undefined ? option.offset : offset,
+          option: option,
+          index: index
+        };
+      } else {
+        this.opts.tooltip = {
+          show: false,
+        }
+      }
+    }
+
     /*
     if (this.opts.type === 'candle') {
       var current = this.getCurrentDataIndex(e);
@@ -601,29 +678,7 @@ export abstract class BaseRenderer {
       }
       drawCharts.call(this, opts.type, opts, this.config, this.context);
     }
-    if (this.opts.type === 'pie' || this.opts.type === 'ring' || this.opts.type === 'rose' || this.opts.type === 'funnel') {
-      var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
-      if (index > -1) {
-        var opts = assign({}, this.opts, {animation: false});
-        var seriesData = assign({}, opts._series_[index]);
-        var textList = [{
-          text: option.formatter ? option.formatter(seriesData, undefined, index, opts) : seriesData.name + ': ' + seriesData.data,
-          color: seriesData.color,
-          legendShape: this.opts.extra.tooltip.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip.legendShape
-        }];
-        var offset = {
-          x: _touches$.x,
-          y: _touches$.y
-        };
-        opts.tooltip = {
-          textList: option.textList ? option.textList : textList,
-          offset: option.offset !== undefined ? option.offset : offset,
-          option: option,
-          index: index
-        };
-      }
-      drawCharts.call(this, opts.type, opts, this.config, this.context);
-    }
+
     if (this.opts.type === 'map') {
       var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
       if (index > -1) {
@@ -2676,6 +2731,42 @@ export abstract class BaseRenderer {
 
   }
 
+  protected getPieTextMaxLength(series: Series[]) {
+    series = this.getPieDataPoints(series);
+    let maxLength = 0;
+    for (let i = 0; i < series.length; i++) {
+      let item: Series = series[i];
+      let text = item.formatter ? item.formatter(+item._proportion_.toFixed(2), i, item) : ChartsUtil.toFixed(item._proportion_ * 100) + '%';
+      maxLength = Math.max(maxLength, this.measureText(text, item.textSize! * this.opts.pixelRatio || this.opts.fontSize));
+    }
+    return maxLength;
+  }
+
+  protected getPieDataPoints(series: Series[], radius: number = 0, process: number = 1) {
+    let count = 0;
+    let _start_ = 0;
+    for (let i = 0; i < series.length; i++) {
+      let item: Series = series[i];
+      item.data = item.data === null ? 0 : item.data;
+      count += item.data;
+    }
+    for (let i = 0; i < series.length; i++) {
+      let item: Series = series[i];
+      item.data = item.data === null ? 0 : item.data;
+      if (count === 0) {
+        item._proportion_ = 1 / series.length * process;
+      } else {
+        item._proportion_ = item.data / count * process;
+      }
+      item._radius_ = radius;
+    }
+    for (let i = 0; i < series.length; i++) {
+      let item = series[i];
+      item._start_ = _start_;
+      _start_ += 2 * item._proportion_ * Math.PI;
+    }
+    return series;
+  }
 }
 
 

@@ -11,6 +11,7 @@ import { AreaChart } from './AreaChart';
 import { ScatterChart } from './ScatterChart';
 import { BubbleChart } from './BubbleChart';
 import { MixChart } from './MixChart';
+import { PieChart } from './PieChart';
 
 @Entry
 @Component
@@ -76,6 +77,7 @@ struct Index {
     { key: "scatter", name: $r("app.string.charts_scatter"), icon: $r("app.media.scatter") },
     { key: "bubble", name: $r("app.string.charts_bubble"), icon: $r("app.media.bubble") },
     { key: "mix", name: $r("app.string.charts_mix"), icon: $r("app.media.mix") },
+    { key: "pie", name: $r("app.string.charts_pie"), icon: $r("app.media.pie") },
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -226,6 +228,8 @@ struct Index {
       BubbleChart()
     } else if(name === 'mix') {
       MixChart()
+    } else if(name === 'pie') {
+      PieChart()
     }
   }
 
