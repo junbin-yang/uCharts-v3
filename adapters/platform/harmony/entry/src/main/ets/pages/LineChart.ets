@@ -3,7 +3,7 @@ import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
 import { chartDemoType } from "./common/type"
-import { Series, UCharts, UChartsController } from "@qiuyun/ucharts-v3"
+import { Series, UCharts, UChartsController } from "@qiuyun/ucharts"
 
 @Component
 export struct LineChart {

@@ -1,4 +1,4 @@
-import { ChartOptions, UChartsController } from '@qiuyun/ucharts-v3'
+import { ChartOptions, UChartsController } from '@qiuyun/ucharts'
 
 export interface Tab {
   name: ResourceStr

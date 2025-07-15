@@ -38,7 +38,7 @@ OpenHarmony ohpm 环境配置等更多内容，请参考[如何安装 OpenHarmon
 
 ```typescript
 // 鸿蒙版
-import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts-v3'
+import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts'
 
 @Entry
 @Component
