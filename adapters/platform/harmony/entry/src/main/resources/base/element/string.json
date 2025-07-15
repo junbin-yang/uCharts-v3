@@ -95,6 +95,15 @@
     {
       "name": "charts_pie",
       "value": "饼状图"
+    },
+    {
+      "name": "charts_ring",
+      "value": "环形图"
+    }
+  ,
+    {
+      "name": "charts_rose",
+      "value": "玫瑰图"
     }
   ]
 }

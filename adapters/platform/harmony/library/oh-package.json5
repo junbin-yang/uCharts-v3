@@ -1,6 +1,6 @@
 {
   "name": "@qiuyun/ucharts-v3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "一款基于TypeScript的高性能跨平台数据可视化图表库，支持H5、小程序、鸿蒙等不同设备平台。",
   "main": "Index.ets",
   "keywords": [

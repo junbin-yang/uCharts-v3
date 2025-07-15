@@ -14,6 +14,7 @@ export interface Extra {
   mix?: Partial<MixExtra>
   pie?: Partial<PieExtra>
   ring?: Partial<RingExtra>
+  rose?: Partial<RoseExtra>
 }
 
 /**
@@ -172,6 +173,22 @@ export interface RingExtra {
   customColor:	string[]		    //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
 }
 
+/**
+ * 玫瑰图扩展配置
+ */
+export interface RoseExtra {
+  type: 'area'|'radius'	    //玫瑰图样式，可选值："area"面积模式,"radius"半径模式，默认area
+  minRadius:	number		      //最小半径值，默认为图形半径的50%
+  activeOpacity:	number	  	//启用Tooltip点击时，突出部分的透明度，默认0.5
+  activeRadius: number		    //启用Tooltip点击时，突出部分的宽度（最大值不得超过labelWidth），默认10
+  offsetAngle: number	      //起始角度偏移度数，顺时针方向，起点为3点钟位置为0度（比如要设置起点为12点钟位置，即逆时针偏移90度，传入-90即可），默认0
+  labelWidth: number	        //数据标签到饼图外圆连线的长度，默认15
+  border: boolean		        //是否绘制各类别中间的分割线，默认true
+  borderWidth:	number	      //分割线的宽度，默认2
+  borderColor: string	      //分割线的颜色，默认#FFFFFF
+  linearType: 'none'|'custom'  //渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
+  customColor: string[]		  //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+}
 
 /**
  * 提示窗配置

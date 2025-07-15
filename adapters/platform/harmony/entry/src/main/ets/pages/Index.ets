@@ -1,6 +1,6 @@
 import { bundleManager } from '@kit.AbilityKit';
 import { router, window } from '@kit.ArkUI';
-import { IBestCell, IBestCellGroup, IBestNavBar, IBestNoticeBar, IBestToast } from '@ibestservices/ibest-ui';
+import { IBestCell, IBestCellGroup, IBestNoticeBar } from '@ibestservices/ibest-ui';
 import { ColumnChart } from './ColumnChart';
 import RouterUtil from './common/utils';
 import { chartListType, Tab } from './common/type';
@@ -12,6 +12,9 @@ import { ScatterChart } from './ScatterChart';
 import { BubbleChart } from './BubbleChart';
 import { MixChart } from './MixChart';
 import { PieChart } from './PieChart';
+import { RingChart } from './RingChart';
+import { RoseChart } from './RoseChart';
+import { HAR_VERSION } from '@qiuyun/ucharts-v3';
 
 @Entry
 @Component
@@ -78,6 +81,8 @@ struct Index {
     { key: "bubble", name: $r("app.string.charts_bubble"), icon: $r("app.media.bubble") },
     { key: "mix", name: $r("app.string.charts_mix"), icon: $r("app.media.mix") },
     { key: "pie", name: $r("app.string.charts_pie"), icon: $r("app.media.pie") },
+    { key: "ring", name: $r("app.string.charts_ring"), icon: $r("app.media.ring") },
+    { key: "rose", name: $r("app.string.charts_rose"), icon: $r("app.media.rose") },
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -161,7 +166,7 @@ struct Index {
                 })
                 IBestCell({
                   title: $r("app.string.charts_version"),
-                  value: "3.0.0"
+                  value: HAR_VERSION
                 })
                 IBestCell({
                   title: $r("app.string.charts_docs"),
@@ -230,6 +235,10 @@ struct Index {
       MixChart()
     } else if(name === 'pie') {
       PieChart()
+    } else if(name === 'ring') {
+      RingChart()
+    } else if(name === 'rose') {
+      RoseChart()
     }
   }
 

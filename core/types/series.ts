@@ -11,6 +11,8 @@ export type Series =
     | BubbleSeries
     | MixedSeries
     | PieSeries
+    | RingSeries
+    | RoseSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -69,6 +71,16 @@ export interface MixedSeries extends BaseSeries {
 
 // 饼图数据系列
 export interface PieSeries extends BaseSeries {
+  data: Array<HasLabelSeriesData>       //数据值
+}
+
+// 圆环图数据系列
+export interface RingSeries extends BaseSeries {
+  data: Array<HasLabelSeriesData>       //数据值
+}
+
+// 玫瑰图数据系列
+export interface RoseSeries extends BaseSeries {
   data: Array<HasLabelSeriesData>       //数据值
 }
 

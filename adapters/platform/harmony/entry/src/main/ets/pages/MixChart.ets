@@ -38,7 +38,7 @@ export struct MixChart {
               }) {
                 UCharts({controller: item.ctl, onReady: () => {
                   item.ctl.updateData(item.opts)
-                }})
+                }}).height(260)
 
                 //CollapseAndExpand({ value: GetColumnDemoCodeStr(index) })
               }
@@ -105,8 +105,8 @@ const SetMixChartDemo = () => {
           }
         ],
         padding: [15,5,5,5],
-        rotate: true,
-        rotateLock: true,
+        //rotate: true,
+        //rotateLock: true,
         xAxis: {
           disableGrid: true,
           title: "单位：年"

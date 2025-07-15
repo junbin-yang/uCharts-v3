@@ -471,12 +471,30 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findRoseChartCurrentIndex = (currentPoints: Point, pieData: pieDataPointsRes) => {
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      let series = this.getRoseDataPoints(this.opts._series_, this.opts.extra.rose?.type!, pieData.radius, pieData.radius);
+      if (pieData && pieData.center && this.isInExactPieChartArea(currentPoints, pieData.center, pieData.radius)) {
+        let angle = Math.atan2(pieData.center.y - currentPoints.y, currentPoints.x - pieData.center.x);
+        angle = -angle;
+        if(this.opts.extra.rose && this.opts.extra.rose.offsetAngle){
+          angle = angle - this.opts.extra.rose.offsetAngle * Math.PI / 180;
+        }
+        for (let i = 0, len = series.length; i < len; i++) {
+          if (this.isInAngleRange(angle, series[i]._start_, series[i]._start_ + series[i]._rose_proportion_ * 2 * Math.PI)) {
+            current.index = i;
+            break;
+          }
+        }
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
       return findPieChartCurrentIndex(_touches, this.opts.chartData.pieData);
     } else if (this.opts.type === 'rose') {
-      //return findRoseChartCurrentIndex(_touches, this.opts.chartData.pieData, this.opts);
+      return findRoseChartCurrentIndex(_touches, this.opts.chartData.pieData);
     } else if (this.opts.type === 'radar') {
       //return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories.length);
     } else if (this.opts.type === 'funnel') {
@@ -2731,17 +2749,6 @@ export abstract class BaseRenderer {
 
   }
 
-  protected getPieTextMaxLength(series: Series[]) {
-    series = this.getPieDataPoints(series);
-    let maxLength = 0;
-    for (let i = 0; i < series.length; i++) {
-      let item: Series = series[i];
-      let text = item.formatter ? item.formatter(+item._proportion_.toFixed(2), i, item) : ChartsUtil.toFixed(item._proportion_ * 100) + '%';
-      maxLength = Math.max(maxLength, this.measureText(text, item.textSize! * this.opts.pixelRatio || this.opts.fontSize));
-    }
-    return maxLength;
-  }
-
   protected getPieDataPoints(series: Series[], radius: number = 0, process: number = 1) {
     let count = 0;
     let _start_ = 0;
@@ -2764,6 +2771,42 @@ export abstract class BaseRenderer {
       let item = series[i];
       item._start_ = _start_;
       _start_ += 2 * item._proportion_ * Math.PI;
+    }
+    return series;
+  }
+  protected getRoseDataPoints(series: Series[], type: 'area'|'radius', minRadius: number, radius: number, process: number = 1) {
+    let count = 0;
+    let _start_ = 0;
+    let dataArr = [];
+    for (let i = 0; i < series.length; i++) {
+      let item = series[i];
+      item.data = item.data === null ? 0 : item.data;
+      count += item.data;
+      dataArr.push(item.data);
+    }
+    let minData = Math.min(...dataArr);
+    let maxData = Math.max(...dataArr);
+    let radiusLength = radius - minRadius;
+    for (let i = 0; i < series.length; i++) {
+      let item = series[i];
+      item.data = item.data === null ? 0 : item.data;
+      if (count === 0) {
+        item._proportion_ = 1 / series.length * process;
+        item._rose_proportion_ = 1 / series.length * process;
+      } else {
+        item._proportion_ = item.data / count * process;
+        if(type == 'area'){
+          item._rose_proportion_ = 1 / series.length * process;
+        }else{
+          item._rose_proportion_ = item.data / count * process;
+        }
+      }
+      item._radius_ = minRadius + radiusLength * ((item.data - minData) / (maxData - minData)) || radius;
+    }
+    for (let i = 0; i < series.length; i++) {
+      let item = series[i];
+      item._start_ = _start_;
+      _start_ += 2 * item._rose_proportion_ * Math.PI;
     }
     return series;
   }
