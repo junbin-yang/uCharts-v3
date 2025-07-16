@@ -8,7 +8,11 @@
     "数据可视化",
     "鸿蒙图表"
   ],
-  "author": "",
+  "tags": [
+    "ui",
+    "chart"
+  ],
+  "author": "junbin.yang",
   "license": "Apache-2.0",
   "type": "module",
   "repository": "https://github.com/junbin-yang/uCharts-v3",
