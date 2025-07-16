@@ -1,8 +1,8 @@
-import { IBestButton, IBestNavBar } from "@ibestservices/ibest-ui"
+import { IBestNavBar } from "@ibestservices/ibest-ui"
 import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
-import { Series, UCharts, UChartsController } from "@qiuyun/ucharts"
+import { UCharts, UChartsController } from "@ibestservices/ucharts"
 import { chartDemoType } from "./common/type"
 
 @Component

@@ -64,11 +64,11 @@ export abstract class BasePieRenderer extends BaseRenderer {
       let fillcolor: CanvasGradient|string = eachSeries.color!;
       if (pieOption.linearType == 'custom') {
         let grd: CanvasGradient;
-        //if(this.context.createCircularGradient){
-        //  grd = this.context.createCircularGradient(centerPosition.x, centerPosition.y, eachSeries._radius_)
-        //}else{
-        grd = this.context.createRadialGradient(centerPosition.x, centerPosition.y, 0,centerPosition.x, centerPosition.y, eachSeries._radius_)
-        //}
+        if(this.context.createCircularGradient){
+          grd = this.context.createCircularGradient(centerPosition.x, centerPosition.y, eachSeries._radius_)
+        }else{
+          grd = this.context.createRadialGradient(centerPosition.x, centerPosition.y, 0,centerPosition.x, centerPosition.y, eachSeries._radius_)
+        }
         grd.addColorStop(0, ChartsUtil.hexToRgb(pieOption.customColor[eachSeries.linearIndex!], 1))
         grd.addColorStop(1, ChartsUtil.hexToRgb(eachSeries.color!, 1))
         fillcolor = grd

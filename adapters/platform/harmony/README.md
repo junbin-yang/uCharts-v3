@@ -24,12 +24,15 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **散点图 (scatter)**
 - **气泡图 (bubble)**
 - **混合图 (mix)**
+- **饼状图 (pie)**
+- **环形图 (ring)**
+- **玫瑰图 (rose)**
 - **更多类型持续开发中...**
 
 ## 下载安装
 
 ```ts
-ohpm install @qiuyun/ucharts-v3
+ohpm install @ibestservices/ucharts
 ```
 
 OpenHarmony ohpm 环境配置等更多内容，请参考[如何安装 OpenHarmony ohpm 包](https://gitee.com/openharmony-tpc/docs/blob/master/OpenHarmony_har_usage.md)
@@ -38,7 +41,7 @@ OpenHarmony ohpm 环境配置等更多内容，请参考[如何安装 OpenHarmon
 
 ```typescript
 // 鸿蒙版
-import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts'
+import { ChartOptions, UCharts, UChartsController } from '@ibestservices/ucharts'
 
 @Entry
 @Component
@@ -99,7 +102,7 @@ struct Index {
 │   ├── animation/       # 动画系统
 │   └── factory.ts       # 图表工厂
 ├── adapters/            # 平台适配层
-│   ├── harmony/         # 鸿蒙适配
+│   ├── harmony/         # 鸿蒙适配（**当前仓库目录位置**）
 │   ├── h5/              # 原生H5适配
 │   ├── wechat/          # 微信小程序适配
 │   └── uniapp/          # uniapp适配

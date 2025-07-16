@@ -24,66 +24,69 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **散点图 (scatter)**
 - **气泡图 (bubble)**
 - **混合图 (mix)**
+- **饼状图 (pie)**
+- **环形图 (ring)**
+- **玫瑰图 (rose)**
 - **更多类型持续开发中...**
 
 ## 下载安装
 
-```ts
-ohpm install @qiuyun/ucharts-v3
-```
-
-OpenHarmony ohpm 环境配置等更多内容，请参考[如何安装 OpenHarmony ohpm 包](https://gitee.com/openharmony-tpc/docs/blob/master/OpenHarmony_har_usage.md)
+鸿蒙平台请查看适配目录的README.md文件，其他平台可通过[Github下载](https://github.com/junbin-yang/uCharts-v3/releases)
 
 ## 快速开始
 
-```typescript
-// 鸿蒙版
-import { ChartOptions, UCharts, UChartsController } from '@qiuyun/ucharts'
-
-@Entry
-@Component
-struct Index {
-  @State chart: UChartsController = new UChartsController();
-  private opts: Partial<ChartOptions> = {
-    type: "column",
-    categories: ["2018","2019","2020","2021","2022","2023"],
-    series: series: [
-      {
-        name: "目标值",
-        data: [35,36,31,33,13,34]
-      },
-      {
-        name: "完成量",
-        data: [18,27,21,24,6,28]
-      }
-    ],
-    padding: [15,15,0,5],
-    xAxis: {
-      disableGrid: true
-    },
-    yAxis: {
-      data: [{min: 0}]
-    },
-    extra: {
-      column: {
-        type: "group",
-        width: 30,
-        activeBgColor: "#000000",
-        activeBgOpacity: 0.08
-      }
+```html
+<!-- 原生H5 -->
+<html lang="zh-CN">
+<head>
+  ....
+</head>
+<body>
+  <canvas id="chart" width="600px" height="400px"></canvas>
+  ...
+  <!-- 引入构建后的uCharts库 -->
+  <script src="../adapters/dist/h5/ucharts-h5.min.js"></script>
+  <script language="JavaScript">
+    function createLineChart() {
+      const canvas = document.getElementById('chart');
+      const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+      const chart = new UCharts({
+          type: "line",
+          context: ctx,
+          categories: ["2018","2019","2020","2021","2022","2023"],
+          series: [
+              {
+                  name: "成交量A",
+                  data: [35,8,25,37,4,20]
+              },
+              {
+                  name: "成交量B",
+                  data: [70,40,65,100,44,68]
+              },
+              {
+                  name: "成交量C",
+                  data: [100,80,95,150,112,132]
+              }
+          ],
+          padding: [15,10,0,15],
+          xAxis: { disableGrid: true },
+          yAxis: { gridType: "dash", dashLength: 2 },
+          extra: {
+            line: {
+              type: "straight",
+              width: 2,
+              activeType: "hollow"
+            }
+          }
+      });
     }
-  }
-
-  build() {
-    Column(){
-      UCharts({ controller: this.chart, onReady: () => {
-          this.chart.updateData(this.opts)
-      }})
-    }
-    .height('100%')
-    .width('100%')
-  }
-}
+    // 页面加载完成后默认显示折线图
+    window.onload = function() {
+      createLineChart();
+    };
+  </script>
+</body>
+</html>
 ```
 
 > 具体平台的 context 获取方式请参考各自适配层文档。

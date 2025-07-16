@@ -35,9 +35,9 @@ export declare class CanvasContext {
   createLinearGradient(x0: number, y0: number, x1: number, y1: number): CanvasGradient;
   bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
   quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
-  /* createRadialGradient 和 createCircularGradient 最少支持一个即可 */
+  /* createRadialGradient 和 createCircularGradient 最少支持一个即可，平台适配时只需保证其中一个支持。另一个返回undefined即可 */
   createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient;
-  //createCircularGradient(x: number, y: number, r: number): CanvasGradient;
+  createCircularGradient(x: number, y: number, r: number): CanvasGradient;
 }
 export declare type CanvasLineJoin = "bevel" | "miter" | "round";
 export declare type CanvasTextAlign = "center" | "end" | "left" | "right" | "start";

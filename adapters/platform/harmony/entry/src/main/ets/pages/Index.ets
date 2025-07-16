@@ -14,7 +14,7 @@ import { MixChart } from './MixChart';
 import { PieChart } from './PieChart';
 import { RingChart } from './RingChart';
 import { RoseChart } from './RoseChart';
-import { HAR_VERSION } from '@qiuyun/ucharts';
+import { HAR_VERSION } from '@ibestservices/ucharts';
 
 @Entry
 @Component

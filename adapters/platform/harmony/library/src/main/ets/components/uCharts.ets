@@ -1,7 +1,33 @@
 import { BaseRenderer } from '../_core_link/core/chart/base';
 import { EventType, EventListener } from '../_core_link/core/event';
 import { Factory } from '../_core_link/core/factory';
-import { CanvasContext, ChartOptions, Point } from '../_core_link/interface';
+import { CanvasContext, ChartOptions, Point, AnyType } from '../_core_link/interface';
+
+// 定义CanvasRenderingContext2D的CanvasContext适配器
+class CanvasContextProxy implements ProxyHandler<CanvasRenderingContext2D>, ProxyHandler<CanvasContext> {
+  // 拦截属性设置操作
+  set(target: CanvasRenderingContext2D|CanvasContext, propertyKey: string, value: string, receiver: AnyType): AnyType {
+    // 确保只设置存在的可写属性
+    if (typeof propertyKey === 'string') {
+      try {
+        (target as AnyType)[propertyKey] = value;
+        return true;
+      } catch (e) {
+        console.warn(`无法设置属性 ${String(propertyKey)}`, e);
+      }
+    }
+    return false;
+  }
+
+  get(target: CanvasRenderingContext2D|CanvasContext, propertyKey: string, receiver: AnyType): AnyType {
+    if (propertyKey === "createCircularGradient") {
+      return undefined
+    }
+
+    const value: AnyType = (target as AnyType)[propertyKey];
+    return typeof value === 'function' ? value.bind(target) : value;
+  }
+}
 
 @Observed
 export class UChartsController {
@@ -16,7 +42,10 @@ export class UChartsController {
   updateData(data: Partial<ChartOptions>) {
     this.opts = data
     if(this.chartRenderer == undefined) {
-      data.context = this.context as CanvasContext
+      const handler = new CanvasContextProxy();
+      const canvasContext = new Proxy(this.context, handler) as CanvasContext;
+      data.context = canvasContext;
+      //data.context = this.context as CanvasContext
       try {
         this.chartRenderer = Factory.createRenderer(data);
       } catch (e) {

@@ -143,11 +143,11 @@ export class RoseChartRenderer extends BasePieRenderer {
       let fillcolor: CanvasGradient|string = eachSeries.color!;
       if (roseOption.linearType == 'custom') {
         let grd: CanvasGradient;
-        //if(context.createCircularGradient){
-        //  grd = context.createCircularGradient(centerPosition.x, centerPosition.y, eachSeries._radius_)
-        //}else{
+        if(this.context.createCircularGradient){
+          grd = this.context.createCircularGradient(centerPosition.x, centerPosition.y, eachSeries._radius_)
+        }else{
           grd = this.context.createRadialGradient(centerPosition.x, centerPosition.y, 0,centerPosition.x, centerPosition.y, eachSeries._radius_)
-        //}
+        }
         grd.addColorStop(0, ChartsUtil.hexToRgb(roseOption.customColor[eachSeries.linearIndex!], 1))
         grd.addColorStop(1, ChartsUtil.hexToRgb(eachSeries.color!, 1))
         fillcolor = grd

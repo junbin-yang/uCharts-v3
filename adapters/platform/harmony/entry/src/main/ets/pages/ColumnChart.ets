@@ -2,7 +2,7 @@ import { IBestButton, IBestDialogUtil, IBestNavBar } from "@ibestservices/ibest-
 import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
-import { ChartOptions, Series, UCharts, UChartsController } from '@qiuyun/ucharts'
+import { ChartOptions, Series, UCharts, UChartsController } from '@ibestservices/ucharts'
 import { chartDemoType } from "./common/type"
 import { CollapseAndExpand } from "./CollapseAndExpand"
 import { GetColumnDemoCodeStr } from "./common/desc"

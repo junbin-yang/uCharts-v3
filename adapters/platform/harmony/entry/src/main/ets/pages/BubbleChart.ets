@@ -3,7 +3,7 @@ import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
 import { chartDemoType } from "./common/type"
-import { UCharts, UChartsController } from "@qiuyun/ucharts"
+import { UCharts, UChartsController } from "@ibestservices/ucharts"
 
 @Component
 export struct BubbleChart {
