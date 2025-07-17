@@ -99,11 +99,14 @@
     {
       "name": "charts_ring",
       "value": "环形图"
-    }
-  ,
+    },
     {
       "name": "charts_rose",
       "value": "玫瑰图"
+    },
+    {
+      "name": "charts_stateV2",
+      "value": "状态管理V2"
     }
   ]
 }

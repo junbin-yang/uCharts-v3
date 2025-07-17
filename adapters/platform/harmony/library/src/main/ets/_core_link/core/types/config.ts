@@ -44,7 +44,7 @@ export class ChartsConfig {
   /**
    * 主题颜色
    */
-  color: Array<string> = ['#1890FF', '#91CB74', '#FAC858', '#EE6666', '#73C0DE', '#3CA272', '#FC8452', '#9A60B4', '#ea7ccc']
+  color: Array<string> = ['#3D8AF2', '#58DB6B', '#FAC858', '#EE6666', '#73C0DE', '#3CA272', '#FC8452', '#9A60B4', '#ea7ccc']
   /**
    * 线条颜色
    */

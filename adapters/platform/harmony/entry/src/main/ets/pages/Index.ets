@@ -1,7 +1,7 @@
 import { bundleManager } from '@kit.AbilityKit';
 import { router, window } from '@kit.ArkUI';
 import { IBestCell, IBestCellGroup, IBestNoticeBar } from '@ibestservices/ibest-ui';
-import { ColumnChart } from './ColumnChart';
+import { ColumnChart, ColumnChartV2 } from './ColumnChart';
 import RouterUtil from './common/utils';
 import { chartListType, Tab } from './common/type';
 import { MountChart } from './MountChart';
@@ -72,6 +72,7 @@ struct Index {
   }
 
   readonly chartList: chartListType [] = [
+    { key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
     { key: "column", name: $r("app.string.charts_column"), icon: $r("app.media.column") },
     { key: "mount", name: $r("app.string.charts_mount"), icon: $r("app.media.mount") },
     { key: "bar", name: $r("app.string.charts_bar"), icon: $r("app.media.bar") },
@@ -217,7 +218,9 @@ struct Index {
 
   @Builder
   PageMap(name: string) {
-    if(name === 'column') {
+    if(name === 'column_v2') {
+      ColumnChartV2()
+    } else if(name === 'column') {
       ColumnChart()
     } else if(name === 'mount') {
       MountChart()

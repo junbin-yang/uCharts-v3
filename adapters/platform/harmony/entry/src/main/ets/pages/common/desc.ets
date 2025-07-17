@@ -1,5 +1,56 @@
 
 export const GetColumnDemoCodeStr = (index: number) => {
+  if(index == -2) return `
+@Entry
+@ComponentV2
+struct Index {
+  ...
+  @Local chart: UChartsControllerV2 = new UChartsControllerV2(this.opts);
+
+  build() {
+    Column(){
+      UChartsV2({ controller: this.chart })
+    }
+    .height('100%').width('100%')
+  }
+}
+      `;
+  if(index == -1) return `
+@Entry
+@Component
+struct Index {
+  private opts: Partial<ChartOptions> = {
+    type: "column",
+    categories: ["2018","2019","2020","2021"],
+    series: [{
+        name: "目标值",
+        data: [35,36,31,33]
+      },{
+        name: "完成量",
+        data: [18,27,21,24]
+    }],
+    padding: [15,15,0,5],
+    xAxis: { disableGrid: true },
+    yAxis: { data: [{ min: 0 }] },
+    extra: {
+      column: {
+        type: "group",
+        width: 30,
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08
+      }
+    }
+  }
+  @State chart: UChartsController = new UChartsController(this.opts);
+
+  build() {
+    Column(){
+      UCharts({ controller: this.chart })
+    }
+    .height('100%').width('100%')
+  }
+}
+      `;
   if(index == 0) return `
 @Entry
 @Component

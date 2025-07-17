@@ -29,6 +29,41 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **玫瑰图 (rose)**
 - **更多类型持续开发中...**
 
+## 图表示例
+
+以下为部分图表类型的鸿蒙平台实际渲染效果：
+
+- 柱状图
+  
+  ![柱状图](./docs/image/column.png) ![柱状图](./docs/image/column3.png)
+
+- 区域图
+  
+  ![区域图](./docs/image/area1.png) ![区域图](./docs/image/area2.png)
+
+- 山峰图
+  
+  ![山峰图](./docs/image/mount1.png) ![山峰图](./docs/image/mount2.png)
+
+- 散点图
+  
+  ![散点图](./docs/image/scatter.png)
+
+- 气泡图
+  
+  ![气泡图](./docs/image/bubble.png)
+
+- 饼图
+  
+  ![饼图](./docs/image/piepng.png)
+
+- 玫瑰图
+  
+  ![玫瑰图](./docs/image/rose.png)
+
+（更多类型和样式可参考 docs 目录）
+
+
 ## 下载安装
 
 鸿蒙平台请查看适配目录的README.md文件，其他平台可通过[Github下载](https://github.com/junbin-yang/uCharts-v3/releases)

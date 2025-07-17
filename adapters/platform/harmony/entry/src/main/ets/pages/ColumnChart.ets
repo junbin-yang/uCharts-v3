@@ -2,7 +2,7 @@ import { IBestButton, IBestDialogUtil, IBestNavBar } from "@ibestservices/ibest-
 import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
-import { ChartOptions, Series, UCharts, UChartsController } from '@ibestservices/ucharts'
+import { Series, UCharts, UChartsController, UChartsControllerV2, UChartsV2 } from '@ibestservices/ucharts'
 import { chartDemoType } from "./common/type"
 import { CollapseAndExpand } from "./CollapseAndExpand"
 import { GetColumnDemoCodeStr } from "./common/desc"
@@ -20,6 +20,32 @@ export struct ColumnChart {
     this.icon = Param.icon as Resource
   }
 
+  @State easyChart:UChartsController =  new UChartsController({
+    type: "column",
+    categories: ["2018","2019","2020","2021"],
+    series: [
+      {
+        name: "目标",
+        data: [35,36,31,33]
+      },
+      {
+        name: "完成",
+        data: [18,27,21,24]
+      }
+    ],
+    padding: [15,15,0,5],
+    xAxis: { disableGrid: true },
+    yAxis: { data: [{ min: 0 }] },
+    extra: {
+      column: {
+        type: "group",
+        width: 30,
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08
+      }
+    }
+  })
+
   build() {
     NavDestination() {
       IBestNavBar({
@@ -31,6 +57,17 @@ export struct ColumnChart {
         }
       })
       List() {
+        ListItem() {
+          ComponentShowContainer({title: "简单用法"}) {
+            Flex({
+              wrap: FlexWrap.Wrap,
+              space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
+            }) {
+              UCharts({controller: this.easyChart}).height(260)
+              CollapseAndExpand({ value: GetColumnDemoCodeStr(-1) })
+            }
+          }
+        }
         ForEach(this.demoData, (item: chartDemoType, index: number)=>{
           ListItem() {
             ComponentShowContainer({title: item.title}) {
@@ -277,4 +314,73 @@ const SetColumnChartDemo = () => {
       ctl: new UChartsController()
     },
   ] as chartDemoType[]
+}
+
+
+@ComponentV2
+export struct ColumnChartV2 {
+  @Local title: string = ""
+  @Local icon: Resource = $r("app.media.column")
+
+  aboutToAppear(): void {
+    const Param: Record<string, object> = RouterUtil.navPathStack.getParamByName("column_v2")[0] as Record<string, object>
+    const title_param: Record<string, number> = Param.name as Record<string, number>
+    this.title = getContext().resourceManager.getStringSync(title_param.id)
+    this.icon = Param.icon as Resource
+  }
+
+  @Local easyChart:UChartsControllerV2 =  new UChartsControllerV2({
+    type: "column",
+    categories: ["2018","2019","2020","2021"],
+    series: [
+      {
+        name: "目标",
+        data: [35,36,31,33]
+      },
+      {
+        name: "完成",
+        data: [18,27,21,24]
+      }
+    ],
+    padding: [15,15,0,5],
+    xAxis: { disableGrid: true },
+    yAxis: { data: [{ min: 0 }] },
+    extra: {
+      column: {
+        type: "group",
+        width: 30,
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08
+      }
+    }
+  })
+
+  build() {
+    NavDestination() {
+      IBestNavBar({
+        title: this.title,
+        titleIcon: this.icon,
+        isShowStatusBar: true,
+        onLeftClick: () => {
+          RouterUtil.pop()
+        }
+      })
+      List() {
+        ListItem() {
+          ComponentShowContainer({title: ""}) {
+            Flex({
+              wrap: FlexWrap.Wrap,
+              space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
+            }) {
+              UChartsV2({controller: this.easyChart}).height(260)
+              CollapseAndExpand({ value: GetColumnDemoCodeStr(-2) })
+            }
+          }
+        }
+      }
+      .layoutWeight(1)
+      .padding({ left: 12, right: 12 })
+    }.hideTitleBar(true)
+    .backgroundColor("#f7f8fa")
+  }
 }

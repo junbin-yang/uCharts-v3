@@ -1,12 +1,11 @@
-# UCharts - 跨平台可视化图表库
+# UCharts for Harmony - 鸿蒙可视化图表库
 
 ## 项目简介
 
-UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的跨平台图表库。底层渲染逻辑全部采用 TypeScript 实现，上层通过适配层（adapters）适配到不同平台，包括鸿蒙（HarmonyOS）、微信小程序、uniapp 等，真正实现"一套核心，多端复用"。
+UCharts 是一款高性能、易用的图表库，现已适配 HarmonyOS 平台。支持多种常用图表类型，满足鸿蒙应用的数据可视化需求。
 
 ## 特性
 
-- 🚀 **跨平台**：支持鸿蒙、微信小程序、uniapp 等主流平台
 - 🧩 **模块化设计**：底层渲染与平台适配解耦，易于扩展和维护
 - 🛡️ **TypeScript 全面支持**：类型安全，开发体验优秀
 - 🎨 **丰富图表类型**：柱状图、条状图、折线图、区域图、山峰图等
@@ -29,6 +28,40 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **玫瑰图 (rose)**
 - **更多类型持续开发中...**
 
+## 图表示例
+
+以下为部分图表类型的鸿蒙平台实际渲染效果：
+
+- 柱状图
+  
+  ![柱状图](./example/column.png) ![柱状图](./example/column3.png)
+
+- 区域图
+  
+  ![区域图](./example/area1.png) ![区域图](./example/area2.png)
+
+- 山峰图
+  
+  ![山峰图](./example/mount1.png) ![山峰图](./example/mount2.png)
+
+- 散点图
+  
+  ![散点图](./example/scatter.png)
+
+- 气泡图
+  
+  ![气泡图](./example/bubble.png)
+
+- 饼图
+  
+  ![饼图](./example/piepng.png)
+
+- 玫瑰图
+  
+  ![玫瑰图](./example/rose.png)
+
+（更多类型和样式可参考 example 目录）
+
 ## 下载安装
 
 ```ts
@@ -50,7 +83,7 @@ struct Index {
   private opts: Partial<ChartOptions> = {
     type: "column",
     categories: ["2018","2019","2020","2021","2022","2023"],
-    series: series: [
+    series: [
       {
         name: "目标值",
         data: [35,36,31,33,13,34]
@@ -82,6 +115,11 @@ struct Index {
       UCharts({ controller: this.chart, onReady: () => {
           this.chart.updateData(this.opts)
       }})
+      /*
+       * 或者初始化时传入默认配置
+       * @State chart: UChartsController = new UChartsController(this.opts);
+       * UCharts({ controller: this.chart })
+       * */
     }
     .height('100%')
     .width('100%')
@@ -89,94 +127,22 @@ struct Index {
 }
 ```
 
-> 具体平台的 context 获取方式请参考各自适配层文档。
+## API 文档
 
-## 目录结构
+详见[文档](https://github.com/junbin-yang/uCharts-v3/tree/master/docs)目录。
 
-```
-├── core/                # 图表核心能力（平台无关）
-│   ├── types/           # 类型定义
-│   ├── utils/           # 工具函数
-│   ├── chart/           # 各类图表渲染器
-│   ├── event/           # 事件系统
-│   ├── animation/       # 动画系统
-│   └── factory.ts       # 图表工厂
-├── adapters/            # 平台适配层
-│   ├── harmony/         # 鸿蒙适配（**当前仓库目录位置**）
-│   ├── h5/              # 原生H5适配
-│   ├── wechat/          # 微信小程序适配
-│   └── uniapp/          # uniapp适配
-├── interface/           # 对外统一接口
-│   ├── CanvasContext.ts   # 跨平台统一 canvas context 接口定义
-├── examples/            # 示例代码
-├── docs/                # 文档
-└── README.md
-```
+## 适配说明
 
-## 跨平台适配层说明
-
-- 每个平台在 `adapters/` 下有独立目录，负责将平台 API 适配为统一的底层渲染接口。
-- 适配层需实现统一的适配接口，并暴露标准的 context、事件等能力，可参考h5实现。
-- 新增平台时，仅需在 `adapters/` 下新增目录并实现适配接口，无需修改 core 层代码。
-- **CanvasContext 统一接口**：
-  - `ChartOptions.context` 字段要求传入的 canvas context 必须兼容 `interface/CanvasContext` 类型。
-  - 各平台适配层需将平台原生 canvas context 封装/适配为该接口，保证 core 层渲染逻辑的统一调用。
-  - 具体接口定义见 `interface/CanvasContext.ts`，如需适配新平台，请实现该接口。
-
-## 开发指南
-
-### 新增图表类型
-
-- 在 `core/chart/` 下创建新的渲染器类，**需继承 `BaseRenderer`**，实现通用渲染逻辑。
-- 在 `core/factory.ts` 中注册新图表类型。
-- 在 `core/types/extra.ts` 和 `core/types/series.ts` 中添加扩展配置类型。
-- 更新文档和示例。
-
-### 新增平台适配层
-
-1. 在 `adapters/` 下新建平台目录（如 `myplatform/`）。
-2. 实现统一适配接口，封装平台 canvas、事件等能力。
-3. 在平台入口文件（如 `index.ts`）中暴露适配能力。
-4. 如有需要暴露给用户层的适配层类型，在 `interface/` 下新建对应平台目录并导出。
-5. 更新文档说明。
-
-## 配置选项
-
-详见 `core/types/` 目录下类型定义，支持丰富的通用与扩展配置。
-
-## 类型与接口统一导出
-
-为方便用户开发，所有类型和接口均已在 `UCharts/interface` 统一导出。无论是图表配置类型、CanvasContext 适配类型，还是平台相关类型，均可通过如下方式导入：
-
-```ts
-import type { ChartOptions, CanvasContext } from 'UCharts/interface';
-```
-
-如需使用平台专属类型，可从 `UCharts/interface/harmony` 或 `UCharts/interface/wechat` 等路径导入。例如：
-
-```ts
-import type { HarmonyCanvasContext } from 'UCharts/interface/harmony';
-import type { WechatCanvasContext } from 'UCharts/interface/wechat';
-```
-
-普通用户只需用 `UCharts/interface` 统一类型即可，平台专属类型仅在需要平台能力扩展时使用。
-
-## 性能优化
-
-- **底层渲染优化**：TypeScript 实现，便于多端编译优化
-- **动画与事件分离**：动画、事件系统独立，提升流畅度
-- **按需加载**：仅加载所需图表类型和适配层
-
-## 兼容性
-
-- **鸿蒙系统**：支持 HarmonyOS 5.0 及以上
-- **浏览器**：支持浏览器等H5运行环境
-- **微信小程序**：支持主流小程序平台（适配中...）
-- **uniapp**：支持主流 uniapp 运行环境（适配中...）
+- 本库专为 HarmonyOS 平台适配，充分利用鸿蒙 Canvas 绘图能力。
+- 如需自定义扩展，可参考 adapters/platform/harmony 目录下的适配代码。
 
 ## 链接
 - [Github](https://github.com/junbin-yang/uCharts-v3)
 - [Gitee](https://gitee.com/uCharts/uCharts-v3)
+
+## 问题反馈
+
+如在使用过程中遇到问题，欢迎通过 GitHub Issues 反馈，或加入官方交流群获取支持。
 
 ## 许可证
 
