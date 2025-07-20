@@ -10,6 +10,7 @@ import {
 import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData } from '../types/series';
 import { ChartsUtil } from "../utils";
 import { pieDataPointsRes } from './pie';
+import { radarDataPointsRes } from './radar';
 
 export abstract class BaseRenderer {
   protected opts: ChartOptions;
@@ -462,7 +463,7 @@ export abstract class BaseRenderer {
         if(this.opts.extra.ring && this.opts.extra.ring.offsetAngle){
           angle = angle - this.opts.extra.ring.offsetAngle * Math.PI / 180;
         }
-        for (var i = 0, len = series.length; i < len; i++) {
+        for (let i = 0, len = series.length; i < len; i++) {
           if (this.isInAngleRange(angle, series[i]._start_, series[i]._start_ + series[i]._proportion_ * 2 * Math.PI)) {
             current.index = i;
             break;
@@ -489,6 +490,41 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findRadarChartCurrentIndex = (currentPoints: Point, radarData: radarDataPointsRes, count: number) => {
+      let eachAngleArea = 2 * Math.PI / count;
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      if (this.isInExactPieChartArea(currentPoints, radarData.center, radarData.radius)) {
+        const fixAngle = (angle: number) => {
+          if (angle < 0) {
+            angle += 2 * Math.PI;
+          }
+          if (angle > 2 * Math.PI) {
+            angle -= 2 * Math.PI;
+          }
+          return angle;
+        };
+        let angle = Math.atan2(radarData.center.y - currentPoints.y, currentPoints.x - radarData.center.x);
+        angle = -1 * angle;
+        if (angle < 0) {
+          angle += 2 * Math.PI;
+        }
+        let angleList = radarData.angleList.map((item) => {
+          item = fixAngle(-1 * item);
+          return item;
+        });
+        angleList.forEach((item, index) => {
+          let rangeStart = fixAngle(item - eachAngleArea / 2);
+          let rangeEnd = fixAngle(item + eachAngleArea / 2);
+          if (rangeEnd < rangeStart) {
+            rangeEnd += 2 * Math.PI;
+          }
+          if (angle >= rangeStart && angle <= rangeEnd || angle + 2 * Math.PI >= rangeStart && angle + 2 * Math.PI <= rangeEnd) {
+            current.index = index;
+          }
+        });
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
@@ -496,7 +532,7 @@ export abstract class BaseRenderer {
     } else if (this.opts.type === 'rose') {
       return findRoseChartCurrentIndex(_touches, this.opts.chartData.pieData);
     } else if (this.opts.type === 'radar') {
-      //return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories.length);
+      return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories.length);
     } else if (this.opts.type === 'funnel') {
       //return findFunnelChartCurrentIndex(_touches, this.opts.chartData.funnelData);
     } else if (this.opts.type === 'map') {
@@ -670,6 +706,38 @@ export abstract class BaseRenderer {
       }
     }
 
+    if (this.opts.type === 'radar') {
+      let current = this.getCurrentDataIndex(touches);
+      let index = option?.index == undefined ? current.index : option.index;
+      if (typeof index == "number" && index > -1) {
+        this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, {animation: false});
+        let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
+        if (seriesData.length !== 0) {
+          let textList = seriesData.map((item) => {
+            return {
+              text: option?.formatter ? option.formatter(item, this.opts.categories[index as number], index as number, this.opts) : item.name + ': ' + item.data,
+              color: item.color,
+              legendShape: this.opts.extra.tooltip?.legendShape == 'auto' ? item.legendShape : this.opts.extra.tooltip?.legendShape
+            };
+          });
+          let offset: Point = {
+            x: _touches.x,
+            y: _touches.y
+          };
+          this.opts.tooltip = {
+            textList: option?.textList !== undefined ? option.textList : textList,
+            offset: option?.offset !== undefined ? option.offset : offset,
+            option: option,
+            index: index
+          };
+        }
+      } else {
+        this.opts.tooltip = {
+          show: false,
+        }
+      }
+    }
+
     /*
     if (this.opts.type === 'candle') {
       var current = this.getCurrentDataIndex(e);
@@ -744,33 +812,6 @@ export abstract class BaseRenderer {
         };
       }
       opts.updateData = false;
-      drawCharts.call(this, opts.type, opts, this.config, this.context);
-    }
-    if (this.opts.type === 'radar') {
-      var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
-      if (index > -1) {
-        var opts = assign({}, this.opts, {animation: false});
-        var seriesData = getSeriesDataItem(this.opts.series, index);
-        if (seriesData.length !== 0) {
-          var textList = seriesData.map((item) => {
-            return {
-              text: option.formatter ? option.formatter(item, this.opts.categories[index], index, this.opts) : item.name + ': ' + item.data,
-              color: item.color,
-              legendShape: this.opts.extra.tooltip.legendShape == 'auto' ? item.legendShape : this.opts.extra.tooltip.legendShape
-            };
-          });
-          var offset = {
-            x: _touches$.x,
-            y: _touches$.y
-          };
-          opts.tooltip = {
-            textList: option.textList ? option.textList : textList,
-            offset: option.offset !== undefined ? option.offset : offset,
-            option: option,
-            index: index
-          };
-        }
-      }
       drawCharts.call(this, opts.type, opts, this.config, this.context);
     }
     */
@@ -2607,7 +2648,7 @@ export abstract class BaseRenderer {
     } as curveControlPoints;
   }
 
-  protected drawPointShape(points: Array<DataPoints|null>, color: string | CanvasGradient | CanvasPattern, shape: string) {
+  protected drawPointShape(points: Array<DataPoints|Point|null>, color: string | CanvasGradient | CanvasPattern, shape: string) {
     this.context.beginPath();
     if (this.opts.dataPointShapeType == 'hollow') {
       this.setStrokeStyle(color);

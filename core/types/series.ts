@@ -13,6 +13,7 @@ export type Series =
     | PieSeries
     | RingSeries
     | RoseSeries
+    | RadarSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -84,6 +85,11 @@ export interface RoseSeries extends BaseSeries {
   data: Array<HasLabelSeriesData>       //数据值
 }
 
+// 雷达图数据系列
+export interface RadarSeries extends BaseSeries {
+  data: Array<number>  //数据值
+}
+
 export interface HasLabelSeriesData extends NameAndValueData {
   labelText?: string    //自定义标签文字
   labelShow?: boolean   //是否显示标签，默认true
@@ -101,7 +107,7 @@ export interface ValueAndColorData {
   color: string
 }
 
-interface BaseSeries {
+export interface BaseSeries {
   name?: string         //数据名称
   legendText?: string   //自定义图例显示文字（不传默认显示上面的name值）
   show?: boolean        //图形显示状态，配合点击图例显示状态，也可默认指定是否显示。默认true

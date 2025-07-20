@@ -107,6 +107,10 @@
     {
       "name": "charts_stateV2",
       "value": "状态管理V2"
+    },
+    {
+      "name": "charts_radar",
+      "value": "雷达图"
     }
   ]
 }

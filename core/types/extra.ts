@@ -15,6 +15,7 @@ export interface Extra {
   pie?: Partial<PieExtra>
   ring?: Partial<RingExtra>
   rose?: Partial<RoseExtra>
+  radar?: Partial<RadarExtra>
 }
 
 /**
@@ -189,6 +190,31 @@ export interface RoseExtra {
   linearType: 'none'|'custom'  //渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
   customColor: string[]		  //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
 }
+
+/**
+ * 雷达图扩展配置
+ */
+export interface RadarExtra {
+  gridType: 'radar'|'circle'     //雷达图网格类型，可选值："radar"蜘蛛网格样式,"circle"圆形背景网格，默认radar
+  gridColor: string		          //雷达图网格颜色，默认#CCCCCC
+  gridCount: number	            //雷达图网格数量，默认3
+  gridEval: number	              //数据点位网格抽稀,默认1
+  radius: number	                //自定义雷达图半径，默认0
+  axisLabel:	boolean	            //刻度点值是否显示，默认false
+  axisLabelTofix: number	        //刻度点值小数位数，默认0
+  labelShow:	boolean	            //是否显示各项标识文案，默认true
+  labelColor: string		          //各项标识文案的颜色，默认#666666
+  labelPointShow: boolean	      //是否显示末端刻度圆点，默认false
+  labelPointRadius: number		    //刻度圆点的半径，默认3
+  labelPointColor: string		    //刻度圆点的颜色，默认#CCCCCC
+  opacity:	number	              //主图区域透明度，默认0.2
+  border: boolean	              //是否绘制主图区域描边线，默认false
+  borderWidth: number	          //描边线的宽度，默认2
+  max:	number		                //data的最大值，数据区间最大值，用于调整数据显示的比例
+  linearType: 'none'|'custom'	  //渐变类型，可选值："none"关闭渐变,"custom"开启渐变
+  customColor: string[]		      //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+}
+
 
 /**
  * 提示窗配置

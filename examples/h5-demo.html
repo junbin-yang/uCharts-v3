@@ -59,6 +59,7 @@
             <button onclick="createAreaChart()">面积图</button>
             <button onclick="createMixChart()">混合图</button>
             <button onclick="createPieChart()">饼状图</button>
+            <button onclick="createRadarChart()">雷达图</button>
         </div>
         
         <div class="chart-container">
@@ -384,6 +385,43 @@
                     borderWidth: 3,
                     borderColor: "#FFFFFF",
                     linearType: "custom"
+                  }
+                }
+            });
+        }
+
+        function createRadarChart() {
+          const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "radar",
+                context: ctx,
+                categories: ["维度1","维度2","维度3","维度4","维度5","维度6"],
+                series: [
+                  {
+                    name: "成交量1",
+                    data: [90,110,165,195,187,172]
+                  },
+                  {
+                    name: "成交量2",
+                    data: [190,210,105,35,27,102]
+                  }
+                ],
+                padding: [5,5,5,5],
+                dataLabel: false,
+                legend: {
+                  show: true,
+                  position: "right",
+                  lineHeight: 25
+                },
+                extra: {
+                  radar: {
+                    gridType: "circle",
+                    gridColor: "#CCCCCC",
+                    gridCount: 3,
+                    opacity: 0.2,
+                    max: 200,
+                    labelShow: true
                   }
                 }
             });

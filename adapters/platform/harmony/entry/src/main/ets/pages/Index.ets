@@ -15,6 +15,7 @@ import { PieChart } from './PieChart';
 import { RingChart } from './RingChart';
 import { RoseChart } from './RoseChart';
 import { HAR_VERSION } from '@ibestservices/ucharts';
+import { RadarChart } from './RadarChart';
 
 @Entry
 @Component
@@ -84,6 +85,7 @@ struct Index {
     { key: "pie", name: $r("app.string.charts_pie"), icon: $r("app.media.pie") },
     { key: "ring", name: $r("app.string.charts_ring"), icon: $r("app.media.ring") },
     { key: "rose", name: $r("app.string.charts_rose"), icon: $r("app.media.rose") },
+    { key: "radar", name: $r("app.string.charts_radar"), icon: $r("app.media.radar") },
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -242,6 +244,8 @@ struct Index {
       RingChart()
     } else if(name === 'rose') {
       RoseChart()
+    } else if(name === 'radar') {
+      RadarChart()
     }
   }
 

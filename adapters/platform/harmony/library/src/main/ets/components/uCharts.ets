@@ -120,8 +120,8 @@ export struct UCharts {
         this.controller.reload()
         this.onReady()
       })
-      .onMouse((event: MouseEvent) => this.controller?.onMouseEvent(event))
-      .onTouch((event: TouchEvent) => this.controller?.onTouchEvent(event))
+      .onMouse((event: MouseEvent) => this.controller.onMouseEvent(event))
+      .onTouch((event: TouchEvent) => this.controller.onTouchEvent(event))
   }
 }
 
@@ -207,7 +207,7 @@ export class UChartsControllerV2 {
 @ComponentV2
 export struct UChartsV2 {
   @Require @Param controller: UChartsControllerV2;
-  onReady: () => void = () => {}
+  @Event onReady: () => void = () => {}
 
   build() {
     Canvas(this.controller.context)
@@ -215,7 +215,7 @@ export struct UChartsV2 {
         this.controller.reload()
         this.onReady()
       })
-      .onMouse((event: MouseEvent) => this.controller?.onMouseEvent(event))
-      .onTouch((event: TouchEvent) => this.controller?.onTouchEvent(event))
+      .onMouse((event: MouseEvent) => this.controller.onMouseEvent(event))
+      .onTouch((event: TouchEvent) => this.controller.onTouchEvent(event))
   }
 }

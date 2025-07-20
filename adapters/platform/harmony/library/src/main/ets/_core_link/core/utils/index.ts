@@ -297,7 +297,7 @@ export class ChartsUtil {
     }
     if (linearType == 'custom' && newcolor.length < series.length) {
       let chazhi = series.length - newcolor.length;
-      for (var i = 0; i < chazhi; i++) {
+      for (let i = 0; i < chazhi; i++) {
         newcolor.push(GlobalConfig.linearColor[(i + 1) % GlobalConfig.linearColor.length]);
       }
     }
@@ -329,5 +329,9 @@ export class ChartsUtil {
       x: center.x + x,
       y: center.y - y
     };
+  }
+
+  static approximatelyEqual(num1: number, num2: number) {
+    return Math.abs(num1 - num2) < 1e-10;
   }
 }
