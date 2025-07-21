@@ -111,6 +111,10 @@
     {
       "name": "charts_radar",
       "value": "雷达图"
+    },
+    {
+      "name": "charts_word",
+      "value": "词云图"
     }
   ]
 }

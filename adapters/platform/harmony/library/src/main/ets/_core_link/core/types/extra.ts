@@ -16,6 +16,7 @@ export interface Extra {
   ring?: Partial<RingExtra>
   rose?: Partial<RoseExtra>
   radar?: Partial<RadarExtra>
+  word?:  Partial<WordExtra>
 }
 
 /**
@@ -215,6 +216,12 @@ export interface RadarExtra {
   customColor: string[]		      //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
 }
 
+/**
+ * 词云图扩展配置
+ */
+export interface WordExtra {
+  type: 'normal'|'vertical'   //词云图样式，可选值："normal"水平排列,"vertical"垂直排列
+}
 
 /**
  * 提示窗配置

@@ -214,4 +214,8 @@ export class H5CanvasContext implements CanvasContext {
     // 起点和终点都在同一个圆心，内半径为0，外半径为r
     return this.createRadialGradient(x, y, 0, x, y, r);
   }
+
+  strokeText(text: string, x: number, y: number, maxWidth?: number): void {
+    this.ctx.strokeText(text, x, y, maxWidth);
+  }
 } 

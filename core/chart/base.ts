@@ -7,7 +7,7 @@ import { GlobalConfig } from "../types/config";
 import {
   AreaExtra,
   BarExtra, ColumnExtra, LineExtra, MarkLineData, MarkLineOptions, TooltipOptions } from '../types/extra';
-import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData } from '../types/series';
+import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData, WordSeries } from '../types/series';
 import { ChartsUtil } from "../utils";
 import { pieDataPointsRes } from './pie';
 import { radarDataPointsRes } from './radar';
@@ -525,6 +525,17 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findWordChartCurrentIndex = (currentPoints: Point, wordData: WordSeries[]) => {
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      for (let i = 0, len = wordData.length; i < len; i++) {
+        let item = wordData[i];
+        if (currentPoints.x > item.area[0] && currentPoints.x < item.area[2] && currentPoints.y > item.area[1] && currentPoints.y < item.area[3]) {
+          current.index = i;
+          break;
+        }
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
@@ -538,7 +549,7 @@ export abstract class BaseRenderer {
     } else if (this.opts.type === 'map') {
       //return findMapChartCurrentIndex(_touches, this.opts);
     } else if (this.opts.type === 'word') {
-      //return findWordChartCurrentIndex(_touches, this.opts.chartData.wordCloudData);
+      return findWordChartCurrentIndex(_touches, this.opts.chartData.wordCloudData);
     } else if (this.opts.type === 'bar') {
       return findBarChartCurrentIndex(_touches, this.opts.chartData.calPoints, Math.abs(this.scrollOption.currentOffset as number));
     }
@@ -738,6 +749,35 @@ export abstract class BaseRenderer {
       }
     }
 
+    if (this.opts.type === 'word') {
+      let current = this.getCurrentDataIndex(touches);
+      let index = option?.index == undefined ? current.index : option.index;
+      if (typeof index == "number" && index > -1) {
+        this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, {animation: false});
+        let seriesData: WordSeries = ChartsUtil.objectAssign({} as WordSeries, this.opts.series[index]);
+        let textList = [{
+          text: option?.formatter ? option.formatter(seriesData, "", index, this.opts) : seriesData.name,
+          color: seriesData.color,
+          legendShape: this.opts.extra.tooltip?.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip?.legendShape
+        }];
+        let offset: Point = {
+          x: _touches.x,
+          y: _touches.y
+        };
+        this.opts.tooltip = {
+          textList: option?.textList !== undefined ? option.textList : textList,
+          offset: option?.offset !== undefined ? option.offset : offset,
+          option: option,
+          index: index
+        };
+      } else {
+        this.opts.tooltip = {
+          show: false,
+        }
+      }
+      this.opts.updateData = false;
+    }
+
     /*
     if (this.opts.type === 'candle') {
       var current = this.getCurrentDataIndex(e);
@@ -771,30 +811,6 @@ export abstract class BaseRenderer {
         var opts = assign({}, this.opts, {animation: false});
         var seriesData = assign({}, this.opts.series[index]);
         seriesData.name = seriesData.properties.name
-        var textList = [{
-          text: option.formatter ? option.formatter(seriesData, undefined, index, this.opts) : seriesData.name,
-          color: seriesData.color,
-          legendShape: this.opts.extra.tooltip.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip.legendShape
-        }];
-        var offset = {
-          x: _touches$.x,
-          y: _touches$.y
-        };
-        opts.tooltip = {
-          textList: option.textList ? option.textList : textList,
-          offset: option.offset !== undefined ? option.offset : offset,
-          option: option,
-          index: index
-        };
-      }
-      opts.updateData = false;
-      drawCharts.call(this, opts.type, opts, this.config, this.context);
-    }
-    if (this.opts.type === 'word') {
-      var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
-      if (index > -1) {
-        var opts = assign({}, this.opts, {animation: false});
-        var seriesData = assign({}, this.opts.series[index]);
         var textList = [{
           text: option.formatter ? option.formatter(seriesData, undefined, index, this.opts) : seriesData.name,
           color: seriesData.color,

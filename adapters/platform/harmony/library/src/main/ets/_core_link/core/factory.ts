@@ -12,6 +12,7 @@ import { PieChartRenderer } from "./chart/pie";
 import { RingChartRenderer } from "./chart/ring";
 import { RoseChartRenderer } from "./chart/rose";
 import { RadarChartRenderer } from "./chart/radar";
+import { WordChartRenderer } from "./chart/word";
 
 /**
  * 图表工厂类
@@ -49,6 +50,8 @@ export class Factory {
         return new RoseChartRenderer(opts);
       case 'radar':
         return new RadarChartRenderer(opts);
+      case 'word':
+        return new WordChartRenderer(opts);
       // TODO: 添加其他图表类型的渲染器
       // TODO: 每次新增图表后getCurrentDataIndex和showToolTip方法内需要适配图表操作逻辑
       default:

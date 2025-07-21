@@ -323,7 +323,7 @@ export class RadarChartRenderer extends BaseRenderer {
         this.context.closePath();
         this.context.fill();
       }
-      if(radarOption.labelShow === true){
+      if(radarOption.labelShow === true) {
         let pos: Point = {
           x: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio) * Math.cos(angle),
           y: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio) * Math.sin(angle)

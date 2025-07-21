@@ -59,8 +59,11 @@
             <button onclick="createAreaChart()">面积图</button>
             <button onclick="createMixChart()">混合图</button>
             <button onclick="createPieChart()">饼状图</button>
-            <button onclick="createRadarChart()">雷达图</button>
         </div>
+        <div class="controls">
+          <button onclick="createRadarChart()">雷达图</button>
+          <button onclick="createWordChart()">词云图</button>
+      </div>
         
         <div class="chart-container">
             <canvas id="chart" width="600px" height="400px"></canvas>
@@ -426,6 +429,39 @@
                 }
             });
         }
+
+        function createWordChart() {
+          const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "word",
+                context: ctx,
+                series: [
+                  { name: "跨全端图表", textSize: 25 },
+                  { name: "微信小程序", textSize: 20 },
+                  { name: "支付宝小程序", textSize: 20 },
+                  { name: "百度小程序", textSize: 20 },
+                  { name: "QQ小程序", textSize: 20 },
+                  { name: "头条小程序", textSize: 20 },
+                  { name: "抖音小程序", textSize: 20 },
+                  { name: "360小程序", textSize: 20 },
+                  { name: "跨全端", textSize: 10 },
+                  { name: "跨全端", textSize: 12 },
+                  { name: "跨全端", textSize: 10 },
+                  { name: "跨全端", textSize: 12 },
+                  { name: "跨全端", textSize: 10 },
+                  { name: "跨全端", textSize: 12 },
+                  { name: "跨全端", textSize: 10 },
+                  { name: "跨全端", textSize: 12 }
+                ],
+                extra: {
+                  word: {
+                    type: "vertical"
+                  }
+                }
+            });
+        }
+
 
         // 页面加载完成后默认显示折线图
         window.onload = function() {

@@ -17,6 +17,9 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 - PieSeries：饼图数据系列
 - RingSeries：圆环图数据系列
 - RoseSeries：玫瑰图数据系列
+- RadarSeries：雷达图数据系列
+- WordSeries：词云图数据系列
+- NameAndValueData：名称-数值数据结构
 
 ---
 
@@ -69,6 +72,13 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 
 ### PieSeries / RingSeries / RoseSeries（饼图/圆环图/玫瑰图数据系列）
 - data：Array<HasLabelSeriesData>，数据值
+- 继承 BaseSeries 通用字段
+
+### RadarSeries（雷达图数据系列）
+- data：Array<number>，数据值
+- 继承 BaseSeries 通用字段
+
+### WordSeries（词云图数据系列）
 - 继承 BaseSeries 通用字段
 
 ### HasLabelSeriesData

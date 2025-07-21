@@ -14,6 +14,7 @@ export type Series =
     | RingSeries
     | RoseSeries
     | RadarSeries
+    | WordSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -89,6 +90,9 @@ export interface RoseSeries extends BaseSeries {
 export interface RadarSeries extends BaseSeries {
   data: Array<number>  //数据值
 }
+
+// 词云图数据系列
+export interface WordSeries extends BaseSeries {}
 
 export interface HasLabelSeriesData extends NameAndValueData {
   labelText?: string    //自定义标签文字

@@ -17,6 +17,8 @@
 - `pie?: Partial<PieExtra>` 饼图扩展配置
 - `ring?: Partial<RingExtra>` 圆环图扩展配置
 - `rose?: Partial<RoseExtra>` 玫瑰图扩展配置
+- `radar?: Partial<RadarExtra>` 雷达图扩展配置
+- `word?: Partial<WordExtra>` 词云图扩展配置
 
 ## 各图表扩展配置接口
 
@@ -146,6 +148,29 @@
 - `borderColor: string` 分割线颜色
 - `linearType: 'none'|'custom'` 渐变类型
 - `customColor: string[]` 自定义渐变色
+
+### RadarExtra（雷达图扩展配置）
+- `gridType: 'radar'|'circle'` 雷达图网格类型
+- `gridColor: string` 网格颜色
+- `gridCount: number` 网格数量
+- `gridEval: number` 数据点位网格抽稀
+- `radius: number` 自定义半径
+- `axisLabel: boolean` 是否显示刻度点值
+- `axisLabelTofix: number` 刻度点值小数位数
+- `labelShow: boolean` 是否显示各项标识文案
+- `labelColor: string` 标识文案颜色
+- `labelPointShow: boolean` 是否显示末端刻度圆点
+- `labelPointRadius: number` 刻度圆点半径
+- `labelPointColor: string` 刻度圆点颜色
+- `opacity: number` 主图区域透明度
+- `border: boolean` 是否绘制主图区域描边
+- `borderWidth: number` 描边宽度
+- `max: number` 数据最大值
+- `linearType: 'none'|'custom'` 渐变类型
+- `customColor: string[]` 自定义渐变色
+
+### WordExtra（词云图扩展配置）
+- `type: 'normal'|'vertical'` 词云图样式
 
 ### TooltipOptions（提示窗配置）
 - 详见源码注释，支持 showBox、showArrow、showCategory、borderWidth、borderRadius、borderColor、borderOpacity、bgColor、bgOpacity、gridType、dashLength、gridColor、boxPadding、fontSize、lineHeight、fontColor、legendShow、legendShape、splitLine、horizentalLine、xAxisLabel、yAxisLabel、labelBgColor、labelBgOpacity、labelFontColor 等。

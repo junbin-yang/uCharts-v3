@@ -27,6 +27,8 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - **饼状图 (pie)**
 - **环形图 (ring)**
 - **玫瑰图 (rose)**
+- **雷达图 (radar)**
+- **词云图 (word)**
 - **更多类型持续开发中...**
 
 ## 图表示例
@@ -60,6 +62,14 @@ UCharts 是一个基于 TypeScript 实现的高性能、模块化、可扩展的
 - 玫瑰图
   
   ![玫瑰图](./docs/image/rose.png)
+
+- 雷达图
+  
+  ![雷达图](./docs/image/radar.png)
+
+- 词云图
+  
+  ![词云图](./docs/image/word1.png) ![词云图](./docs/image/word2.png)
 
 （更多类型和样式可参考 docs 目录）
 
