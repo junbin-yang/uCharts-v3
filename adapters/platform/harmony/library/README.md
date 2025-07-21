@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-UCharts 是一款高性能、易用的图表库，现已适配 HarmonyOS 平台。支持多种常用图表类型，满足鸿蒙应用的数据可视化需求。
+UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图表库，现已适配 HarmonyOS 平台。支持多种常用图表类型，满足鸿蒙应用的数据可视化需求。
 
 ## 特性
 
@@ -26,6 +26,8 @@ UCharts 是一款高性能、易用的图表库，现已适配 HarmonyOS 平台�
 - **饼状图 (pie)**
 - **环形图 (ring)**
 - **玫瑰图 (rose)**
+- **雷达图 (radar)**
+- **词云图 (word)**
 - **更多类型持续开发中...**
 
 ## 图表示例
@@ -34,33 +36,41 @@ UCharts 是一款高性能、易用的图表库，现已适配 HarmonyOS 平台�
 
 - 柱状图
   
-  ![柱状图](./example/column.png) ![柱状图](./example/column3.png)
+  ![柱状图](https://junbin-yang.github.io/uCharts-v3/docs/image/column.png) ![柱状图](https://junbin-yang.github.io/uCharts-v3/docs/image/column3.png)
 
 - 区域图
   
-  ![区域图](./example/area1.png) ![区域图](./example/area2.png)
+  ![区域图](https://junbin-yang.github.io/uCharts-v3/docs/image/area1.png) ![区域图](https://junbin-yang.github.io/uCharts-v3/docs/image/area2.png)
 
 - 山峰图
   
-  ![山峰图](./example/mount1.png) ![山峰图](./example/mount2.png)
+  ![山峰图](https://junbin-yang.github.io/uCharts-v3/docs/image/mount1.png) ![山峰图](https://junbin-yang.github.io/uCharts-v3/docs/image/mount2.png)
 
 - 散点图
   
-  ![散点图](./example/scatter.png)
+  ![散点图](https://junbin-yang.github.io/uCharts-v3/docs/image/scatter.png)
 
 - 气泡图
   
-  ![气泡图](./example/bubble.png)
+  ![气泡图](https://junbin-yang.github.io/uCharts-v3/docs/image/bubble.png)
 
 - 饼图
   
-  ![饼图](./example/piepng.png)
+  ![饼图](https://junbin-yang.github.io/uCharts-v3/docs/image/piepng.png)
 
 - 玫瑰图
   
-  ![玫瑰图](./example/rose.png)
+  ![玫瑰图](https://junbin-yang.github.io/uCharts-v3/docs/image/rose.png)
 
-（更多类型和样式可参考 example 目录）
+- 雷达图
+  
+  ![雷达图](https://junbin-yang.github.io/uCharts-v3/docs/image/radar.png)
+
+- 词云图
+  
+  ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word1.png) ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word2.png)
+
+（更多类型和样式可参考 docs 目录）
 
 ## 下载安装
 
@@ -120,6 +130,25 @@ struct Index {
        * @State chart: UChartsController = new UChartsController(this.opts);
        * UCharts({ controller: this.chart })
        * */
+    }
+    .height('100%')
+    .width('100%')
+  }
+}
+```
+
+## 状态管理V2
+
+```typescript
+import { UChartsV2, UChartsControllerV2 } from '@ibestservices/ucharts'
+
+@Entry
+@ComponentV2
+struct Index {
+  @Local chart: UChartsControllerV2 = new UChartsControllerV2(this.opts);
+  build() {
+    Column(){
+      UChartsV2({ controller: this.chart })
     }
     .height('100%')
     .width('100%')
