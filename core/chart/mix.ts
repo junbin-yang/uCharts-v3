@@ -84,8 +84,8 @@ export class MixChartRenderer extends BaseRenderer {
 
     this.opts.chartData.yAxisData = calYAxisData;
     if (1/*this.opts.categories && this.opts.categories.length*/) {
-      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories);
-      let calCategoriesData = this.calculateCategoriesData(this.opts.categories);
+      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories as string[]);
+      let calCategoriesData = this.calculateCategoriesData(this.opts.categories as string[]);
       let xAxisHeight = calCategoriesData.xAxisHeight
       let angle = calCategoriesData.angle;
 
@@ -120,8 +120,8 @@ export class MixChartRenderer extends BaseRenderer {
         if (this.opts.rotate) {
           this.contextRotate();
         }
-        this.drawYAxisGrid(this.opts.categories);
-        this.drawXAxis(this.opts.categories);
+        this.drawYAxisGrid(this.opts.categories as string[]);
+        this.drawXAxis(this.opts.categories as string[]);
         let _drawMixDataPoints = this.drawMixDataPoints(series, process),
           xAxisPoints = _drawMixDataPoints.xAxisPoints,
           calPoints = _drawMixDataPoints.calPoints,

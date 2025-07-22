@@ -91,8 +91,8 @@ export class MountChartRenderer extends BaseRenderer {
 
     this.opts.chartData.yAxisData = calYAxisData;
     if (this.opts.categories && this.opts.categories.length) {
-      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories);
-      let calCategoriesData = this.calculateCategoriesData(this.opts.categories);
+      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories as string[]);
+      let calCategoriesData = this.calculateCategoriesData(this.opts.categories as string[]);
       let xAxisHeight = calCategoriesData.xAxisHeight
       let angle = calCategoriesData.angle;
 
@@ -131,8 +131,8 @@ export class MountChartRenderer extends BaseRenderer {
         if (this.opts.rotate) {
           this.contextRotate();
         }
-        this.drawYAxisGrid(this.opts.categories);
-        this.drawXAxis(this.opts.categories);
+        this.drawYAxisGrid(this.opts.categories as string[]);
+        this.drawXAxis(this.opts.categories as string[]);
         let _drawMountDataPoints = this.drawMountDataPoints(series, process),
           xAxisPoints = _drawMountDataPoints.xAxisPoints,
           calPoints = _drawMountDataPoints.calPoints,

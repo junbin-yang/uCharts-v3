@@ -1,3 +1,4 @@
+import { ChartOptions } from "./index"
 
 /**
  * 所有图表的扩展配置
@@ -17,6 +18,8 @@ export interface Extra {
   rose?: Partial<RoseExtra>
   radar?: Partial<RadarExtra>
   word?:  Partial<WordExtra>
+  arcbar?: Partial<ArcBarExtra>
+  gauge?: Partial<GaugeExtra>
 }
 
 /**
@@ -222,6 +225,58 @@ export interface RadarExtra {
 export interface WordExtra {
   type: 'normal'|'vertical'   //词云图样式，可选值："normal"水平排列,"vertical"垂直排列
 }
+
+/**
+ * 进度条扩展配置
+ */
+export interface ArcBarExtra {
+  type: 'default'|'circle'	        //圆弧进度图样式，可选值："default"半圆弧模式,"circle"整圆模式，默认default
+  direction: 'cw'|'ccw'	          //动画方向（变换时需要注意起始与结束角度），可选值："cw"顺时针方向,"ccw"逆时针方向，默认cw
+  width:	number	                  //圆弧进度图弧线宽度，默认12
+  lineCap: 'round'|'square'|'butt'	//进度条两端样式，可选值："round"圆形线帽,"square"方形线帽,"butt"平直边缘，默认round
+  backgroundColor: string		      //圆弧进度图背景颜色，默认#E9E9E9
+  startAngle: number	              //圆弧进度图起始角度，0-2之间，0为3点钟位置，0.5为6点钟，1为9点钟，1.5为12点钟，默认0.75
+  endAngle: number	                //圆弧进度图结束角度，0-2之间，0为3点钟位置，0.5为6点钟，1为9点钟，1.5为12点钟，默认0.25
+  radius: number		                //圆弧进度图自定义半径（最大半径）（无特殊需求无需填写）
+  gap: number	                    //圆弧进度条的间隔，默认2
+  centerX:	number		              //自定义圆心x坐标（无特殊需求无需填写）
+  centerY: number		              //自定义圆心y坐标（无特殊需求无需填写）
+  linearType: 'none'|'custom'	    //渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
+  customColor: string[]		        //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+}
+
+/**
+ * 仪表盘扩展配置
+ */
+export interface GaugeExtra {
+  type: 'default'|'progress'		  //仪表盘样式，default百度样式，progress新样式
+  width:	number		    //仪表盘坐标轴（指示盘）线宽度，默认15
+  labelColor: string		//仪表盘刻度尺标签文字颜色，默认#666666
+  labelOffset:	number	//仪表盘标签文字径向偏移距离，默认13
+  startAngle: number	  //仪表盘起始角度，0-2之间，0为3点钟位置，0.5为6点钟，1为9点钟，1.5为12点钟，默认0.75
+  endAngle: number	    //仪表盘结束角度，0-2之间，0为3点钟位置，0.5为6点钟，1为9点钟，1.5为12点钟，默认0.25
+  startNumber: number	//仪表盘起始数值。默认0。说明：仪表盘指针指向的值为比例值，假设起始值是11，结束值是15，想指向12，那就是11-15之间的20%，所以series里的data应为0.2，这个值需要自己算好再传chartData里
+  endNumber: number	  //仪表盘结束数值，默认100
+  formatter: (val: number|string, index: number, opts?: ChartOptions) => string  //仪表盘数据标签自定义，形参为(val,index,opts)
+  splitLine: Partial<GaugeExtraSplitLine>
+  pointer: Partial<GaugeExtraPointer>
+
+  [key: string]: any; //oldAngle,oldData
+}
+export interface GaugeExtraSplitLine {
+  fixRadius:	number	  //仪表盘刻度线径向偏移量，默认0
+  splitNumber:	number	//仪表盘刻度线分段总数量，默认10
+  width:	number	      //仪表盘分割线长度，默认15
+  color: string		    //仪表盘分割线颜色，默认#FFFFFF
+  childNumber:	number	//仪表盘子刻度线数量，默认5
+  childWidth:number	  //仪表盘子刻度线长度，默认5
+}
+export interface GaugeExtraPointer {
+  width: number    //仪表盘指针宽度，默认15
+  color: string    //仪表盘指针颜色，定义为auto时，随仪表盘背景颜色改变,或者可以指定颜色例如#7cb5ec，默认auto
+}
+
+
 
 /**
  * 提示窗配置

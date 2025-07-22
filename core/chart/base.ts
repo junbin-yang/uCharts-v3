@@ -188,7 +188,7 @@ export abstract class BaseRenderer {
         let yAxisWidth = calYAxisData.yAxisWidth;
         GlobalConfig.yAxisWidth = yAxisWidth[0].width;
         let offsetLeft = 0;
-        let _getXAxisPoints0 = this.getXAxisPoints(this.opts.categories), xAxisPoints = _getXAxisPoints0.xAxisPoints,
+        let _getXAxisPoints0 = this.getXAxisPoints(this.opts.categories as string[]), xAxisPoints = _getXAxisPoints0.xAxisPoints,
           startX = _getXAxisPoints0.startX,
           endX = _getXAxisPoints0.endX,
           eachSpacing = _getXAxisPoints0.eachSpacing;
@@ -586,7 +586,7 @@ export abstract class BaseRenderer {
       if ((typeof index == "number" && index > -1) || (Array.isArray(index) && index.length > 0)) {
         let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
         if (seriesData.length !== 0) {
-          let _getToolTipData = this.getToolTipData(seriesData, index, current.group, this.opts.categories, option),
+          let _getToolTipData = this.getToolTipData(seriesData, index, current.group, this.opts.categories as string[], option),
             textList = _getToolTipData.textList,
             offset = _getToolTipData.offset;
           offset.y = _touches.y;
@@ -640,7 +640,7 @@ export abstract class BaseRenderer {
       if (typeof index == "number" && index > -1) {
         let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
         if (seriesData.length !== 0) {
-          let _getToolTipData = this.getToolTipData(seriesData, index, current.group, this.opts.categories, option),
+          let _getToolTipData = this.getToolTipData(seriesData, index, current.group, this.opts.categories as string[], option),
             textList = _getToolTipData.textList,
             offset = _getToolTipData.offset;
           offset.x = _touches.x;
@@ -669,7 +669,7 @@ export abstract class BaseRenderer {
         });
         let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
         if (seriesData.length !== 0) {
-          let _getMixToolTipData = this.getMixToolTipData(seriesData, index, this.opts.categories, option),
+          let _getMixToolTipData = this.getMixToolTipData(seriesData, index, this.opts.categories as string[], option),
             textList = _getMixToolTipData.textList,
             offset = _getMixToolTipData.offset;
           offset.y = _touches.y;
@@ -725,8 +725,9 @@ export abstract class BaseRenderer {
         let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
         if (seriesData.length !== 0) {
           let textList = seriesData.map((item) => {
+            const categories = this.opts.categories as string[];
             return {
-              text: option?.formatter ? option.formatter(item, this.opts.categories[index as number], index as number, this.opts) : item.name + ': ' + item.data,
+              text: option?.formatter ? option.formatter(item, categories[index as number], index as number, this.opts) : item.name + ': ' + item.data,
               color: item.color,
               legendShape: this.opts.extra.tooltip?.legendShape == 'auto' ? item.legendShape : this.opts.extra.tooltip?.legendShape
             };
@@ -1350,7 +1351,7 @@ export abstract class BaseRenderer {
       let rangesFormatArr: Array<string[]> = new Array(1);
       let yAxisWidthArr: Array<yAxisWidthType> = new Array(1);
       if(this.opts.type === 'bar'){
-        rangesArr[0] = this.opts.categories;
+        rangesArr[0] = this.opts.categories as string[];
         if(!this.opts.yAxis.formatter){
           this.opts.yAxis.formatter = (val,index,opts) => {return val + (this.opts.yAxis.unit || '')}
         }
@@ -2306,7 +2307,8 @@ export abstract class BaseRenderer {
     this.context.stroke();
     this.setLineDash([]);
     if (toolTipOption.xAxisLabel) {
-      let labelText: string = this.opts.categories[this.opts.tooltip.index];
+      const categories = this.opts.categories as string[]
+      let labelText: string = categories[this.opts.tooltip.index];
       this.setFontSize(this.opts.fontSize);
       let textWidth = this.measureText(labelText, this.opts.fontSize);
       let textX = offsetX - 0.5 * textWidth;
@@ -2348,7 +2350,8 @@ export abstract class BaseRenderer {
       splitLine: true,
     }, this.opts.extra.tooltip!);
     if(toolTipOption.showCategory == true && this.opts.categories) {
-      textList.unshift({text: this.opts.categories[this.opts.tooltip.index],color:null})
+      const categories  = this.opts.categories as string[]
+      textList.unshift({text: categories[this.opts.tooltip.index],color:null})
     }
     let fontSize = toolTipOption.fontSize! * this.opts.pixelRatio;
     let lineHeight = toolTipOption.lineHeight! * this.opts.pixelRatio;

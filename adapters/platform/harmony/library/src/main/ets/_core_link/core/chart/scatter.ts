@@ -17,7 +17,7 @@ export class ScatterChartRenderer extends BaseRenderer {
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    let categories: string[] = this.opts.categories;
+    let categories: string[] = this.opts.categories as string[];
     const duration = this.opts.animation ? this.opts.duration : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
@@ -85,7 +85,7 @@ export class ScatterChartRenderer extends BaseRenderer {
     this.opts.chartData.yAxisData = calYAxisData;
 
     if (this.opts.categories && this.opts.categories.length) {
-      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories);
+      this.opts.chartData.xAxisData = this.getXAxisPoints(this.opts.categories as string[]);
     } else {
       this.opts.chartData.xAxisData = this.calculateXAxisData(series);
       categories = this.opts.chartData.xAxisData.rangesFormat;

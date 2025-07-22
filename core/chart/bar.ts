@@ -18,7 +18,7 @@ export class BarChartRenderer extends BaseRenderer {
 
   protected render(): void {
     let series = this.opts.series;
-    let categories: string[] = this.opts.categories;
+    let categories: string[] = this.opts.categories as string[];
     series = ChartsUtil.fillSeries(series, this.opts);
     const duration = this.opts.animation ? this.opts.duration : 0;
     this.animation && this.animation.stop();

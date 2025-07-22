@@ -15,6 +15,8 @@ export type Series =
     | RoseSeries
     | RadarSeries
     | WordSeries
+    | ArcBarSeries
+    | GaugeSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -94,6 +96,16 @@ export interface RadarSeries extends BaseSeries {
 // 词云图数据系列
 export interface WordSeries extends BaseSeries {}
 
+// 进度条数据系列
+export interface ArcBarSeries extends BaseSeries {
+  data: number  //数据值
+}
+
+// 仪表盘数据系列
+export interface GaugeSeries extends BaseSeries {
+  data: number  //数据值
+}
+
 export interface HasLabelSeriesData extends NameAndValueData {
   labelText?: string    //自定义标签文字
   labelShow?: boolean   //是否显示标签，默认true
@@ -109,6 +121,8 @@ export interface NameAndValueData extends BaseSeries {
 export interface ValueAndColorData {
   value: number
   color: string
+
+  [key: string]: any;
 }
 
 export interface BaseSeries {

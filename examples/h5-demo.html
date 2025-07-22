@@ -63,6 +63,8 @@
         <div class="controls">
           <button onclick="createRadarChart()">雷达图</button>
           <button onclick="createWordChart()">词云图</button>
+          <button onclick="createArcBarChart()">进度条</button>
+          <button onclick="createGaugeBarChart()">仪表盘</button>
       </div>
         
         <div class="chart-container">
@@ -462,6 +464,79 @@
             });
         }
 
+        function createArcBarChart() {
+          const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "arcbar",
+                context: ctx,
+                series: [
+                  {
+                    name: "正确率",
+                    color: "#2fc25b",
+                    data: 0.8
+                  }
+                ],
+                title: {
+                  value: "80%",
+                  fontSize: 35,
+                  color: "#2fc25b"
+                },
+                subtitle: {
+                  value: "正确率",
+                  fontSize: 25,
+                  color: "#666666"
+                },
+                extra: {
+                  arcbar: {
+                    type: "default",
+                    width: 12,
+                    backgroundColor: "#E9E9E9",
+                    startAngle: 0.75,
+                    endAngle: 0.25,
+                    gap: 2,
+                    linearType: "custom"
+                  }
+                }
+            });
+        }
+
+        function createGaugeBarChart() {
+          const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "gauge",
+                context: ctx,
+                series: [{ name: "完成率", data: 0.66 }],
+                title: {
+                  value: "66Km/H",
+                  fontSize: 25,
+                  color: "#2fc25b",
+                  offsetY: 0
+                },
+                subtitle: {
+                  value: "实时速度",
+                  fontSize: 15,
+                  color: "#1890ff",
+                  offsetY: 0
+                },
+                extra: {
+                  gauge: {
+                    type: "progress",
+                    width: 20,
+                    startAngle: 0.75,
+                    endAngle: 0.25,
+                    splitLine: {
+                      fixRadius: -10,
+                      splitNumber: 10,
+                      width: 15,
+                      color: "#FFFFFF",
+                      childNumber: 5
+                    }
+                  }
+                }
+            });
+        }
 
         // 页面加载完成后默认显示折线图
         window.onload = function() {

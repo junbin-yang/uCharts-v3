@@ -28,6 +28,8 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 - **玫瑰图 (rose)**
 - **雷达图 (radar)**
 - **词云图 (word)**
+- **进度条 (arcbar)**
+- **仪表盘 (gauge)**
 - **更多类型持续开发中...**
 
 ## 图表示例
@@ -69,6 +71,14 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 - 词云图
   
   ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word1.png) ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word2.png)
+
+- 进度条
+  
+  ![进度条](https://junbin-yang.github.io/uCharts-v3/docs/image/arcbar1.png) ![进度条](https://junbin-yang.github.io/uCharts-v3/docs/image/arcbar2.png)
+
+- 仪表盘
+  
+  ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge1.png) ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge2.png)
 
 （更多类型和样式可参考 docs 目录）
 

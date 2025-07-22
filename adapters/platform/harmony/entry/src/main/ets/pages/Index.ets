@@ -17,6 +17,8 @@ import { RoseChart } from './RoseChart';
 import { HAR_VERSION } from '@ibestservices/ucharts';
 import { RadarChart } from './RadarChart';
 import { WordChart } from './WordChart';
+import { ArcBarChart } from './ArcbarChart';
+import { GaugeChart } from './GaugeChart';
 
 @Entry
 @Component
@@ -74,7 +76,7 @@ struct Index {
   }
 
   readonly chartList: chartListType [] = [
-    { key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
+    //{ key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
     { key: "column", name: $r("app.string.charts_column"), icon: $r("app.media.column") },
     { key: "mount", name: $r("app.string.charts_mount"), icon: $r("app.media.mount") },
     { key: "bar", name: $r("app.string.charts_bar"), icon: $r("app.media.bar") },
@@ -88,6 +90,8 @@ struct Index {
     { key: "rose", name: $r("app.string.charts_rose"), icon: $r("app.media.rose") },
     { key: "radar", name: $r("app.string.charts_radar"), icon: $r("app.media.radar") },
     { key: "word", name: $r("app.string.charts_word"), icon: $r("app.media.word") },
+    { key: "arcbar", name: $r("app.string.charts_arcbar"), icon: $r("app.media.arcbar") },
+    { key: "gauge", name: $r("app.string.charts_gauge"), icon: $r("app.media.gauge") },
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -250,6 +254,10 @@ struct Index {
       RadarChart()
     } else if(name === 'word') {
       WordChart()
+    } else if(name === 'arcbar') {
+      ArcBarChart()
+    } else if(name === 'gauge') {
+      GaugeChart()
     }
   }
 

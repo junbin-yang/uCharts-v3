@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "5.0.0"
   },
   "keywords": ["chart", "multi-platform", "typescript"],
   "author": ["junbin.yang", "qiuyun"],

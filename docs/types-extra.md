@@ -19,6 +19,8 @@
 - `rose?: Partial<RoseExtra>` 玫瑰图扩展配置
 - `radar?: Partial<RadarExtra>` 雷达图扩展配置
 - `word?: Partial<WordExtra>` 词云图扩展配置
+- `arcbar?: Partial<ArcBarExtra>` 进度条图扩展配置
+- `gauge?: Partial<GaugeExtra>` 仪表盘图扩展配置
 
 ## 各图表扩展配置接口
 
@@ -172,11 +174,51 @@
 ### WordExtra（词云图扩展配置）
 - `type: 'normal'|'vertical'` 词云图样式
 
+### ArcBarExtra（进度条图扩展配置）
+- `type: 'default'|'circle'` 圆弧进度图样式
+- `direction: 'cw'|'ccw'` 动画方向
+- `width: number` 圆弧进度图弧线宽度
+- `lineCap: 'round'|'square'|'butt'` 进度条两端样式
+- `backgroundColor: string` 背景颜色
+- `startAngle: number` 起始角度（0-2）
+- `endAngle: number` 结束角度（0-2）
+- `radius: number` 自定义半径
+- `gap: number` 间隔
+- `centerX: number` 自定义圆心x坐标
+- `centerY: number` 自定义圆心y坐标
+- `linearType: 'none'|'custom'` 渐变类型
+- `customColor: string[]` 自定义渐变色
+
+### GaugeExtra（仪表盘图扩展配置）
+- `type: 'default'|'progress'` 仪表盘样式
+- `width: number` 坐标轴线宽度
+- `labelColor: string` 刻度尺标签文字颜色
+- `labelOffset: number` 标签文字径向偏移距离
+- `startAngle: number` 起始角度（0-2）
+- `endAngle: number` 结束角度（0-2）
+- `startNumber: number` 起始数值
+- `endNumber: number` 结束数值
+- `formatter: (val, index, opts) => string` 数据标签自定义
+- `splitLine: Partial<GaugeExtraSplitLine>` 刻度线配置
+- `pointer: Partial<GaugeExtraPointer>` 指针配置
+
+#### GaugeExtraSplitLine
+- `fixRadius: number` 刻度线径向偏移量
+- `splitNumber: number` 刻度线分段总数量
+- `width: number` 分割线长度
+- `color: string` 分割线颜色
+- `childNumber: number` 子刻度线数量
+- `childWidth: number` 子刻度线长度
+
+#### GaugeExtraPointer
+- `width: number` 指针宽度
+- `color: string` 指针颜色
+
 ### TooltipOptions（提示窗配置）
-- 详见源码注释，支持 showBox、showArrow、showCategory、borderWidth、borderRadius、borderColor、borderOpacity、bgColor、bgOpacity、gridType、dashLength、gridColor、boxPadding、fontSize、lineHeight、fontColor、legendShow、legendShape、splitLine、horizentalLine、xAxisLabel、yAxisLabel、labelBgColor、labelBgOpacity、labelFontColor 等。
+- 详见源码注释。
 
 ### MarkLineOptions（标记线配置）
-- 详见源码注释，支持 type、dashLength、data（数组，见 MarkLineData）。
+- 详见源码注释。
 
 ---
 

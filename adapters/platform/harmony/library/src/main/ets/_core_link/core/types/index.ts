@@ -1,7 +1,7 @@
 import { CanvasContext } from '../../interface/canvas.type'
 import { AnimationTiming } from '../animation/index.type'
 import { Extra } from './extra'
-import { Series } from './series'
+import { Series, ValueAndColorData } from './series'
 
 /**
  * 任意类型
@@ -30,7 +30,7 @@ export interface ChartOptions {
   rotate: boolean                     //横屏模式，默认false
   rotateLock: boolean                 //横屏锁定模式，默认false，如果开启横屏模式后，图表交互每次都会旋转90度，请赋值true
   padding: [number, number, number, number]         //画布填充边距，顺序为上右下左，例如[10,15,25,15]
-  categories: Array<string>           //图表数据集，部分图表类型不需要categories
+  categories: Array<string|Partial<ValueAndColorData>>           //图表数据集，部分图表类型不需要categories
   series: Array<Series>               //图表数据集，请按不同图表类型传入对应的标准数据
   legend: Partial<LegendOptions>      //图例配置
   extra: Extra                        //扩展配置

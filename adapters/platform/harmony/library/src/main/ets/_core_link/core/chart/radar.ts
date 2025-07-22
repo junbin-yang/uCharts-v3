@@ -114,7 +114,7 @@ export class RadarChartRenderer extends BaseRenderer {
     };
     let xr = ((this.opts.width!) - this.opts.area[1] - this.opts.area[3]) / 2
     let yr = ((this.opts.height!) - this.opts.area[0] - this.opts.area[2]) / 2
-    let radius = Math.min(xr - (this.getMaxTextListLength(this.opts.categories, this.opts.fontSize) + GlobalConfig.radarLabelTextMargin), yr - GlobalConfig.radarLabelTextMargin);
+    let radius = Math.min(xr - (this.getMaxTextListLength(this.opts.categories as string[], this.opts.fontSize) + GlobalConfig.radarLabelTextMargin), yr - GlobalConfig.radarLabelTextMargin);
     radius -= GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio;
     radius = radius < 10 ? 10 : radius;
     radius = radarOption.radius ? radarOption.radius : radius;
@@ -331,15 +331,16 @@ export class RadarChartRenderer extends BaseRenderer {
         let posRelativeCanvas = ChartsUtil.convertCoordinateOrigin(pos.x, pos.y, centerPosition);
         let startX = posRelativeCanvas.x;
         let startY = posRelativeCanvas.y;
+        const categories = this.opts.categories as string[]
         if (ChartsUtil.approximatelyEqual(pos.x, 0)) {
-          startX -= this.measureText(this.opts.categories[index] || '', this.opts.fontSize) / 2;
+          startX -= this.measureText(categories[index] || '', this.opts.fontSize) / 2;
         } else if (pos.x < 0) {
-          startX -= this.measureText(this.opts.categories[index] || '', this.opts.fontSize);
+          startX -= this.measureText(categories[index] || '', this.opts.fontSize);
         }
         this.context.beginPath();
         this.setFontSize(this.opts.fontSize);
         this.setFillStyle(radarOption.labelColor || this.opts.fontColor);
-        this.context.fillText(this.opts.categories[index] || '', startX, startY + this.opts.fontSize / 2);
+        this.context.fillText(categories[index] || '', startX, startY + this.opts.fontSize / 2);
         this.context.closePath();
         this.context.stroke();
       }

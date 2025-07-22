@@ -1,6 +1,6 @@
 {
   "name": "@ibestservices/ucharts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "一款基于TypeScript的高性能跨平台数据可视化图表库，支持H5、小程序、鸿蒙等不同设备平台。",
   "main": "Index.ets",
   "keywords": [

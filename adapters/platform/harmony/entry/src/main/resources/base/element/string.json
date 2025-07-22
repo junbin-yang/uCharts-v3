@@ -115,6 +115,14 @@
     {
       "name": "charts_word",
       "value": "词云图"
+    },
+    {
+      "name": "charts_arcbar",
+      "value": "进度条"
+    },
+    {
+      "name": "charts_gauge",
+      "value": "仪表盘"
     }
   ]
 }

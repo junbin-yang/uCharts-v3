@@ -19,6 +19,8 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 - RoseSeries：玫瑰图数据系列
 - RadarSeries：雷达图数据系列
 - WordSeries：词云图数据系列
+- ArcBarSeries：进度条图数据系列
+- GaugeSeries：仪表盘图数据系列
 - NameAndValueData：名称-数值数据结构
 
 ---
@@ -79,6 +81,14 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 - 继承 BaseSeries 通用字段
 
 ### WordSeries（词云图数据系列）
+- 继承 BaseSeries 通用字段
+
+### ArcBarSeries（进度条图数据系列）
+- data：number，数据值
+- 继承 BaseSeries 通用字段
+
+### GaugeSeries（仪表盘图数据系列）
+- data：number，数据值
 - 继承 BaseSeries 通用字段
 
 ### HasLabelSeriesData
