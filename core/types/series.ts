@@ -17,6 +17,7 @@ export type Series =
     | WordSeries
     | ArcBarSeries
     | GaugeSeries
+    | FunnelSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -104,6 +105,22 @@ export interface ArcBarSeries extends BaseSeries {
 // 仪表盘数据系列
 export interface GaugeSeries extends BaseSeries {
   data: number  //数据值
+}
+
+// 漏斗图数据系列
+export interface FunnelSeries extends BaseSeries {
+  data: Array<FunnelSeriesData>       //数据值
+}
+
+// K线图数据系列
+export interface CandleSeries extends BaseSeries {
+  data: Array<number[]>  //数据值
+}
+
+export interface FunnelSeriesData extends HasLabelSeriesData {
+  centerText?: string       //自定义居中标签文字
+  centerTextSize?: number   //自定义居中标签文字字体大小
+  centerTextColor?: string  //自定义居中标签文字颜色，默认#FFFFFF
 }
 
 export interface HasLabelSeriesData extends NameAndValueData {

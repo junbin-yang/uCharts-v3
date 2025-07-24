@@ -31,6 +31,8 @@ UCharts 是一个基于 TypeScript 实现的类型丰富、高性能、模块化
 - **词云图 (word)**
 - **进度条 (arcbar)**
 - **仪表盘 (gauge)**
+- **漏斗图 (funnel)**
+- **K线图 (candle)**
 - **更多类型持续开发中...**
 
 ## 图表示例
@@ -80,6 +82,14 @@ UCharts 是一个基于 TypeScript 实现的类型丰富、高性能、模块化
 - 仪表盘
   
   ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge1.png) ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge2.png)
+
+- 漏斗图
+  
+  ![漏斗图](https://junbin-yang.github.io/uCharts-v3/docs/image/funnel1.png) ![漏斗图](https://junbin-yang.github.io/uCharts-v3/docs/image/funnel2.png)
+
+- K线图
+  
+  ![K线图](https://junbin-yang.github.io/uCharts-v3/docs/image/candle.png)
 
 （更多类型和样式可参考 docs 目录）
 

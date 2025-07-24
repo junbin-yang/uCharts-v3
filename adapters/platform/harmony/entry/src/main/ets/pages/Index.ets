@@ -19,6 +19,8 @@ import { RadarChart } from './RadarChart';
 import { WordChart } from './WordChart';
 import { ArcBarChart } from './ArcbarChart';
 import { GaugeChart } from './GaugeChart';
+import { FunnelChart } from './FunnelChart';
+import { CandleChart } from './CandleChart';
 
 @Entry
 @Component
@@ -92,6 +94,8 @@ struct Index {
     { key: "word", name: $r("app.string.charts_word"), icon: $r("app.media.word") },
     { key: "arcbar", name: $r("app.string.charts_arcbar"), icon: $r("app.media.arcbar") },
     { key: "gauge", name: $r("app.string.charts_gauge"), icon: $r("app.media.gauge") },
+    { key: "funnel", name: $r("app.string.charts_funnel"), icon: $r("app.media.funnel") },
+    { key: "candle", name: $r("app.string.charts_candle"), icon: $r("app.media.candle") }
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -258,6 +262,10 @@ struct Index {
       ArcBarChart()
     } else if(name === 'gauge') {
       GaugeChart()
+    } else if(name === 'funnel') {
+      FunnelChart()
+    } else if(name === 'candle') {
+      CandleChart()
     }
   }
 

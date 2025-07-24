@@ -6,7 +6,9 @@ import { AnyType, ChartOptions, Point, ToolTipOptions, YAxisOptionsData } from "
 import { GlobalConfig } from "../types/config";
 import {
   AreaExtra,
-  BarExtra, ColumnExtra, LineExtra, MarkLineData, MarkLineOptions, TooltipOptions } from '../types/extra';
+  BarExtra,
+  CandleExtra,
+  ColumnExtra, LineExtra, MarkLineData, MarkLineOptions, TooltipOptions } from '../types/extra';
 import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData, WordSeries } from '../types/series';
 import { ChartsUtil } from "../utils";
 import { pieDataPointsRes } from './pie';
@@ -536,6 +538,17 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findFunnelChartCurrentIndex = (currentPoints: Point, funnelData: pieDataPointsRes) => {
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      for (let i = 0, len = funnelData.series.length; i < len; i++) {
+        let item = funnelData.series[i];
+        if (currentPoints.x > item.funnelArea[0] && currentPoints.x < item.funnelArea[2] && currentPoints.y > item.funnelArea[1] && currentPoints.y < item.funnelArea[3]) {
+          current.index = i;
+          break;
+        }
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
@@ -545,7 +558,7 @@ export abstract class BaseRenderer {
     } else if (this.opts.type === 'radar') {
       return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories.length);
     } else if (this.opts.type === 'funnel') {
-      //return findFunnelChartCurrentIndex(_touches, this.opts.chartData.funnelData);
+      return findFunnelChartCurrentIndex(_touches, this.opts.chartData.funnelData);
     } else if (this.opts.type === 'map') {
       //return findMapChartCurrentIndex(_touches, this.opts);
     } else if (this.opts.type === 'word') {
@@ -779,33 +792,36 @@ export abstract class BaseRenderer {
       this.opts.updateData = false;
     }
 
-    /*
     if (this.opts.type === 'candle') {
-      var current = this.getCurrentDataIndex(e);
-      var index = option.index == undefined ? current.index : option.index;
-      if (index > -1) {
-        var currentOffset = this.scrollOption.currentOffset;
-        var opts = assign({}, this.opts, {
+      let current = this.getCurrentDataIndex(touches);
+      let index = option?.index == undefined ? current.index : option.index;
+      if (typeof index == "number" && index > -1) {
+        let currentOffset = this.scrollOption.currentOffset;
+        this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, {
           _scrollDistance_: currentOffset,
           animation: false
         });
-        var seriesData = getSeriesDataItem(this.opts.series, index);
+        let seriesData = this.getSeriesDataItem(this.opts.series, index, current.group);
         if (seriesData.length !== 0) {
-          var _getToolTipData = getCandleToolTipData(this.opts.series[0].data, seriesData, this.opts, index, this.opts.categories, this.opts.extra.candle, option),
+          let _getToolTipData = this.getCandleToolTipData(this.opts.series[0].data, seriesData, index, this.opts.categories as string[], this.opts.extra.candle!),
             textList = _getToolTipData.textList,
             offset = _getToolTipData.offset;
-          offset.y = _touches$.y;
-          opts.tooltip = {
-            textList: option.textList ? option.textList : textList,
-            offset: option.offset !== undefined ? option.offset : offset,
+          offset.y = _touches.y;
+          this.opts.tooltip = {
+            textList: option?.textList ? option.textList : textList,
+            offset: option?.offset ? option.offset : offset,
             option: option,
             index: index
           };
         }
+      } else {
+        this.opts.tooltip = {
+          show: false,
+        }
       }
-      drawCharts.call(this, opts.type, opts, this.config, this.context);
     }
 
+    /*
     if (this.opts.type === 'map') {
       var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
       if (index > -1) {
@@ -2350,7 +2366,7 @@ export abstract class BaseRenderer {
       splitLine: true,
     }, this.opts.extra.tooltip!);
     if(toolTipOption.showCategory == true && this.opts.categories) {
-      const categories  = this.opts.categories as string[]
+      const categories = this.opts.categories as string[]
       textList.unshift({text: categories[this.opts.tooltip.index],color:null})
     }
     let fontSize = toolTipOption.fontSize! * this.opts.pixelRatio;
@@ -2502,6 +2518,11 @@ export abstract class BaseRenderer {
       this.context.closePath();
       this.context.stroke();
     });
+
+    // 画完后把前面添加的categories删掉
+    if(toolTipOption.showCategory == true && this.opts.categories) {
+      textList.shift()
+    }
   }
 
   protected drawCanvas() {
@@ -2870,6 +2891,75 @@ export abstract class BaseRenderer {
     }
     return series;
   }
+
+  private getCandleToolTipData(series: Array<number[]>, seriesData: Series[], index: number, categories: string[], extra: Partial<CandleExtra>) {
+    let calPoints: Array<Array<Point[]|null>> = this.opts.chartData.calPoints;
+    let upColor = extra.color?.upFill || "#f04864";
+    let downColor = extra.color?.downFill || "#2fc25b";
+    //颜色顺序为开盘，收盘，最低，最高
+    let color = [upColor, upColor, downColor, upColor];
+    let textList: tooltipTextList[] = [];
+    seriesData.map((item) => {
+      if (index == 0) {
+        if (item.data[1] - item.data[0] < 0) {
+          color[1] = downColor;
+        } else {
+          color[1] = upColor;
+        }
+      } else {
+        if (item.data[0] < series[index - 1][1]) {
+          color[0] = downColor;
+        }
+        if (item.data[1] < item.data[0]) {
+          color[1] = downColor;
+        }
+        if (item.data[2] > series[index - 1][1]) {
+          color[2] = upColor;
+        }
+        if (item.data[3] < series[index - 1][1]) {
+          color[3] = downColor;
+        }
+      }
+      let text1 = {
+        text: '开盘：' + item.data[0],
+        color: color[0],
+        legendShape: this.opts.extra.tooltip?.legendShape == 'auto'? item.legendShape :  this.opts.extra.tooltip?.legendShape
+      };
+      let text2 = {
+        text: '收盘：' + item.data[1],
+        color: color[1],
+        legendShape: this.opts.extra.tooltip?.legendShape == 'auto'? item.legendShape : this.opts.extra.tooltip?.legendShape
+      };
+      let text3 = {
+        text: '最低：' + item.data[2],
+        color: color[2],
+        legendShape: this.opts.extra.tooltip?.legendShape == 'auto'? item.legendShape : this.opts.extra.tooltip?.legendShape
+      };
+      let text4 = {
+        text: '最高：' + item.data[3],
+        color: color[3],
+        legendShape: this.opts.extra.tooltip?.legendShape == 'auto'? item.legendShape : this.opts.extra.tooltip?.legendShape
+      };
+      textList.push(text1, text2, text3, text4);
+    });
+    let validCalPoints: Array<Point[]> = [];
+    let offset: Point = {
+      x: 0,
+      y: 0
+    };
+    for (let i = 0; i < calPoints.length; i++) {
+      let points = calPoints[i];
+      if (typeof points[index] !== 'undefined' && points[index] !== null) {
+        validCalPoints.push(points[index]);
+      }
+    }
+    offset.x = Math.round(validCalPoints[0][0].x);
+    return {
+      textList: textList,
+      offset: offset
+    } as getToolTipDataRes;
+  }
+
 }
 
 
@@ -2902,7 +2992,7 @@ export interface curveControlPoints {
 export interface drawDataPointsRes {
   xAxisPoints?: number[],
   yAxisPoints?: number[],
-  calPoints: Array<Array<DataPoints|null>>|Array<DataPoints|null>,
+  calPoints: Array<Array<DataPoints|null>>|Array<DataPoints|null>|Array<Array<Point[]|null>>,
   eachSpacing: number
 }
 

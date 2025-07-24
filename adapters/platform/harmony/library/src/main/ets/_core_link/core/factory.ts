@@ -15,6 +15,8 @@ import { RadarChartRenderer } from "./chart/radar";
 import { WordChartRenderer } from "./chart/word";
 import { ArcBarChartRenderer } from "./chart/arcbar";
 import { GaugeChartRenderer } from "./chart/gauge";
+import { FunnelChartRenderer } from "./chart/funnel";
+import { CandleChartRenderer } from "./chart/candle";
 
 /**
  * 图表工厂类
@@ -58,6 +60,10 @@ export class Factory {
         return new ArcBarChartRenderer(opts);
       case 'gauge':
         return new GaugeChartRenderer(opts);
+      case 'funnel':
+        return new FunnelChartRenderer(opts);
+      case 'candle':
+        return new CandleChartRenderer(opts);
       // TODO: 添加其他图表类型的渲染器
       // TODO: 每次新增图表后getCurrentDataIndex和showToolTip方法内需要适配图表操作逻辑
       default:

@@ -236,7 +236,7 @@ export class ColumnChartRenderer extends BaseRenderer {
     return points;
   }
 
-  private fixColumeStackData(points: Array<DataPoints|null>, eachSpacing: number) {
+  private fixColumnStackData(points: Array<DataPoints|null>, eachSpacing: number) {
     let categoryGap = this.opts.extra.column!.categoryGap ? (this.opts.extra.column!.categoryGap * this.opts.pixelRatio) : 0;
     return points.map((item, index) => {
       if (item === null) {
@@ -253,7 +253,7 @@ export class ColumnChartRenderer extends BaseRenderer {
     });
   }
 
-  private fixColumeMeterData(points: Array<DataPoints|null>, eachSpacing: number, seriesIndex: number, border: number) {
+  private fixColumnMeterData(points: Array<DataPoints|null>, eachSpacing: number, seriesIndex: number, border: number) {
     let categoryGap = this.opts.extra.column?.categoryGap ? (this.opts.extra.column.categoryGap! * this.opts.pixelRatio) : 0;
     return points.map((item) => {
       if (item === null) {
@@ -270,7 +270,7 @@ export class ColumnChartRenderer extends BaseRenderer {
     });
   }
 
-  private drawColumePointText(points: Array<DataPoints|null>, series: Series) {
+  private drawColumnPointText(points: Array<DataPoints|null>, series: Series) {
     // 绘制数据文案
     let data = series.data as SeriesDataItem[];
     let textOffset = series.textOffset ? series.textOffset : 0;
@@ -462,7 +462,7 @@ export class ColumnChartRenderer extends BaseRenderer {
           // 绘制堆叠数据图
           points = this.getStackDataPoints(data as SeriesDataItem[], minRange, maxRange, xAxisPoints, eachSpacing, seriesIndex, series, process);
           calPoints.push(points);
-          points = this.fixColumeStackData(points, eachSpacing);
+          points = this.fixColumnStackData(points, eachSpacing);
           for (let i = 0; i < points.length; i++) {
             let item = points[i];
             if (item !== null && i > leftNum && i < rightNum) {
@@ -486,7 +486,7 @@ export class ColumnChartRenderer extends BaseRenderer {
           // 绘制温度计数据图
           points = this.getDataPoints(data as SeriesDataItem[], minRange, maxRange, xAxisPoints, eachSpacing, process);
           calPoints.push(points);
-          points = this.fixColumeMeterData(points, eachSpacing, seriesIndex, columnOption.meterBorder);
+          points = this.fixColumnMeterData(points, eachSpacing, seriesIndex, columnOption.meterBorder);
           for (let i = 0; i < points.length; i++) {
             let item = points[i];
             if (item !== null && i > leftNum && i < rightNum) {
@@ -559,15 +559,15 @@ export class ColumnChartRenderer extends BaseRenderer {
           case 'group':
             points = this.getColumnDataPoints(data as SeriesDataItem[], minRange, maxRange, xAxisPoints, eachSpacing, process);
             points = this.fixColumnData(points, eachSpacing, series.length, seriesIndex);
-            this.drawColumePointText(points, eachSeries);
+            this.drawColumnPointText(points, eachSeries);
             break;
           case 'stack':
             points = this.getStackDataPoints(data as SeriesDataItem[], minRange, maxRange, xAxisPoints, eachSpacing, seriesIndex, series, process);
-            this.drawColumePointText(points, eachSeries);
+            this.drawColumnPointText(points, eachSeries);
             break;
           case 'meter':
             points = this.getDataPoints(data as SeriesDataItem[], minRange, maxRange, xAxisPoints, eachSpacing, process);
-            this.drawColumePointText(points, eachSeries);
+            this.drawColumnPointText(points, eachSeries);
             break;
         }
       });

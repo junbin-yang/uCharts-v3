@@ -22,6 +22,8 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 - ArcBarSeries：进度条图数据系列
 - GaugeSeries：仪表盘图数据系列
 - NameAndValueData：名称-数值数据结构
+- FunnelSeries：漏斗图数据系列
+- CandleSeries：K线图数据系列
 
 ---
 
@@ -89,6 +91,23 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 
 ### GaugeSeries（仪表盘图数据系列）
 - data：number，数据值
+- 继承 BaseSeries 通用字段
+
+### FunnelSeries（漏斗图数据系列）
+- data：Array<FunnelSeriesData>，数据值，包含每一层的名称、数值及可选的自定义标签
+- 继承 BaseSeries 通用字段
+
+#### FunnelSeriesData
+- name：string，名称
+- value：number，数值
+- labelText：string，自定义标签文字
+- labelShow：boolean，是否显示标签，默认 true
+- centerText：string，自定义居中标签文字
+- centerTextSize：number，自定义居中标签文字字体大小
+- centerTextColor：string，自定义居中标签文字颜色，默认 #FFFFFF
+
+### CandleSeries（K线图数据系列）
+- data：Array<number[]>，数据值，每项为 [开盘价, 收盘价, 最低价, 最高价]
 - 继承 BaseSeries 通用字段
 
 ### HasLabelSeriesData

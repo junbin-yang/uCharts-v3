@@ -21,6 +21,8 @@
 - `word?: Partial<WordExtra>` 词云图扩展配置
 - `arcbar?: Partial<ArcBarExtra>` 进度条图扩展配置
 - `gauge?: Partial<GaugeExtra>` 仪表盘图扩展配置
+- `funnel?: Partial<FunnelExtra>` 漏斗图扩展配置
+- `candle?: Partial<CandleExtra>` K线图扩展配置
 
 ## 各图表扩展配置接口
 
@@ -213,6 +215,31 @@
 #### GaugeExtraPointer
 - `width: number` 指针宽度
 - `color: string` 指针颜色
+
+### FunnelExtra（漏斗图扩展配置）
+- type: 'funnel'|'triangle'|'pyramid'  漏斗图类型，可选值：funnel 基本漏斗图，triangle 倒三角漏斗图，pyramid 金字塔漏斗图，默认 funnel
+- activeOpacity: number  启用Tooltip点击时，突出部分的透明度，默认0.3
+- activeWidth: number  启用Tooltip点击时，突出部分的宽度（最大值不得超过labelWidth），默认10
+- border: boolean  是否绘制各类别中间的分割线，默认true
+- borderWidth: number  分割线的宽度，默认2
+- borderColor: string  分割线的颜色，默认#FFFFFF
+- fillOpacity: number  漏斗图主体透明度，默认1
+- minSize: number  最小值的最小宽度，默认0
+- labelAlign: 'right'|'left'  数据标签显示位置，可选值：right、left，默认right
+- linearType: 'none'|'custom'  渐变类型，可选值：none 关闭渐变，custom 开启渐变，默认none
+- customColor: string[]  自定义渐变颜色，数组类型，对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+
+### CandleExtra（K线图扩展配置）
+- color: Partial<CandleExtraColor>  K线颜色配置
+  - upLine: string  K线为涨时线颜色，默认#f04864
+  - upFill: string  K线为涨时填充颜色，默认#f04864
+  - downLine: string  K线为跌时线颜色，默认#2fc25b
+  - downFill: string  K线为跌时填充颜色，默认#2fc25b
+- average: Partial<CandleExtraAverage>  均线配置
+  - show: boolean  是否叠加显示均线，默认true
+  - name: string[]  均线名称（如["MA5","MA20"]）用于下方图例显示
+  - day: number[]  均线单位日期（如[5,20]为显示5日及20日均线，主要看K线的单位是什么）
+  - color: string[]  均线颜色，如["#1890ff", "#2fc25b"]
 
 ### TooltipOptions（提示窗配置）
 - 详见源码注释。

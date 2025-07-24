@@ -123,6 +123,14 @@
     {
       "name": "charts_gauge",
       "value": "仪表盘"
+    },
+    {
+      "name": "charts_funnel",
+      "value": "漏斗图"
+    },
+    {
+      "name": "charts_candle",
+      "value": "K线图"
     }
   ]
 }
