@@ -3,6 +3,8 @@
 ## 1.0.4
 #### 新增：
 1. 新增地图绘制；
+2. 增加组件onTap事件，返回点击图表位置的数据索引；
+3. 增加图表控制器getCurrentDataIndex方法，获取指定位置的数据索引；
 #### 优化：
 1. 将ChartOptions部分默认值的属性修改为可选；
 2. 增加组件contentWidth和contentHeight属性，不再需要外部强制限制高度；
