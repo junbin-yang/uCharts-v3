@@ -1,4 +1,6 @@
-export type EventListener = (...args: Array<string|number>) => void;
+import { ChartOptions } from "../types";
+
+export type EventListener = (args: ChartOptions) => void;
 
 /**
  * 可监听的事件类型
@@ -8,6 +10,10 @@ export type EventType = "renderComplete" | "scrollLeft" | "scrollRight"
 
 export class EventEmitter {
   private events: Record<string, EventListener[]> = {};
+
+  constructor(events: Record<string, EventListener[]> = {}) {
+    this.events = events
+  }
 
   // 监听事件
   on(type: EventType, listener: EventListener): void {
@@ -29,11 +35,11 @@ export class EventEmitter {
   }
 
   // 触发事件
-  emit(type: EventType, ...args: Array<string|number>): void {
+  emit(type: EventType, args: ChartOptions): void {
     if (this.events[type]) {
       this.events[type].forEach(listener => {
         try {
-          listener(...args);
+          listener(args);
         } catch (e) {
           console.error('[EventEmitter]', e);
         }

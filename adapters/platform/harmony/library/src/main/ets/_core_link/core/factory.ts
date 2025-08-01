@@ -17,6 +17,8 @@ import { ArcBarChartRenderer } from "./chart/arcbar";
 import { GaugeChartRenderer } from "./chart/gauge";
 import { FunnelChartRenderer } from "./chart/funnel";
 import { CandleChartRenderer } from "./chart/candle";
+import { MapChartRenderer } from "./chart/map";
+import { EventListener } from "./event";
 
 /**
  * 图表工厂类
@@ -28,42 +30,44 @@ export class Factory {
    * @param opts 图表配置选项
    * @returns 对应的图表渲染器实例
    */
-  static createRenderer(opts: Partial<ChartOptions>): BaseRenderer {
+  static createRenderer(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}): BaseRenderer {
     switch (opts.type) {
       case 'column':
-        return new ColumnChartRenderer(opts);
+        return new ColumnChartRenderer(opts, events);
       case 'mount':
-        return new MountChartRenderer(opts);
+        return new MountChartRenderer(opts, events);
       case 'bar':
-        return new BarChartRenderer(opts);
+        return new BarChartRenderer(opts, events);
       case 'line':
-        return new LineChartRenderer(opts);
+        return new LineChartRenderer(opts, events);
       case 'area':
-        return new AreaChartRenderer(opts);
+        return new AreaChartRenderer(opts, events);
       case 'scatter':
-        return new ScatterChartRenderer(opts);
+        return new ScatterChartRenderer(opts, events);
       case 'bubble':
-        return new BubbleChartRenderer(opts);
+        return new BubbleChartRenderer(opts, events);
       case 'mix':
-        return new MixChartRenderer(opts);
+        return new MixChartRenderer(opts, events);
       case 'pie':
-        return new PieChartRenderer(opts);
+        return new PieChartRenderer(opts, events);
       case 'ring':
-        return new RingChartRenderer(opts);
+        return new RingChartRenderer(opts, events);
       case 'rose':
-        return new RoseChartRenderer(opts);
+        return new RoseChartRenderer(opts, events);
       case 'radar':
-        return new RadarChartRenderer(opts);
+        return new RadarChartRenderer(opts, events);
       case 'word':
-        return new WordChartRenderer(opts);
+        return new WordChartRenderer(opts, events);
       case 'arcbar':
-        return new ArcBarChartRenderer(opts);
+        return new ArcBarChartRenderer(opts, events);
       case 'gauge':
-        return new GaugeChartRenderer(opts);
+        return new GaugeChartRenderer(opts, events);
       case 'funnel':
-        return new FunnelChartRenderer(opts);
+        return new FunnelChartRenderer(opts, events);
       case 'candle':
-        return new CandleChartRenderer(opts);
+        return new CandleChartRenderer(opts, events);
+      case 'map':
+        return new MapChartRenderer(opts, events);
       // TODO: 添加其他图表类型的渲染器
       // TODO: 每次新增图表后getCurrentDataIndex和showToolTip方法内需要适配图表操作逻辑
       default:

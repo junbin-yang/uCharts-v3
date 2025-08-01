@@ -6,19 +6,20 @@ import { Animation } from '../animation';
 import { Series } from "../types/series";
 import { MixAreaExtra, MixColumnExtra, MixLineExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface";
+import { EventListener } from "../event";
 
 /**
  * 混合图渲染器
  */
 export class MixChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -27,14 +28,14 @@ export class MixChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -56,7 +57,7 @@ export class MixChartRenderer extends BaseRenderer {
     if (this.opts.yAxis.showTitle) {
       let maxTitleHeight = 0;
       for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio) : this.opts.fontSize)
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -67,14 +68,14 @@ export class MixChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -113,7 +114,7 @@ export class MixChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -138,7 +139,7 @@ export class MixChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
 
@@ -279,7 +280,7 @@ export class MixChartRenderer extends BaseRenderer {
           } else {
             this.setFillStyle(ChartsUtil.hexToRgb(eachSeries.color!, areaOption.opacity));
           }
-          this.setLineWidth(2 * this.opts.pixelRatio);
+          this.setLineWidth(2 * this.opts.pixelRatio!);
           if (points.length > 1) {
             let firstPoint = points[0];
             let lastPoint = points[points.length - 1];
@@ -330,12 +331,12 @@ export class MixChartRenderer extends BaseRenderer {
         splitPointList.forEach((points, index) => {
           if (eachSeries.lineType == 'dash') {
             let dashLength = eachSeries.dashLength ? eachSeries.dashLength : 8;
-            dashLength *= this.opts.pixelRatio;
+            dashLength *= this.opts.pixelRatio!;
             this.setLineDash([dashLength, dashLength]);
           }
           this.context.beginPath();
           this.setStrokeStyle(eachSeries.color!);
-          this.setLineWidth(lineOption.width * this.opts.pixelRatio);
+          this.setLineWidth(lineOption.width * this.opts.pixelRatio!);
           if (points.length === 1) {
             this.context.moveTo(points[0].x, points[0].y);
             // context.arc(points[0].x, points[0].y, 1, 0, 2 * Math.PI);

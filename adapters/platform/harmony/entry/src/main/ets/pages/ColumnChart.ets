@@ -63,7 +63,7 @@ export struct ColumnChart {
               wrap: FlexWrap.Wrap,
               space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
             }) {
-              UCharts({controller: this.easyChart}).height(260)
+              UCharts({controller: this.easyChart})
               CollapseAndExpand({ value: GetColumnDemoCodeStr(-1) })
             }
           }
@@ -77,7 +77,7 @@ export struct ColumnChart {
               }) {
                 UCharts({controller: item.ctl, onReady: () => {
                   item.ctl.updateData(item.opts)
-                }}).height(260)
+                }})
 
                 CollapseAndExpand({ value: GetColumnDemoCodeStr(index) })
               }
@@ -121,7 +121,7 @@ const SetColumnChartDemo = () => {
         extra: {
           column: {
             type: "group",
-            width: 30,
+            width: 40,
             activeBgColor: "#000000",
             activeBgOpacity: 0.08
           }

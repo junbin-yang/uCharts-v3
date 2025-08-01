@@ -5,19 +5,20 @@ import { ChartsUtil } from '../utils';
 import { GlobalConfig } from "../types/config";
 import { Animation } from '../animation';
 import { CandleExtra, CandleExtraAverage, CandleExtraColor } from "../types/extra";
+import { EventListener } from "../event";
 
 /**
  * K线图渲染器
  */
 export class CandleChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     let average = ChartsUtil.objectAssign({ show: true } as CandleExtraAverage, this.opts.extra.candle!.average!);
@@ -32,14 +33,14 @@ export class CandleChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -61,7 +62,7 @@ export class CandleChartRenderer extends BaseRenderer {
     if (this.opts.yAxis.showTitle) {
       let maxTitleHeight = 0;
       for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio) : this.opts.fontSize)
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -72,14 +73,14 @@ export class CandleChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -122,7 +123,7 @@ export class CandleChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -147,7 +148,7 @@ export class CandleChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
 
@@ -192,7 +193,7 @@ export class CandleChartRenderer extends BaseRenderer {
       show: true,
       name: [],
       day: [],
-      color: GlobalConfig.color
+      color: this.opts.color!
     }, candleOption.average!);
     this.opts.extra.candle = candleOption;
     let xAxisData: XAxisPointsType = this.opts.chartData.xAxisData,
@@ -239,7 +240,7 @@ export class CandleChartRenderer extends BaseRenderer {
                 startPoint = 1;
               }
               if (j > 0 && item.x > leftSpace && item.x < rightSpace) {
-                var ctrlPoint = this.createCurveControlPoints(points, j - 1);
+                let ctrlPoint = this.createCurveControlPoints(points, j - 1);
                 this.context.bezierCurveTo(ctrlPoint.ctrA.x, ctrlPoint.ctrA.y, ctrlPoint.ctrB.x, ctrlPoint.ctrB.y, item.x,
                   item.y);
               }
@@ -269,7 +270,7 @@ export class CandleChartRenderer extends BaseRenderer {
           if (data[i][1] - data[i][0] > 0) {
             this.setStrokeStyle(candleOption.color.upLine!);
             this.setFillStyle(candleOption.color.upFill!);
-            this.setLineWidth(1 * this.opts.pixelRatio);
+            this.setLineWidth(1 * this.opts.pixelRatio!);
             this.context.moveTo(item[3].x, item[3].y); //顶点
             this.context.lineTo(item[1].x, item[1].y); //收盘中间点
             this.context.lineTo(item[1].x - eachSpacing / 4, item[1].y); //收盘左侧点
@@ -284,7 +285,7 @@ export class CandleChartRenderer extends BaseRenderer {
           } else {
             this.setStrokeStyle(candleOption.color.downLine!);
             this.setFillStyle(candleOption.color.downFill!);
-            this.setLineWidth(1 * this.opts.pixelRatio);
+            this.setLineWidth(1 * this.opts.pixelRatio!);
             this.context.moveTo(item[3].x, item[3].y); //顶点
             this.context.lineTo(item[0].x, item[0].y); //开盘中间点
             this.context.lineTo(item[0].x - eachSpacing / 4, item[0].y); //开盘左侧点

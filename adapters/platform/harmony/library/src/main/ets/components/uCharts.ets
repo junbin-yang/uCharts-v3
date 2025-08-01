@@ -34,6 +34,7 @@ export class UChartsController {
   private chartRenderer: BaseRenderer|undefined;
   public context: CanvasRenderingContext2D;
   private opts: Partial<ChartOptions>|undefined;
+  private events_tmp: Record<string, EventListener[]> = {};
 
   constructor(data?: Partial<ChartOptions>) {
     this.context = new CanvasRenderingContext2D(new RenderingContextSettings(true));
@@ -52,7 +53,7 @@ export class UChartsController {
       data.context = canvasContext;
       //data.context = this.context as CanvasContext
       try {
-        this.chartRenderer = Factory.createRenderer(data);
+        this.chartRenderer = Factory.createRenderer(data, this.events_tmp);
       } catch (e) {
         throw new Error('Failed to create chart renderer');
       }
@@ -101,18 +102,48 @@ export class UChartsController {
   }
 
   addEventListener(type: EventType, listener: EventListener) {
-    this.chartRenderer?.on(type, listener)
+    if(this.chartRenderer == undefined) {
+      this.events_tmp[type] = this.events_tmp[type] || [];
+      this.events_tmp[type].push(listener);
+    } else {
+      this.chartRenderer.on(type, listener)
+    }
   }
 
   delEventListener(type: EventType) {
-    this.chartRenderer?.off(type)
+    if(this.chartRenderer == undefined) {
+      this.events_tmp[type] = [];
+    } else {
+      this.chartRenderer.off(type)
+    }
+  }
+
+  // 获取当前图表数据点击索引
+  getCurrentDataIndex(p: Point) {
+    return this.chartRenderer?.getCurrentDataIndex(p)
   }
 }
 
 @Component
 export struct UCharts {
   @ObjectLink controller: UChartsController;
+  /**
+   * 图表宽度
+   */
+  @Prop contentWidth: number|string = "100%"
+  /**
+   * 图表高度
+   */
+  @Prop contentHeight: number|string = 300
+  /*
+   * 画布已加载完毕，可以开始渲染
+   */
   onReady: () => void = () => {}
+  /*
+   * 图表点击事件
+   * dataIndex：当前点击图表的数据索引
+   */
+  onTap: (dataIndex: number|number[]) => void = () => {}
 
   build() {
     Canvas(this.controller.context)
@@ -120,8 +151,22 @@ export struct UCharts {
         this.controller.reload()
         this.onReady()
       })
-      .onMouse((event: MouseEvent) => this.controller.onMouseEvent(event))
-      .onTouch((event: TouchEvent) => this.controller.onTouchEvent(event))
+      .onMouse((event: MouseEvent) => {
+        if(event.action == MouseAction.Press) {
+          const current = this.controller.getCurrentDataIndex({x: event.x, y: event.y})
+          if(current) this.onTap(current.index)
+        }
+        this.controller.onMouseEvent(event)
+      })
+      .onTouch((event: TouchEvent) => {
+        if(event.type == TouchType.Down) {
+          const current = this.controller.getCurrentDataIndex({x: event.touches[0].x, y: event.touches[0].y})
+          if(current) this.onTap(current.index)
+        }
+        this.controller.onTouchEvent(event)
+      })
+      .width(this.contentWidth)
+      .height(this.contentHeight)
   }
 }
 
@@ -129,6 +174,7 @@ export class UChartsControllerV2 {
   private chartRenderer: BaseRenderer|undefined;
   public context: CanvasRenderingContext2D;
   private opts: Partial<ChartOptions>|undefined;
+  private events_tmp: Record<string, EventListener[]> = {};
 
   constructor(data?: Partial<ChartOptions>) {
     this.context = new CanvasRenderingContext2D(new RenderingContextSettings(true));
@@ -147,7 +193,7 @@ export class UChartsControllerV2 {
       data.context = canvasContext;
       //data.context = this.context as CanvasContext
       try {
-        this.chartRenderer = Factory.createRenderer(data);
+        this.chartRenderer = Factory.createRenderer(data, this.events_tmp);
       } catch (e) {
         throw new Error('Failed to create chart renderer');
       }
@@ -202,12 +248,32 @@ export class UChartsControllerV2 {
   delEventListener(type: EventType) {
     this.chartRenderer?.off(type)
   }
+
+  getCurrentDataIndex(p: Point) {
+    return this.chartRenderer?.getCurrentDataIndex(p)
+  }
 }
 
 @ComponentV2
 export struct UChartsV2 {
   @Require @Param controller: UChartsControllerV2;
+  /**
+   * 图表宽度
+   */
+  @Param contentWidth: number|string = "100%"
+  /**
+   * 图表高度
+   */
+  @Param contentHeight: number|string = 300
+  /*
+   * 画布已加载完毕，可以开始渲染
+   */
   @Event onReady: () => void = () => {}
+  /*
+   * 图表点击事件
+   * dataIndex：当前点击图表的数据索引
+   */
+  @Event onTap: (dataIndex: number|number[]) => void = () => {}
 
   build() {
     Canvas(this.controller.context)
@@ -215,7 +281,19 @@ export struct UChartsV2 {
         this.controller.reload()
         this.onReady()
       })
-      .onMouse((event: MouseEvent) => this.controller.onMouseEvent(event))
-      .onTouch((event: TouchEvent) => this.controller.onTouchEvent(event))
+      .onMouse((event: MouseEvent) => {
+        if(event.action == MouseAction.Press) {
+          const current = this.controller.getCurrentDataIndex({x: event.x, y: event.y})
+          if(current) this.onTap(current.index)
+        }
+        this.controller.onMouseEvent(event)
+      })
+      .onTouch((event: TouchEvent) => {
+        if(event.type == TouchType.Down) {
+          const current = this.controller.getCurrentDataIndex({x: event.touches[0].x, y: event.touches[0].y})
+          if(current) this.onTap(current.index)
+        }
+        this.controller.onTouchEvent(event)
+      })
   }
 }

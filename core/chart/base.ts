@@ -2,14 +2,15 @@ import { CanvasContext, CanvasGradient, CanvasLineCap, CanvasPattern, CanvasText
   CanvasTextBaseline } from '../../interface/canvas.type';
 import { Animation } from '../animation';
 import { EventEmitter, EventType, EventListener } from '../event';
-import { AnyType, ChartOptions, Point, ToolTipOptions, YAxisOptionsData } from "../types";
+import { AnyType, BoundBoxType, ChartOptions, Point, ToolTipOptions, YAxisOptionsData } from "../types";
 import { GlobalConfig } from "../types/config";
 import {
   AreaExtra,
   BarExtra,
   CandleExtra,
   ColumnExtra, LineExtra, MarkLineData, MarkLineOptions, TooltipOptions } from '../types/extra';
-import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData, WordSeries } from '../types/series';
+import { SeriesDataItem, NameAndValueData, Series, ValueAndColorData, WordSeries, MapSeries } from '../types/series';
+import { Position } from '../types/geojson';
 import { ChartsUtil } from "../utils";
 import { pieDataPointsRes } from './pie';
 import { radarDataPointsRes } from './radar';
@@ -21,7 +22,7 @@ export abstract class BaseRenderer {
   protected scrollOption: Record<string, number|string>;
   protected animation: Animation|undefined;
 
-  constructor(opts: Partial<ChartOptions>) {
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
     this.context = opts.context!
     if(!this.context) throw new Error('未获取到context')
 
@@ -114,12 +115,32 @@ export abstract class BaseRenderer {
         hiddenColor: "#CECECE",
         itemGap: 10
       },
-      extra: {},
       touchMoveLimit: 60,
       dataLabel: true,
       dataPointShape: true,
       dataPointShapeType: 'solid',
-      enableMarkLine: false
+      enableMarkLine: false,
+      color: GlobalConfig.color,
+      extra: {
+        column: {},
+        arcbar: {},
+        area: {},
+        bar: {},
+        bubble: {},
+        candle: {},
+        funnel: {},
+        gauge: {},
+        line: {},
+        map: {},
+        mix: {},
+        mount: {},
+        pie: {},
+        radar: {},
+        ring: {},
+        rose: {},
+        scatter: {},
+        word: {}
+      },
     }
 
     this.opts = ChartsUtil.objectAssign({} as ChartOptions, DefaultOptions, opts)
@@ -140,15 +161,15 @@ export abstract class BaseRenderer {
     }
 
     // 适配像素比
-    if(this.opts.pixelRatio > 1) {
-      GlobalConfig.yAxisWidth *= this.opts.pixelRatio;
-      this.opts.fontSize *= this.opts.pixelRatio;
-      this.opts.title.fontSize! *= this.opts.pixelRatio;
-      this.opts.subtitle.fontSize! *= this.opts.pixelRatio;
+    if(this.opts.pixelRatio! > 1) {
+      GlobalConfig.yAxisWidth *= this.opts.pixelRatio!;
+      this.opts.fontSize! *= this.opts.pixelRatio!;
+      this.opts.title!.fontSize! *= this.opts.pixelRatio!;
+      this.opts.subtitle!.fontSize! *= this.opts.pixelRatio!;
     }
 
     this.animation = undefined;
-    this.event = new EventEmitter();
+    this.event = new EventEmitter(events);
     this.scrollOption = {
       "currentOffset": 0,
       "startTouchX": 0,
@@ -172,6 +193,8 @@ export abstract class BaseRenderer {
     this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, data);
     this.opts.updateData = true;
     let scrollPosition = data.scrollPosition || 'current';
+    this.opts.width = this.context.width;
+    this.opts.height = this.context.height;
     switch (scrollPosition) {
       case 'current':
         this.opts._scrollDistance_ = this.scrollOption.currentOffset;
@@ -207,6 +230,7 @@ export abstract class BaseRenderer {
         break;
     }
     this.render()
+    this.opts.updateData = false;
   }
 
   /**
@@ -219,11 +243,11 @@ export abstract class BaseRenderer {
   private getTouches(touches: Point) {
     let res: Point = {x: 0, y: 0}
     if (this.opts.rotate) {
-      res.y = this.opts.height - touches.x * this.opts.pixelRatio;
-      res.x = touches.y * this.opts.pixelRatio;
+      res.y = this.opts.height - touches.x * this.opts.pixelRatio!;
+      res.x = touches.y * this.opts.pixelRatio!;
     } else {
-      res.x = touches.x * this.opts.pixelRatio;
-      res.y = touches.y * this.opts.pixelRatio;
+      res.x = touches.x * this.opts.pixelRatio!;
+      res.y = touches.y * this.opts.pixelRatio!;
     }
     return res
   }
@@ -334,11 +358,15 @@ export abstract class BaseRenderer {
     };
     let textList = seriesData.map((item) => {
       let titleText: string = "";
-      if (this.opts.categories && this.opts.categories.length>0) {
+      if (this.opts.categories && this.opts.categories.length > 0) {
         titleText = categories[index as number];
       };
+      let value = item.data
+      if (typeof item.data === 'object' && item.data !== null) {
+        value = item.data.value
+      }
       return {
-        text: option?.formatter ? option.formatter(item, titleText, index as number, this.opts) : item.name + ': ' + item.data,
+        text: option?.formatter ? option.formatter(item, titleText, index as number, this.opts) : item.name + ': ' + value,
         color: item.color,
         legendShape: this.opts.extra.tooltip?.legendShape == 'auto'? item.legendShape : this.opts.extra.tooltip?.legendShape
       } as tooltipTextList;
@@ -549,6 +577,21 @@ export abstract class BaseRenderer {
       }
       return current;
     }
+    const findMapChartCurrentIndex = (currentPoints: Point) => {
+      let current: CurrentDataIndexRes = { index:-1, group:[] };
+      let cData = this.opts.chartData.mapData;
+      let data: MapSeries = this.opts.series as MapSeries;
+      let tmp = this.pointToCoordinate(currentPoints.y, currentPoints.x, cData.bounds, cData.scale, cData.xoffset, cData.yoffset);
+      let poi = [tmp.x, tmp.y];
+      for (let i = 0, len = data.length; i < len; i++) {
+        let item = data[i].geometry.coordinates as Position[][][];
+        if (this.isPoiWithinPoly(poi, item, this.opts.chartData.mapData.mercator)) {
+          current.index = i;
+          break;
+        }
+      }
+      return current;
+    }
 
     let _touches = this.getTouches(touches);
     if (this.opts.type === 'pie' || this.opts.type === 'ring') {
@@ -560,7 +603,7 @@ export abstract class BaseRenderer {
     } else if (this.opts.type === 'funnel') {
       return findFunnelChartCurrentIndex(_touches, this.opts.chartData.funnelData);
     } else if (this.opts.type === 'map') {
-      //return findMapChartCurrentIndex(_touches, this.opts);
+      return findMapChartCurrentIndex(_touches);
     } else if (this.opts.type === 'word') {
       return findWordChartCurrentIndex(_touches, this.opts.chartData.wordCloudData);
     } else if (this.opts.type === 'bar') {
@@ -821,33 +864,36 @@ export abstract class BaseRenderer {
       }
     }
 
-    /*
     if (this.opts.type === 'map') {
-      var index = option.index == undefined ? this.getCurrentDataIndex(e) : option.index;
-      if (index > -1) {
-        var opts = assign({}, this.opts, {animation: false});
-        var seriesData = assign({}, this.opts.series[index]);
-        seriesData.name = seriesData.properties.name
-        var textList = [{
-          text: option.formatter ? option.formatter(seriesData, undefined, index, this.opts) : seriesData.name,
-          color: seriesData.color,
-          legendShape: this.opts.extra.tooltip.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip.legendShape
+      let current = this.getCurrentDataIndex(touches);
+      let index = option?.index == undefined ? current.index : option.index;
+      if (typeof index == "number" && index > -1) {
+        this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, {animation: false});
+        let seriesData = ChartsUtil.objectAssign({}, this.opts.series[index]);
+        seriesData.name = seriesData?.properties?.name
+        let textList = [{
+          text: option?.formatter ? option.formatter(seriesData.name, "", index, this.opts) : seriesData.name,
+          color: seriesData?.color,
+          legendShape: this.opts.extra.tooltip?.legendShape == 'auto' ? seriesData.legendShape : this.opts.extra.tooltip?.legendShape
         }];
-        var offset = {
-          x: _touches$.x,
-          y: _touches$.y
+        let offset: Point = {
+          x: _touches.x,
+          y: _touches.y
         };
-        opts.tooltip = {
-          textList: option.textList ? option.textList : textList,
-          offset: option.offset !== undefined ? option.offset : offset,
+        this.opts.tooltip = {
+          textList: option?.textList !== undefined ? option.textList : textList,
+          offset: option?.offset !== undefined ? option.offset : offset,
           option: option,
           index: index
         };
+      } else {
+        this.opts.tooltip = {
+          show: false,
+        }
       }
-      opts.updateData = false;
-      drawCharts.call(this, opts.type, opts, this.config, this.context);
+      this.opts.updateData = false;
     }
-    */
+
     this.render()
   };
 
@@ -1030,17 +1076,17 @@ export abstract class BaseRenderer {
       widthArr: [],
       heightArr: []
     }
-    if (this.opts.legend.show === false) {
+    if (this.opts.legend!.show === false) {
       chartData.legendData = legendData;
       return legendData;
     }
-    const padding = this.opts.legend.padding! * this.opts.pixelRatio;
-    const margin = this.opts.legend.margin! * this.opts.pixelRatio;
-    const fontSize = this.opts.legend.fontSize ? this.opts.legend.fontSize * this.opts.pixelRatio : this.opts.fontSize;
-    let shapeWidth = 15 * this.opts.pixelRatio;
-    let shapeRight = 5 * this.opts.pixelRatio;
-    let lineHeight = Math.max(this.opts.legend.lineHeight! * this.opts.pixelRatio, fontSize);
-    if (this.opts.legend.position == 'top' || this.opts.legend.position == 'bottom') {
+    const padding = this.opts.legend!.padding! * this.opts.pixelRatio!;
+    const margin = this.opts.legend!.margin! * this.opts.pixelRatio!;
+    const fontSize = this.opts.legend!.fontSize ? this.opts.legend!.fontSize * this.opts.pixelRatio! : this.opts.fontSize!;
+    let shapeWidth = 15 * this.opts.pixelRatio!;
+    let shapeRight = 5 * this.opts.pixelRatio!;
+    let lineHeight = Math.max(this.opts.legend!.lineHeight! * this.opts.pixelRatio!, fontSize);
+    if (this.opts.legend!.position == 'top' || this.opts.legend!.position == 'bottom') {
       let legendList: Array<Series[]> = [];
       let widthCount = 0;
       let widthCountArr: number[] = [];
@@ -1048,10 +1094,10 @@ export abstract class BaseRenderer {
       for (let i = 0; i < series.length; i++) {
         let item: Series = series[i];
         const legendText = item.legendText ? item.legendText : item.name;
-        let itemWidth = shapeWidth + shapeRight + this.measureText(legendText || 'undefined', fontSize) + this.opts.legend.itemGap! * this.opts.pixelRatio;
+        let itemWidth = shapeWidth + shapeRight + this.measureText(legendText || 'undefined', fontSize) + this.opts.legend!.itemGap! * this.opts.pixelRatio!;
         if (widthCount + itemWidth > this.opts.width - this.opts.area[1] - this.opts.area[3]) {
           legendList.push(currentRow);
-          widthCountArr.push(widthCount - this.opts.legend.itemGap! * this.opts.pixelRatio);
+          widthCountArr.push(widthCount - this.opts.legend!.itemGap! * this.opts.pixelRatio!);
           widthCount = itemWidth;
           currentRow = [item];
         } else {
@@ -1061,10 +1107,10 @@ export abstract class BaseRenderer {
       }
       if (currentRow.length) {
         legendList.push(currentRow);
-        widthCountArr.push(widthCount - this.opts.legend.itemGap! * this.opts.pixelRatio);
+        widthCountArr.push(widthCount - this.opts.legend!.itemGap! * this.opts.pixelRatio!);
         legendData.widthArr = widthCountArr;
         let legendWidth = Math.max(...widthCountArr);
-        switch (this.opts.legend.float) {
+        switch (this.opts.legend!.float) {
           case 'left':
             legendData.area.start.x = this.opts.area[3];
             legendData.area.end.x = this.opts.area[3] + legendWidth + 2 * padding;
@@ -1089,7 +1135,7 @@ export abstract class BaseRenderer {
       let maxLength = Math.min(Math.floor(maxHeight / lineHeight), len);
       legendData.area.height = maxLength * lineHeight + padding * 2;
       legendData.area.wholeHeight = maxLength * lineHeight + padding * 2;
-      switch (this.opts.legend.float) {
+      switch (this.opts.legend!.float) {
         case 'top':
           legendData.area.start.y = this.opts.area[0] + margin;
           legendData.area.end.y = this.opts.area[0] + margin + legendData.area.height;
@@ -1114,7 +1160,7 @@ export abstract class BaseRenderer {
           let item = currentRow[i];
           let maxWidth = 0;
           for (let j = 0; j < item.length; j++) {
-            let itemWidth = shapeWidth + shapeRight + this.measureText(item[j].name || 'undefined', fontSize) + this.opts.legend.itemGap! * this.opts.pixelRatio;
+            let itemWidth = shapeWidth + shapeRight + this.measureText(item[j].name || 'undefined', fontSize) + this.opts.legend!.itemGap! * this.opts.pixelRatio!;
             if (itemWidth > maxWidth) {
               maxWidth = itemWidth;
             }
@@ -1126,12 +1172,12 @@ export abstract class BaseRenderer {
         for (let i = 0; i < legendData.widthArr.length; i++) {
           legendWidth += legendData.widthArr[i];
         }
-        legendData.area.width = legendWidth - this.opts.legend.itemGap! * this.opts.pixelRatio + 2 * padding;
+        legendData.area.width = legendWidth - this.opts.legend!.itemGap! * (this.opts.pixelRatio!) + 2 * padding;
         legendData.area.wholeWidth = legendData.area.width + padding;
       }
     }
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         legendData.area.start.y = this.opts.area[0] + margin;
         legendData.area.end.y = this.opts.area[0] + margin + legendData.area.height;
@@ -1342,7 +1388,7 @@ export abstract class BaseRenderer {
           }
           rangesArr[i] = this.getYAxisTextList(newSeries[i], columnstyle.type!, yData);
         }
-        let yAxisFontSizes = yData.fontSize ? (yData.fontSize * this.opts.pixelRatio) : this.opts.fontSize;
+        let yAxisFontSizes = yData.fontSize ? (yData.fontSize * this.opts.pixelRatio!) : this.opts.fontSize!;
         yAxisWidthArr[i] = {
           position: yData.position ? yData.position : 'left',
           width: 0
@@ -1352,8 +1398,8 @@ export abstract class BaseRenderer {
           yAxisWidthArr[i].width = Math.max(yAxisWidthArr[i].width, this.measureText(str, yAxisFontSizes) + 5);
           return str;
         });
-        let calibration = yData.calibration ? 4 * this.opts.pixelRatio : 0;
-        yAxisWidthArr[i].width += calibration + 3 * this.opts.pixelRatio;
+        let calibration = yData.calibration ? 4 * this.opts.pixelRatio! : 0;
+        yAxisWidthArr[i].width += calibration + 3 * this.opts.pixelRatio!;
         if (yData.disabled === true) {
           yAxisWidthArr[i].width = 0;
         }
@@ -1381,7 +1427,7 @@ export abstract class BaseRenderer {
         position: 'left',
         width: 0
       };
-      let yAxisFontSize = this.opts.yAxis.fontSize * this.opts.pixelRatio || this.opts.fontSize;
+      let yAxisFontSize = this.opts.yAxis.fontSize * this.opts.pixelRatio! || this.opts.fontSize!;
       rangesFormatArr[0] = rangesArr[0].map((item: string|number, index: number) => {
         let formattedValue: string;
         if (typeof item === 'string') {
@@ -1398,7 +1444,7 @@ export abstract class BaseRenderer {
 
         return formattedValue;
       });
-      yAxisWidthArr[0].width += 3 * this.opts.pixelRatio;
+      yAxisWidthArr[0].width += 3 * this.opts.pixelRatio!;
       if (this.opts.yAxis.disabled === true) {
         yAxisWidthArr[0] = {
           position: 'left',
@@ -1440,7 +1486,7 @@ export abstract class BaseRenderer {
       eachSpacing: 0,
 
       angle: 0,
-      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio + this.opts.xAxis.marginTop! * this.opts.pixelRatio,
+      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis.marginTop! * this.opts.pixelRatio!,
       ranges: this.getXAxisTextList(series, style.type!)
     };
     result.rangesFormat = result.ranges.map((item: number) => {
@@ -1459,7 +1505,7 @@ export abstract class BaseRenderer {
     // 计算X轴刻度的属性譬如每个刻度的间隔,刻度的起始点\结束点以及总长
     let eachSpacing = result.eachSpacing;
     let textLength = xAxisScaleValues.map((item) => {
-      return this.measureText(item, this.opts.xAxis.fontSize! * this.opts.pixelRatio);
+      return this.measureText(item, this.opts.xAxis.fontSize! * this.opts.pixelRatio!);
     });
     if (this.opts.xAxis.disabled === true) {
       result.xAxisHeight = 0;
@@ -1508,9 +1554,9 @@ export abstract class BaseRenderer {
   protected calculateCategoriesData(categories: Array<string>) {
     let result: calculateCategoriesDataRes = {
       angle: 0,
-      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio + this.opts.xAxis.marginTop! * this.opts.pixelRatio
+      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis.marginTop! * this.opts.pixelRatio!
     };
-    let fontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio
+    let fontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio!
     let categoriesTextLen = categories.map((item,index) => {
       let xitem = this.opts.xAxis.formatter ? this.opts.xAxis.formatter(item,index,this.opts) : item;
       return this.measureText(String(xitem), fontSize);
@@ -1518,12 +1564,12 @@ export abstract class BaseRenderer {
     let maxTextLength = Math.max(...categoriesTextLen);
     if (this.opts.xAxis.rotateLabel == true) {
       result.angle = this.opts.xAxis.rotateAngle! * Math.PI / 180;
-      let tempHeight = this.opts.xAxis.marginTop! * this.opts.pixelRatio * 2 +  Math.abs(maxTextLength * Math.sin(result.angle))
-      tempHeight = tempHeight < fontSize + this.opts.xAxis.marginTop! * this.opts.pixelRatio * 2 ? tempHeight + this.opts.xAxis.marginTop! * this.opts.pixelRatio * 2 : tempHeight;
+      let tempHeight = this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 +  Math.abs(maxTextLength * Math.sin(result.angle))
+      tempHeight = tempHeight < fontSize + this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 ? tempHeight + this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 : tempHeight;
       result.xAxisHeight = tempHeight;
     }
     if (this.opts.enableScroll && this.opts.xAxis.scrollShow) {
-      result.xAxisHeight += 6 * this.opts.pixelRatio;
+      result.xAxisHeight += 6 * this.opts.pixelRatio!;
     }
     if (this.opts.xAxis.disabled) {
       result.xAxisHeight = 0;
@@ -1562,10 +1608,10 @@ export abstract class BaseRenderer {
       this.context.translate(this.opts._scrollDistance_, 0);
     }
     if (this.opts.yAxis.gridType == 'dash') {
-      this.setLineDash([this.opts.yAxis.dashLength! * this.opts.pixelRatio, this.opts.yAxis.dashLength! * this.opts.pixelRatio]);
+      this.setLineDash([this.opts.yAxis.dashLength! * this.opts.pixelRatio!, this.opts.yAxis.dashLength! * this.opts.pixelRatio!]);
     }
     this.setStrokeStyle(this.opts.yAxis.gridColor!);
-    this.setLineWidth(1 * this.opts.pixelRatio);
+    this.setLineWidth(1 * this.opts.pixelRatio!);
     points.forEach((item, index) => {
       this.context.beginPath();
       this.context.moveTo(startX, item);
@@ -1605,7 +1651,7 @@ export abstract class BaseRenderer {
       }
       this.context.beginPath();
       this.setLineCap('round');
-      this.setLineWidth(6 * this.opts.pixelRatio);
+      this.setLineWidth(6 * this.opts.pixelRatio!);
       this.setStrokeStyle(this.opts.xAxis.scrollBackgroundColor || "#EFEBEF");
       this.context.moveTo(startX, scrollY);
       this.context.lineTo(endX, scrollY);
@@ -1613,7 +1659,7 @@ export abstract class BaseRenderer {
       this.context.closePath();
       this.context.beginPath();
       this.setLineCap('round');
-      this.setLineWidth(6 * this.opts.pixelRatio);
+      this.setLineWidth(6 * this.opts.pixelRatio!);
       this.setStrokeStyle(this.opts.xAxis.scrollColor || "#A6A6A6");
       this.context.moveTo(startX + scrollLeft, scrollY);
       this.context.lineTo(startX + scrollLeft + scrollWidth, scrollY);
@@ -1629,12 +1675,12 @@ export abstract class BaseRenderer {
     if (this.opts.xAxis.calibration === true) {
       this.setStrokeStyle(this.opts.xAxis.gridColor || "#cccccc");
       this.setLineCap('butt');
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
       xAxisPoints.forEach((item, index) => {
         if (index > 0) {
           this.context.beginPath();
           this.context.moveTo(item - eachSpacing / 2, startY);
-          this.context.lineTo(item - eachSpacing / 2, startY + 3 * this.opts.pixelRatio);
+          this.context.lineTo(item - eachSpacing / 2, startY + 3 * this.opts.pixelRatio!);
           this.context.closePath();
           this.context.stroke();
         }
@@ -1644,9 +1690,9 @@ export abstract class BaseRenderer {
     if (this.opts.xAxis.disableGrid !== true) {
       this.setStrokeStyle(this.opts.xAxis.gridColor || "#cccccc");
       this.setLineCap('butt');
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
       if (this.opts.xAxis.gridType == 'dash') {
-        this.setLineDash([this.opts.xAxis.dashLength! * this.opts.pixelRatio, this.opts.xAxis.dashLength! * this.opts.pixelRatio]);
+        this.setLineDash([this.opts.xAxis.dashLength! * this.opts.pixelRatio!, this.opts.xAxis.dashLength! * this.opts.pixelRatio!]);
       }
       this.opts.xAxis.gridEval = this.opts.xAxis.gridEval || 1;
       xAxisPoints.forEach((item, index) => {
@@ -1687,7 +1733,7 @@ export abstract class BaseRenderer {
         }
       }
       newCategories[cgLength - 1] = categories[cgLength - 1];
-      let xAxisFontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio || this.opts.fontSize;
+      let xAxisFontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio! || this.opts.fontSize!;
       if (this.opts._xAxisTextAngle_ === 0) {
         newCategories.forEach((item, index) => {
           let xitem = this.opts.xAxis.formatter ? this.opts.xAxis.formatter(item, index, this.opts) : item;
@@ -1697,7 +1743,7 @@ export abstract class BaseRenderer {
           }
           let scrollHeight = 0;
           if (this.opts.xAxis.scrollShow) {
-            scrollHeight = 6 * this.opts.pixelRatio;
+            scrollHeight = 6 * this.opts.pixelRatio!;
           }
           // 如果在主视图区域内
           let _scrollDistance_ = this.opts._scrollDistance_ as number || 0;
@@ -1705,8 +1751,8 @@ export abstract class BaseRenderer {
           if((truePoints - Math.abs(_scrollDistance_)) >= (this.opts.area[3] - 1) && (truePoints - Math.abs(_scrollDistance_)) <= (this.opts.width - this.opts.area[1] + 1)) {
             this.context.beginPath();
             this.setFontSize(xAxisFontSize);
-            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor);
-            this.context.fillText(String(xitem), xAxisPoints[index] + offset, startY + this.opts.xAxis.marginTop! * this.opts.pixelRatio + (this.opts.xAxis.lineHeight! - this.opts.xAxis.fontSize!) * this.opts.pixelRatio / 2 + this.opts.xAxis.fontSize! * this.opts.pixelRatio);
+            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor!);
+            this.context.fillText(String(xitem), xAxisPoints[index] + offset, startY + this.opts.xAxis.marginTop! * (this.opts.pixelRatio!) + (this.opts.xAxis.lineHeight! - this.opts.xAxis.fontSize!) * (this.opts.pixelRatio!) / 2 + this.opts.xAxis.fontSize! * this.opts.pixelRatio!);
             this.context.closePath();
             this.context.stroke();
           }
@@ -1721,7 +1767,7 @@ export abstract class BaseRenderer {
             this.context.save();
             this.context.beginPath();
             this.setFontSize(xAxisFontSize);
-            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor);
+            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor!);
             let textWidth = this.measureText(String(xitem), xAxisFontSize);
             let offsetX = xAxisPoints[index];
             if (boundaryGap == 'center') {
@@ -1729,9 +1775,9 @@ export abstract class BaseRenderer {
             }
             let scrollHeight = 0;
             if (this.opts.xAxis.scrollShow) {
-              scrollHeight = 6 * this.opts.pixelRatio;
+              scrollHeight = 6 * this.opts.pixelRatio!;
             }
-            let offsetY = startY + this.opts.xAxis.marginTop! * this.opts.pixelRatio + xAxisFontSize - xAxisFontSize * Math.abs(Math.sin(this.opts._xAxisTextAngle_));
+            let offsetY = startY + this.opts.xAxis.marginTop! * this.opts.pixelRatio! + xAxisFontSize - xAxisFontSize * Math.abs(Math.sin(this.opts._xAxisTextAngle_));
             if(this.opts.xAxis.rotateAngle! < 0){
               offsetX -= xAxisFontSize / 2;
               textWidth = 0;
@@ -1754,11 +1800,11 @@ export abstract class BaseRenderer {
     //画X轴标题
     if (this.opts.xAxis.title) {
       this.context.beginPath();
-      this.setFontSize(this.opts.xAxis.titleFontSize! * this.opts.pixelRatio);
+      this.setFontSize(this.opts.xAxis.titleFontSize! * this.opts.pixelRatio!);
       this.setFillStyle(this.opts.xAxis.titleFontColor!);
-      this.context.fillText(String(this.opts.xAxis.title), this.opts.width - this.opts.area[1] + this.opts.xAxis.titleOffsetX! * this.opts.pixelRatio,
-        this.opts.height - this.opts.area[2] + this.opts.xAxis.marginTop! * this.opts.pixelRatio + (this.opts.xAxis.lineHeight! - this.opts.xAxis.titleFontSize!)
-          * this.opts.pixelRatio / 2 + (this.opts.xAxis.titleFontSize! + this.opts.xAxis.titleOffsetY!) * this.opts.pixelRatio);
+      this.context.fillText(String(this.opts.xAxis.title), this.opts.width - this.opts.area[1] + this.opts.xAxis.titleOffsetX! * this.opts.pixelRatio!,
+        this.opts.height - this.opts.area[2] + this.opts.xAxis.marginTop! * this.opts.pixelRatio! + (this.opts.xAxis.lineHeight! - this.opts.xAxis.titleFontSize!)
+          * (this.opts.pixelRatio!) / 2 + (this.opts.xAxis.titleFontSize! + this.opts.xAxis.titleOffsetY!) * this.opts.pixelRatio!);
       this.context.closePath();
       this.context.stroke();
     }
@@ -1767,7 +1813,7 @@ export abstract class BaseRenderer {
     if (this.opts.xAxis.axisLine) {
       this.context.beginPath();
       this.setStrokeStyle(this.opts.xAxis.axisLineColor!);
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
       this.context.moveTo(startX, this.opts.height - this.opts.area[2]);
       this.context.lineTo(endX, this.opts.height - this.opts.area[2]);
       this.context.stroke();
@@ -1785,20 +1831,20 @@ export abstract class BaseRenderer {
       let seriesGap = 0;
       let categoryGap = 0;
       if (this.opts.type == 'mix') {
-        seriesGap = this.opts.extra.mix!.column?.seriesGap ? (this.opts.extra.mix!.column!.seriesGap * this.opts.pixelRatio) : 0;
-        categoryGap = this.opts.extra.mix!.column?.categoryGap ? (this.opts.extra.mix!.column!.categoryGap * this.opts.pixelRatio) : 0;
+        seriesGap = this.opts.extra.mix!.column?.seriesGap ? (this.opts.extra.mix!.column!.seriesGap * this.opts.pixelRatio!) : 0;
+        categoryGap = this.opts.extra.mix!.column?.categoryGap ? (this.opts.extra.mix!.column!.categoryGap * this.opts.pixelRatio!) : 0;
       } else {
-        seriesGap = this.opts.extra.column!.seriesGap ? (this.opts.extra.column!.seriesGap * this.opts.pixelRatio) : 0;
-        categoryGap = this.opts.extra.column!.categoryGap ? (this.opts.extra.column!.categoryGap * this.opts.pixelRatio) : 0;
+        seriesGap = this.opts.extra.column!.seriesGap ? (this.opts.extra.column!.seriesGap * this.opts.pixelRatio!) : 0;
+        categoryGap = this.opts.extra.column!.categoryGap ? (this.opts.extra.column!.categoryGap * this.opts.pixelRatio!) : 0;
       }
       seriesGap =  Math.min(seriesGap, eachSpacing / columnLen)
       categoryGap =  Math.min(categoryGap, eachSpacing / columnLen)
       item.width = Math.ceil((eachSpacing - 2 * categoryGap - seriesGap * (columnLen - 1)) / columnLen);
       if (this.opts.extra.mix && this.opts.extra.mix.column && this.opts.extra.mix.column.width && +this.opts.extra.mix.column.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.mix.column!.width! * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.mix.column!.width! * this.opts.pixelRatio!);
       }
       if (this.opts.extra.column && this.opts.extra.column.width && +this.opts.extra.column.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio!);
       }
       if (item.width <= 0) {
         item.width = 1;
@@ -1842,8 +1888,8 @@ export abstract class BaseRenderer {
               point.t = (item as number[])[3];
             }
           } else {
-            const tmp = item as ValueAndColorData
-            value = tmp.value;
+            value = (item as ValueAndColorData).value;
+            point.color = (item as ValueAndColorData).color
           }
         }
         if (boundaryGap == 'center') {
@@ -1870,12 +1916,12 @@ export abstract class BaseRenderer {
     let endY = this.opts.height - this.opts.area[2];
     // set YAxis background
     this.context.beginPath();
-    this.setFillStyle(this.opts.background);
+    this.setFillStyle(this.opts.background!);
     if (this.opts.enableScroll == true && this.opts.xAxis.scrollPosition && this.opts.xAxis.scrollPosition !== 'left') {
-      this.context.fillRect(0, 0, startX, endY + 2 * this.opts.pixelRatio);
+      this.context.fillRect(0, 0, startX, endY + 2 * this.opts.pixelRatio!);
     }
     if (this.opts.enableScroll == true && this.opts.xAxis.scrollPosition && this.opts.xAxis.scrollPosition !== 'right') {
-      this.context.fillRect(endX, 0, this.opts.width, endY + 2 * this.opts.pixelRatio);
+      this.context.fillRect(endX, 0, this.opts.width, endY + 2 * this.opts.pixelRatio!);
     }
     this.context.closePath();
     this.context.stroke();
@@ -1898,7 +1944,7 @@ export abstract class BaseRenderer {
         }
         if (yData.disabled !== true) {
           let rangesFormat: Array<string> = this.opts.chartData.yAxisData.rangesFormat[i];
-          let yAxisFontSize = yData.fontSize ? (yData.fontSize * this.opts.pixelRatio) : this.opts.fontSize;
+          let yAxisFontSize = yData.fontSize ? (yData.fontSize * this.opts.pixelRatio!) : this.opts.fontSize!;
           let yAxisWidth: yAxisWidthType = this.opts.chartData.yAxisData.yAxisWidth[i];
           let textAlign = yData.textAlign || "right";
           //画Y轴刻度及文案
@@ -1906,17 +1952,17 @@ export abstract class BaseRenderer {
             const pos = points[index];
             this.context.beginPath();
             this.setFontSize(yAxisFontSize);
-            this.setLineWidth(1 * this.opts.pixelRatio);
+            this.setLineWidth(1 * this.opts.pixelRatio!);
             this.setStrokeStyle(yData.axisLineColor || '#cccccc');
-            this.setFillStyle(yData.fontColor || this.opts.fontColor);
+            this.setFillStyle(yData.fontColor || this.opts.fontColor!);
             let tmpstrat = 0;
-            let gapwidth = 4 * this.opts.pixelRatio;
+            let gapwidth = 4 * this.opts.pixelRatio!;
             if (yAxisWidth.position == 'left') {
               //画刻度线
               if (yData.calibration == true) {
                 this.context.moveTo(tStartLeft, pos);
-                this.context.lineTo(tStartLeft - 3 * this.opts.pixelRatio, pos);
-                gapwidth += 3 * this.opts.pixelRatio;
+                this.context.lineTo(tStartLeft - 3 * this.opts.pixelRatio!, pos);
+                gapwidth += 3 * this.opts.pixelRatio!;
               }
               //画文字
               switch (textAlign) {
@@ -1932,14 +1978,14 @@ export abstract class BaseRenderer {
                   this.setTextAlign('center');
                   tmpstrat = tStartLeft - yAxisWidth.width / 2
               }
-              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio);
+              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio!);
 
             } else if (yAxisWidth.position == 'right') {
               //画刻度线
               if (yData.calibration == true) {
                 this.context.moveTo(tStartRight, pos);
-                this.context.lineTo(tStartRight + 3 * this.opts.pixelRatio, pos);
-                gapwidth += 3 * this.opts.pixelRatio;
+                this.context.lineTo(tStartRight + 3 * this.opts.pixelRatio!, pos);
+                gapwidth += 3 * this.opts.pixelRatio!;
               }
               switch (textAlign) {
                 case "left":
@@ -1954,13 +2000,13 @@ export abstract class BaseRenderer {
                   this.setTextAlign('center');
                   tmpstrat = tStartRight + yAxisWidth.width / 2
               }
-              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio);
+              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio!);
             } else if (yAxisWidth.position == 'center') {
               //画刻度线
               if (yData.calibration == true) {
                 this.context.moveTo(tStartCenter, pos);
-                this.context.lineTo(tStartCenter - 3 * this.opts.pixelRatio, pos);
-                gapwidth += 3 * this.opts.pixelRatio;
+                this.context.lineTo(tStartCenter - 3 * this.opts.pixelRatio!, pos);
+                gapwidth += 3 * this.opts.pixelRatio!;
               }
               //画文字
               switch (textAlign) {
@@ -1976,7 +2022,7 @@ export abstract class BaseRenderer {
                   this.setTextAlign('center');
                   tmpstrat = tStartCenter - yAxisWidth.width / 2
               }
-              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio);
+              this.context.fillText(String(item), tmpstrat, pos + yAxisFontSize / 2 - 3 * this.opts.pixelRatio!);
             }
             this.context.closePath();
             this.context.stroke();
@@ -1986,7 +2032,7 @@ export abstract class BaseRenderer {
           if (yData.axisLine !== false) {
             this.context.beginPath();
             this.setStrokeStyle(yData.axisLineColor || '#cccccc');
-            this.setLineWidth(1 * this.opts.pixelRatio);
+            this.setLineWidth(1 * this.opts.pixelRatio!);
             if (yAxisWidth.position == 'left') {
               this.context.moveTo(tStartLeft, this.opts.height - this.opts.area[2]);
               this.context.lineTo(tStartLeft, this.opts.area[0]);
@@ -2001,25 +2047,25 @@ export abstract class BaseRenderer {
           }
           //画Y轴标题
           if (this.opts.yAxis.showTitle) {
-            let titleFontSize = yData.titleFontSize * this.opts.pixelRatio || this.opts.fontSize;
+            let titleFontSize = yData.titleFontSize * this.opts.pixelRatio! || this.opts.fontSize!;
             let title = yData.title;
             this.context.beginPath();
             this.setFontSize(titleFontSize);
-            this.setFillStyle(yData.titleFontColor || this.opts.fontColor);
+            this.setFillStyle(yData.titleFontColor || this.opts.fontColor!);
             if (yAxisWidth.position == 'left') {
-              this.context.fillText(title, tStartLeft - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio);
+              this.context.fillText(title, tStartLeft - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio!);
             } else if (yAxisWidth.position == 'right') {
-              this.context.fillText(title, tStartRight - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio);
+              this.context.fillText(title, tStartRight - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio!);
             } else if (yAxisWidth.position == 'center') {
-              this.context.fillText(title, tStartCenter - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio);
+              this.context.fillText(title, tStartCenter - this.measureText(title, titleFontSize) / 2 + (yData.titleOffsetX || 0), this.opts.area[0] - (10 - (yData.titleOffsetY || 0)) * this.opts.pixelRatio!);
             }
             this.context.closePath();
             this.context.stroke();
           }
           if (yAxisWidth.position == 'left') {
-            tStartLeft -= (yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio);
+            tStartLeft -= (yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio!);
           } else {
-            tStartRight += yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+            tStartRight += yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
           }
         }
       }
@@ -2068,36 +2114,36 @@ export abstract class BaseRenderer {
         this.setLineDash([markLineOption.dashLength, markLineOption.dashLength]);
       }
       this.setStrokeStyle(item.lineColor!);
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
       this.context.beginPath();
       this.context.moveTo(startX, item.y);
       this.context.lineTo(endX, item.y);
       this.context.stroke();
       this.setLineDash([]);
       if (item.showLabel) {
-        let fontSize = item.labelFontSize! * this.opts.pixelRatio;
+        let fontSize = item.labelFontSize! * this.opts.pixelRatio!;
         let labelText = item.labelText ? item.labelText : item.value;
         this.setFontSize(fontSize);
         let textWidth = this.measureText(String(labelText), fontSize);
-        let bgWidth = textWidth + item.labelPadding! * this.opts.pixelRatio * 2;
+        let bgWidth = textWidth + item.labelPadding! * this.opts.pixelRatio! * 2;
         let bgStartX = item.labelAlign == 'left' ? this.opts.area[3] - bgWidth : this.opts.width - this.opts.area[1];
         bgStartX += item.labelOffsetX!;
-        let bgStartY = item.y - 0.5 * fontSize - item.labelPadding! * this.opts.pixelRatio;
+        let bgStartY = item.y - 0.5 * fontSize - item.labelPadding! * this.opts.pixelRatio!;
         bgStartY += item.labelOffsetY!;
-        let textX = bgStartX + item.labelPadding! * this.opts.pixelRatio;
+        let textX = bgStartX + item.labelPadding! * this.opts.pixelRatio!;
         //let textY = item.y;
         this.setFillStyle(ChartsUtil.hexToRgb(item.labelBgColor!, item.labelBgOpacity));
         this.setStrokeStyle(item.labelBgColor!);
-        this.setLineWidth(1 * this.opts.pixelRatio);
+        this.setLineWidth(1 * this.opts.pixelRatio!);
         this.context.beginPath();
-        this.context.rect(bgStartX, bgStartY, bgWidth, fontSize + 2 * item.labelPadding! * this.opts.pixelRatio);
+        this.context.rect(bgStartX, bgStartY, bgWidth, fontSize + 2 * item.labelPadding! * this.opts.pixelRatio!);
         this.context.closePath();
         this.context.stroke();
         this.context.fill();
         this.setFontSize(fontSize);
         this.setTextAlign('left');
         this.setFillStyle(item.labelFontColor!);
-        this.context.fillText(String(labelText), textX, bgStartY + fontSize + item.labelPadding! * this.opts.pixelRatio/2);
+        this.context.fillText(String(labelText), textX, bgStartY + fontSize + item.labelPadding! * (this.opts.pixelRatio!)/2);
         this.context.stroke();
         this.setTextAlign('left');
       }
@@ -2105,23 +2151,23 @@ export abstract class BaseRenderer {
   }
 
   protected drawLegend(chartData: chartDataType) {
-    if (this.opts.legend.show === false) {
+    if (this.opts.legend!.show === false) {
       return;
     }
     let legendData = chartData.legendData;
     let legendList = legendData.points;
     let legendArea = legendData.area;
-    let padding = this.opts.legend.padding! * this.opts.pixelRatio;
-    let fontSize = this.opts.legend.fontSize! * this.opts.pixelRatio;
-    let shapeWidth = 15 * this.opts.pixelRatio;
-    let shapeRight = 5 * this.opts.pixelRatio;
-    let itemGap = this.opts.legend.itemGap! * this.opts.pixelRatio;
-    let lineHeight = Math.max(this.opts.legend.lineHeight! * this.opts.pixelRatio, fontSize);
+    let padding = this.opts.legend!.padding! * this.opts.pixelRatio!;
+    let fontSize = this.opts.legend!.fontSize! * this.opts.pixelRatio!;
+    let shapeWidth = 15 * this.opts.pixelRatio!;
+    let shapeRight = 5 * this.opts.pixelRatio!;
+    let itemGap = this.opts.legend!.itemGap! * this.opts.pixelRatio!;
+    let lineHeight = Math.max(this.opts.legend!.lineHeight! * this.opts.pixelRatio!, fontSize);
     //画背景及边框
     this.context.beginPath();
-    this.setLineWidth(this.opts.legend.borderWidth! * this.opts.pixelRatio);
-    this.setStrokeStyle(this.opts.legend.borderColor!);
-    this.setFillStyle(this.opts.legend.backgroundColor!);
+    this.setLineWidth(this.opts.legend!.borderWidth! * this.opts.pixelRatio!);
+    this.setStrokeStyle(this.opts.legend!.borderColor!);
+    this.setFillStyle(this.opts.legend!.backgroundColor!);
     this.context.moveTo(legendArea.start.x, legendArea.start.y);
     this.context.rect(legendArea.start.x, legendArea.start.y, legendArea.width, legendArea.height);
     this.context.closePath();
@@ -2134,8 +2180,8 @@ export abstract class BaseRenderer {
       height = legendData.heightArr[listIndex];
       let startX = 0;
       let startY = 0;
-      if (this.opts.legend.position == 'top' || this.opts.legend.position == 'bottom') {
-        switch (this.opts.legend.float) {
+      if (this.opts.legend!.position == 'top' || this.opts.legend!.position == 'bottom') {
+        switch (this.opts.legend!.float) {
           case 'left':
             startX = legendArea.start.x + padding;
             break;
@@ -2155,7 +2201,7 @@ export abstract class BaseRenderer {
         startX = legendArea.start.x + padding + width;
         startY = legendArea.start.y + padding + (legendArea.height - height) / 2;
       }
-      this.setFontSize(this.opts.fontSize);
+      this.setFontSize(this.opts.fontSize!);
       for (let i = 0; i < itemList.length; i++) {
         let item = itemList[i];
         item.area = [0, 0, 0, 0];
@@ -2163,44 +2209,44 @@ export abstract class BaseRenderer {
         item.area[1] = startY;
         item.area[3] = startY + lineHeight;
         this.context.beginPath();
-        this.setLineWidth(1 * this.opts.pixelRatio);
-        this.setStrokeStyle(item.show ? item.color! : this.opts.legend.hiddenColor!);
-        this.setFillStyle(item.show ? item.color! : this.opts.legend.hiddenColor!);
+        this.setLineWidth(1 * this.opts.pixelRatio!);
+        this.setStrokeStyle(item.show ? item.color! : this.opts.legend!.hiddenColor!);
+        this.setFillStyle(item.show ? item.color! : this.opts.legend!.hiddenColor!);
         switch (item.legendShape) {
           case 'line':
-            this.context.moveTo(startX, startY + 0.5 * lineHeight - 2 * this.opts.pixelRatio);
-            this.context.fillRect(startX, startY + 0.5 * lineHeight - 2 * this.opts.pixelRatio, 15 * this.opts.pixelRatio, 4 * this.opts.pixelRatio);
+            this.context.moveTo(startX, startY + 0.5 * lineHeight - 2 * this.opts.pixelRatio!);
+            this.context.fillRect(startX, startY + 0.5 * lineHeight - 2 * this.opts.pixelRatio!, 15 * this.opts.pixelRatio!, 4 * this.opts.pixelRatio!);
             break;
           case 'triangle':
-            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
-            this.context.lineTo(startX + 2.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio);
-            this.context.lineTo(startX + 12.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio);
-            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
+            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
+            this.context.lineTo(startX + 2.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio!);
+            this.context.lineTo(startX + 12.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio!);
+            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
             break;
           case 'diamond':
-            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
-            this.context.lineTo(startX + 2.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight);
-            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio);
-            this.context.lineTo(startX + 12.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight);
-            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
+            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
+            this.context.lineTo(startX + 2.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight);
+            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight + 5 * this.opts.pixelRatio!);
+            this.context.lineTo(startX + 12.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight);
+            this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
             break;
           case 'circle':
-            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight);
-            this.context.arc(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * lineHeight, 5 * this.opts.pixelRatio, 0, 2 * Math.PI);
+            this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight);
+            this.context.arc(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight, 5 * this.opts.pixelRatio!, 0, 2 * Math.PI);
             break;
           case 'rect':
-            this.context.moveTo(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
-            this.context.fillRect(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio, 15 * this.opts.pixelRatio, 10 *this.opts.pixelRatio);
+            this.context.moveTo(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
+            this.context.fillRect(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!, 15 * this.opts.pixelRatio!, 10 *this.opts.pixelRatio!);
             break;
           case 'square':
-            this.context.moveTo(startX + 5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
-            this.context.fillRect(startX + 5 * this.opts.pixelRatio, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio, 10 * this.opts.pixelRatio, 10 * this.opts.pixelRatio);
+            this.context.moveTo(startX + 5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
+            this.context.fillRect(startX + 5 * this.opts.pixelRatio!, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!);
             break;
           case 'none':
             break;
           default:
-            this.context.moveTo(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio);
-            this.context.fillRect(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio, 15 * this.opts.pixelRatio, 10 * this.opts.pixelRatio);
+            this.context.moveTo(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!);
+            this.context.fillRect(startX, startY + 0.5 * lineHeight - 5 * this.opts.pixelRatio!, 15 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!);
         }
         this.context.closePath();
         this.context.fill();
@@ -2210,11 +2256,11 @@ export abstract class BaseRenderer {
         const legendText = item.legendText ? item.legendText : item.name!;
         this.context.beginPath();
         this.setFontSize(fontSize);
-        this.setFillStyle(item.show ? this.opts.legend.fontColor! : this.opts.legend.hiddenColor!);
+        this.setFillStyle(item.show ? this.opts.legend!.fontColor! : this.opts.legend!.hiddenColor!);
         this.context.fillText(legendText, startX, startY + fontTrans);
         this.context.closePath();
         this.context.stroke();
-        if (this.opts.legend.position == 'top' || this.opts.legend.position == 'bottom') {
+        if (this.opts.legend!.position == 'top' || this.opts.legend!.position == 'bottom') {
           startX += this.measureText(legendText!, fontSize) + itemGap;
           item.area[2] = startX;
         } else {
@@ -2257,27 +2303,27 @@ export abstract class BaseRenderer {
       this.setLineDash([toolTipOption.dashLength!, toolTipOption.dashLength!]);
     }
     this.setStrokeStyle(toolTipOption.gridColor || '#cccccc');
-    this.setLineWidth(1 * this.opts.pixelRatio);
+    this.setLineWidth(1 * this.opts.pixelRatio!);
     this.context.beginPath();
     this.context.moveTo(startX, this.opts.tooltip.offset.y);
     this.context.lineTo(endX, this.opts.tooltip.offset.y);
     this.context.stroke();
     this.setLineDash([]);
     if (toolTipOption.yAxisLabel) {
-      let boxPadding = toolTipOption.boxPadding! * this.opts.pixelRatio;
+      let boxPadding = toolTipOption.boxPadding! * this.opts.pixelRatio!;
       let labelText = this.calTooltipYAxisData(this.opts.tooltip.offset.y);
       let widthArr: Array<yAxisWidthType> = this.opts.chartData.yAxisData.yAxisWidth;
       let tStartLeft: number = this.opts.area[3];
       let tStartRight =  this.opts.width - this.opts.area[1];
       for (let i = 0; i < labelText.length; i++) {
-        this.setFontSize(toolTipOption.fontSize! * this.opts.pixelRatio);
-        let textWidth = this.measureText(labelText[i], toolTipOption.fontSize! * this.opts.pixelRatio);
+        this.setFontSize(toolTipOption.fontSize! * this.opts.pixelRatio!);
+        let textWidth = this.measureText(labelText[i], toolTipOption.fontSize! * this.opts.pixelRatio!);
         let bgStartX: number, bgEndX: number, bgWidth: number;
         if (widthArr[i].position == 'left') {
-          bgStartX = tStartLeft - (textWidth + boxPadding * 2) - 2 * this.opts.pixelRatio;
+          bgStartX = tStartLeft - (textWidth + boxPadding * 2) - 2 * this.opts.pixelRatio!;
           bgEndX = Math.max(bgStartX, bgStartX + textWidth + boxPadding * 2);
         } else {
-          bgStartX = tStartRight + 2 * this.opts.pixelRatio;
+          bgStartX = tStartRight + 2 * this.opts.pixelRatio!;
           bgEndX = Math.max(bgStartX + widthArr[i].width, bgStartX + textWidth + boxPadding * 2);
         }
         bgWidth = bgEndX - bgStartX;
@@ -2286,21 +2332,21 @@ export abstract class BaseRenderer {
         this.context.beginPath();
         this.setFillStyle(ChartsUtil.hexToRgb(toolTipOption.labelBgColor!, toolTipOption.labelBgOpacity));
         this.setStrokeStyle(toolTipOption.labelBgColor!);
-        this.setLineWidth(1 * this.opts.pixelRatio);
-        this.context.rect(bgStartX, textY - 0.5 * this.opts.fontSize - boxPadding, bgWidth, this.opts.fontSize + 2 * boxPadding);
+        this.setLineWidth(1 * this.opts.pixelRatio!);
+        this.context.rect(bgStartX, textY - 0.5 * this.opts.fontSize! - boxPadding, bgWidth, this.opts.fontSize! + 2 * boxPadding);
         this.context.closePath();
         this.context.stroke();
         this.context.fill();
         this.context.beginPath();
-        this.setFontSize(this.opts.fontSize);
-        this.setFillStyle(toolTipOption.labelFontColor || this.opts.fontColor);
-        this.context.fillText(labelText[i], textX, textY + 0.5 * this.opts.fontSize);
+        this.setFontSize(this.opts.fontSize!);
+        this.setFillStyle(toolTipOption.labelFontColor || this.opts.fontColor!);
+        this.context.fillText(labelText[i], textX, textY + 0.5 * this.opts.fontSize!);
         this.context.closePath();
         this.context.stroke();
         if (widthArr[i].position == 'left') {
-          tStartLeft -= (widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio);
+          tStartLeft -= (widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!);
         } else {
-          tStartRight += widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          tStartRight += widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         }
       }
     }
@@ -2316,7 +2362,7 @@ export abstract class BaseRenderer {
       this.setLineDash([toolTipOption.dashLength, toolTipOption.dashLength]);
     }
     this.setStrokeStyle(toolTipOption.gridColor || '#cccccc');
-    this.setLineWidth(1 * this.opts.pixelRatio);
+    this.setLineWidth(1 * this.opts.pixelRatio!);
     this.context.beginPath();
     this.context.moveTo(offsetX, startY);
     this.context.lineTo(offsetX, endY);
@@ -2325,22 +2371,22 @@ export abstract class BaseRenderer {
     if (toolTipOption.xAxisLabel) {
       const categories = this.opts.categories as string[]
       let labelText: string = categories[this.opts.tooltip.index];
-      this.setFontSize(this.opts.fontSize);
-      let textWidth = this.measureText(labelText, this.opts.fontSize);
+      this.setFontSize(this.opts.fontSize!);
+      let textWidth = this.measureText(labelText, this.opts.fontSize!);
       let textX = offsetX - 0.5 * textWidth;
-      let textY = endY + 2 * this.opts.pixelRatio;
+      let textY = endY + 2 * this.opts.pixelRatio!;
       this.context.beginPath();
       this.setFillStyle(ChartsUtil.hexToRgb(toolTipOption.labelBgColor || "#FFFFFF", toolTipOption.labelBgOpacity || 0.7));
       this.setStrokeStyle(toolTipOption.labelBgColor || "#FFFFFF");
-      this.setLineWidth(1 * this.opts.pixelRatio);
-      this.context.rect(textX - Number(toolTipOption.boxPadding) * this.opts.pixelRatio, textY, textWidth + 2 * Number(toolTipOption.boxPadding) * this.opts.pixelRatio, this.opts.fontSize + 2 * Number(toolTipOption.boxPadding) * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
+      this.context.rect(textX - Number(toolTipOption.boxPadding) * this.opts.pixelRatio!, textY, textWidth + 2 * Number(toolTipOption.boxPadding) * this.opts.pixelRatio!, this.opts.fontSize! + 2 * Number(toolTipOption.boxPadding) * this.opts.pixelRatio!);
       this.context.closePath();
       this.context.stroke();
       this.context.fill();
       this.context.beginPath();
-      this.setFontSize(this.opts.fontSize);
-      this.setFillStyle(toolTipOption.labelFontColor || this.opts.fontColor);
-      this.context.fillText(String(labelText), textX, textY + Number(toolTipOption.boxPadding) * this.opts.pixelRatio + this.opts.fontSize);
+      this.setFontSize(this.opts.fontSize!);
+      this.setFillStyle(toolTipOption.labelFontColor || this.opts.fontColor!);
+      this.context.fillText(String(labelText), textX, textY + Number(toolTipOption.boxPadding) * this.opts.pixelRatio! + this.opts.fontSize!);
       this.context.closePath();
       this.context.stroke();
     }
@@ -2369,16 +2415,16 @@ export abstract class BaseRenderer {
       const categories = this.opts.categories as string[]
       textList.unshift({text: categories[this.opts.tooltip.index],color:null})
     }
-    let fontSize = toolTipOption.fontSize! * this.opts.pixelRatio;
-    let lineHeight = toolTipOption.lineHeight! * this.opts.pixelRatio;
-    let boxPadding = toolTipOption.boxPadding! * this.opts.pixelRatio;
+    let fontSize = toolTipOption.fontSize! * this.opts.pixelRatio!;
+    let lineHeight = toolTipOption.lineHeight! * this.opts.pixelRatio!;
+    let boxPadding = toolTipOption.boxPadding! * this.opts.pixelRatio!;
     let legendWidth = fontSize;
-    let legendMarginRight = 5 * this.opts.pixelRatio;
+    let legendMarginRight = 5 * this.opts.pixelRatio!;
     if(toolTipOption.legendShow == false){
       legendWidth = 0;
       legendMarginRight = 0;
     }
-    let arrowWidth = toolTipOption.showArrow ? 8 * this.opts.pixelRatio : 0;
+    let arrowWidth = toolTipOption.showArrow ? 8 * this.opts.pixelRatio! : 0;
     let isOverRightBorder = false;
     if (this.opts.type == 'line' || this.opts.type == 'mount' || this.opts.type == 'area' || this.opts.type == 'candle' || this.opts.type == 'mix') {
       if (toolTipOption.splitLine == true) {
@@ -2389,7 +2435,7 @@ export abstract class BaseRenderer {
       x: 0,
       y: 0
     } as Point, offset);
-    offset.y -= 8 * this.opts.pixelRatio;
+    offset.y -= 8 * this.opts.pixelRatio!;
     let textWidth = textList.map((item) => {
       return this.measureText(item.text, fontSize);
     });
@@ -2408,7 +2454,7 @@ export abstract class BaseRenderer {
     // draw background rect
     this.context.beginPath();
     this.setFillStyle(ChartsUtil.hexToRgb(toolTipOption.bgColor!, toolTipOption.bgOpacity));
-    this.setLineWidth(toolTipOption.borderWidth! * this.opts.pixelRatio);
+    this.setLineWidth(toolTipOption.borderWidth! * this.opts.pixelRatio!);
     this.setStrokeStyle(ChartsUtil.hexToRgb(toolTipOption.borderColor!, toolTipOption.borderOpacity));
     let radius = toolTipOption.borderRadius as number;
     if (isOverRightBorder) {
@@ -2420,8 +2466,8 @@ export abstract class BaseRenderer {
         offset.x = this.opts.width + Math.abs(this.opts._scrollDistance_ || 0) + arrowWidth + (toolTipWidth - this.opts.width)
       }
       if (toolTipOption.showArrow) {
-        this.context.moveTo(offset.x, offset.y + 10 * this.opts.pixelRatio);
-        this.context.lineTo(offset.x - arrowWidth, offset.y + 10 * this.opts.pixelRatio + 5 * this.opts.pixelRatio);
+        this.context.moveTo(offset.x, offset.y + 10 * this.opts.pixelRatio!);
+        this.context.lineTo(offset.x - arrowWidth, offset.y + 10 * this.opts.pixelRatio! + 5 * this.opts.pixelRatio!);
       }
       this.context.arc(offset.x - arrowWidth - radius, offset.y + toolTipHeight - radius, radius, 0, Math.PI / 2, false);
       this.context.arc(offset.x - arrowWidth - Math.round(toolTipWidth) + radius, offset.y + toolTipHeight - radius, radius,
@@ -2429,13 +2475,13 @@ export abstract class BaseRenderer {
       this.context.arc(offset.x - arrowWidth - Math.round(toolTipWidth) + radius, offset.y + radius, radius, -Math.PI, -Math.PI / 2, false);
       this.context.arc(offset.x - arrowWidth - radius, offset.y + radius, radius, -Math.PI / 2, 0, false);
       if (toolTipOption.showArrow) {
-        this.context.lineTo(offset.x - arrowWidth, offset.y + 10 * this.opts.pixelRatio - 5 * this.opts.pixelRatio);
-        this.context.lineTo(offset.x, offset.y + 10 * this.opts.pixelRatio);
+        this.context.lineTo(offset.x - arrowWidth, offset.y + 10 * this.opts.pixelRatio! - 5 * this.opts.pixelRatio!);
+        this.context.lineTo(offset.x, offset.y + 10 * this.opts.pixelRatio!);
       }
     } else {
       if (toolTipOption.showArrow) {
-        this.context.moveTo(offset.x, offset.y + 10 * this.opts.pixelRatio);
-        this.context.lineTo(offset.x + arrowWidth, offset.y + 10 * this.opts.pixelRatio - 5 * this.opts.pixelRatio);
+        this.context.moveTo(offset.x, offset.y + 10 * this.opts.pixelRatio!);
+        this.context.lineTo(offset.x + arrowWidth, offset.y + 10 * this.opts.pixelRatio! - 5 * this.opts.pixelRatio!);
       }
       this.context.arc(offset.x + arrowWidth + radius, offset.y + radius, radius, -Math.PI, -Math.PI / 2, false);
       this.context.arc(offset.x + arrowWidth + Math.round(toolTipWidth) - radius, offset.y + radius, radius, -Math.PI / 2, 0, false);
@@ -2443,8 +2489,8 @@ export abstract class BaseRenderer {
         Math.PI / 2, false);
       this.context.arc(offset.x + arrowWidth + radius, offset.y + toolTipHeight - radius, radius, Math.PI / 2, Math.PI, false);
       if (toolTipOption.showArrow) {
-        this.context.lineTo(offset.x + arrowWidth, offset.y + 10 * this.opts.pixelRatio + 5 * this.opts.pixelRatio);
-        this.context.lineTo(offset.x, offset.y + 10 * this.opts.pixelRatio);
+        this.context.lineTo(offset.x + arrowWidth, offset.y + 10 * this.opts.pixelRatio! + 5 * this.opts.pixelRatio!);
+        this.context.lineTo(offset.x, offset.y + 10 * this.opts.pixelRatio!);
       }
     }
     this.context.closePath();
@@ -2465,37 +2511,37 @@ export abstract class BaseRenderer {
           }
           switch (item.legendShape) {
             case 'line':
-              this.context.moveTo(startX, startY + 0.5 * legendWidth - 2 * this.opts.pixelRatio);
-              this.context.fillRect(startX, startY + 0.5 * legendWidth - 2 * this.opts.pixelRatio, legendWidth, 4 * this.opts.pixelRatio);
+              this.context.moveTo(startX, startY + 0.5 * legendWidth - 2 * this.opts.pixelRatio!);
+              this.context.fillRect(startX, startY + 0.5 * legendWidth - 2 * this.opts.pixelRatio!, legendWidth, 4 * this.opts.pixelRatio!);
               break;
             case 'triangle':
-              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
-              this.context.lineTo(startX + 2.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio);
-              this.context.lineTo(startX + 12.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio);
-              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
+              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
+              this.context.lineTo(startX + 2.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio!);
+              this.context.lineTo(startX + 12.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio!);
+              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
               break;
             case 'diamond':
-              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
-              this.context.lineTo(startX + 2.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth);
-              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio);
-              this.context.lineTo(startX + 12.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth);
-              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
+              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
+              this.context.lineTo(startX + 2.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth);
+              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth + 5 * this.opts.pixelRatio!);
+              this.context.lineTo(startX + 12.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth);
+              this.context.lineTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
               break;
             case 'circle':
-              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth);
-              this.context.arc(startX + 7.5 * this.opts.pixelRatio, startY + 0.5 * legendWidth, 5 * this.opts.pixelRatio, 0, 2 * Math.PI);
+              this.context.moveTo(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth);
+              this.context.arc(startX + 7.5 * this.opts.pixelRatio!, startY + 0.5 * legendWidth, 5 * this.opts.pixelRatio!, 0, 2 * Math.PI);
               break;
             case 'rect':
-              this.context.moveTo(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
-              this.context.fillRect(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio, 15 * this.opts.pixelRatio, 10 * this.opts.pixelRatio);
+              this.context.moveTo(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
+              this.context.fillRect(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!, 15 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!);
               break;
             case 'square':
-              this.context.moveTo(startX + 2 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
-              this.context.fillRect(startX + 2 * this.opts.pixelRatio, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio, 10 * this.opts.pixelRatio, 10 * this.opts.pixelRatio);
+              this.context.moveTo(startX + 2 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
+              this.context.fillRect(startX + 2 * this.opts.pixelRatio!, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!);
               break;
             default:
-              this.context.moveTo(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio);
-              this.context.fillRect(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio, 15 * this.opts.pixelRatio, 10 * this.opts.pixelRatio);
+              this.context.moveTo(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!);
+              this.context.fillRect(startX, startY + 0.5 * legendWidth - 5 * this.opts.pixelRatio!, 15 * this.opts.pixelRatio!, 10 * this.opts.pixelRatio!);
           }
           this.context.closePath();
           this.context.fill();
@@ -2556,12 +2602,12 @@ export abstract class BaseRenderer {
     let validDistance = distance;
     if (distance >= 0) {
       validDistance = 0;
-      this.event.emit('scrollLeft');
+      this.event.emit('scrollLeft', this.opts);
       this.scrollOption.position = 'left'
       this.opts.xAxis.scrollPosition = 'left';
     } else if (Math.abs(distance) >= dataChartWidth - dataChartAreaWidth) {
       validDistance = dataChartAreaWidth - dataChartWidth;
-      this.event.emit('scrollRight');
+      this.event.emit('scrollRight', this.opts);
       this.scrollOption.position = 'right'
       this.opts.xAxis.scrollPosition = 'right';
     } else {
@@ -2692,12 +2738,12 @@ export abstract class BaseRenderer {
     this.context.beginPath();
     if (this.opts.dataPointShapeType == 'hollow') {
       this.setStrokeStyle(color);
-      this.setFillStyle(this.opts.background);
-      this.setLineWidth(2 * this.opts.pixelRatio);
+      this.setFillStyle(this.opts.background!);
+      this.setLineWidth(2 * this.opts.pixelRatio!);
     } else {
       this.setStrokeStyle("#ffffff");
       this.setFillStyle(color);
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
     }
     if (shape === 'diamond') {
       points.forEach((item, index) => {
@@ -2712,8 +2758,8 @@ export abstract class BaseRenderer {
     } else if (shape === 'circle') {
       points.forEach((item, index) => {
         if (item !== null) {
-          this.context.moveTo(item.x + 2.5 * this.opts.pixelRatio, item.y);
-          this.context.arc(item.x, item.y, 3 * this.opts.pixelRatio, 0, 2 * Math.PI, false);
+          this.context.moveTo(item.x + 2.5 * this.opts.pixelRatio!, item.y);
+          this.context.arc(item.x, item.y, 3 * this.opts.pixelRatio!, 0, 2 * Math.PI, false);
         }
       });
     } else if (shape === 'square') {
@@ -2752,12 +2798,12 @@ export abstract class BaseRenderer {
     this.context.beginPath();
     if (option.activeType == 'hollow') {
       this.setStrokeStyle(color);
-      this.setFillStyle(this.opts.background);
-      this.setLineWidth(2 * this.opts.pixelRatio);
+      this.setFillStyle(this.opts.background!);
+      this.setLineWidth(2 * this.opts.pixelRatio!);
     } else {
       this.setStrokeStyle("#ffffff");
       this.setFillStyle(color);
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
     }
 
     if (shape === 'diamond') {
@@ -2773,8 +2819,8 @@ export abstract class BaseRenderer {
     } else if (shape === 'circle') {
       points.forEach((item, index) => {
         if (item !== null && pointIndex == index) {
-          this.context.moveTo(item.x + 2.5 * this.opts.pixelRatio, item.y);
-          this.context.arc(item.x, item.y, 3 * this.opts.pixelRatio, 0, 2 * Math.PI, false);
+          this.context.moveTo(item.x + 2.5 * this.opts.pixelRatio!, item.y);
+          this.context.arc(item.x, item.y, 3 * this.opts.pixelRatio!, 0, 2 * Math.PI, false);
         }
       });
     } else if (shape === 'square') {
@@ -2808,9 +2854,9 @@ export abstract class BaseRenderer {
     points.forEach((item, index) => {
       if (item !== null) {
         this.context.beginPath();
-        let fontSize = series.textSize ? series.textSize! * this.opts.pixelRatio : this.opts.fontSize;
+        let fontSize = series.textSize ? series.textSize! * this.opts.pixelRatio! : this.opts.fontSize!;
         this.setFontSize(fontSize);
-        this.setFillStyle(series.textColor || this.opts.fontColor);
+        this.setFillStyle(series.textColor || this.opts.fontColor!);
         let value = data[index]
         if (typeof data[index] === 'object' && data[index] !== null) {
           if (Array.isArray(data[index])) {
@@ -2821,7 +2867,7 @@ export abstract class BaseRenderer {
         }
         let formatVal = series.formatter ? series.formatter(value as number,index,series,this.opts) : value;
         this.setTextAlign('center');
-        this.context.fillText(String(formatVal), item.x, item.y - 4 + textOffset * this.opts.pixelRatio);
+        this.context.fillText(String(formatVal), item.x, item.y - 4 + textOffset * this.opts.pixelRatio!);
         this.context.closePath();
         this.context.stroke();
         this.setTextAlign('left');
@@ -2960,6 +3006,92 @@ export abstract class BaseRenderer {
     } as getToolTipDataRes;
   }
 
+  protected coordinateToPoint(latitude: number, longitude: number, bounds: BoundBoxType, scale: number, xoffset: number, yoffset: number) {
+    return {
+      x: (longitude - bounds.xMin) * scale + xoffset,
+      y: (bounds.yMax - latitude) * scale + yoffset
+    };
+  }
+
+  protected pointToCoordinate(pointY: number, pointX: number, bounds: BoundBoxType, scale: number, xoffset: number, yoffset: number) {
+    return {
+      x: (pointX - xoffset) / scale + bounds.xMin,
+      y: bounds.yMax - (pointY - yoffset) / scale
+    };
+  }
+
+  // 经纬度转墨卡托
+  protected lonlat2mercator(longitude: number, latitude: number) {
+    let x = longitude * 20037508.34 / 180;
+    let y = Math.log(Math.tan((90 + latitude) * Math.PI / 360)) / (Math.PI / 180);
+    y = y * 20037508.34 / 180;
+    return [x, y];
+  }
+  // 墨卡托转经纬度
+  protected mercator2lonlat(longitude: number, latitude: number) {
+    let x = longitude / 20037508.34 * 180;
+    let y = latitude / 20037508.34 * 180;
+    y = 180 / Math.PI * (2 * Math.atan(Math.exp(y * Math.PI / 180)) - Math.PI / 2);
+    return [x, y];
+  }
+
+  private isRayIntersectsSegment(poi: number[], s_poi: number[], e_poi: number[]) {
+    if (s_poi[1] == e_poi[1]) {
+      return false;
+    }
+    if (s_poi[1] > poi[1] && e_poi[1] > poi[1]) {
+      return false;
+    }
+    if (s_poi[1] < poi[1] && e_poi[1] < poi[1]) {
+      return false;
+    }
+    if (s_poi[1] == poi[1] && e_poi[1] > poi[1]) {
+      return false;
+    }
+    if (e_poi[1] == poi[1] && s_poi[1] > poi[1]) {
+      return false;
+    }
+    if (s_poi[0] < poi[0] && e_poi[1] < poi[1]) {
+      return false;
+    }
+    let xseg = e_poi[0] - (e_poi[0] - s_poi[0]) * (e_poi[1] - poi[1]) / (e_poi[1] - s_poi[1]);
+    if (xseg < poi[0]) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private isPoiWithinPoly(poi: number[], poly: Position[][][], mercator: boolean) {
+    let sinsc = 0;
+    for (let i = 0; i < poly.length; i++) {
+      if(Array.isArray(poly[i])) {
+        let epoly = poly[i][0];
+        if (poly.length == 1) {
+          epoly = poly[i][0]
+        }
+        if (Array.isArray(epoly)) {
+          for (let j = 0; j < epoly.length - 1; j++) {
+            let s_poi: number[] = epoly[j];
+            let e_poi: number[] = epoly[j + 1];
+            if (mercator) {
+              s_poi = this.lonlat2mercator(epoly[j][0] as number, epoly[j][1] as number);
+              e_poi = this.lonlat2mercator(epoly[j + 1][0] as number, epoly[j + 1][1] as number);
+            }
+            if (this.isRayIntersectsSegment(poi, s_poi, e_poi)) {
+              sinsc += 1;
+            }
+          }
+        }
+      }
+    }
+    if (sinsc % 2 == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }
 
 
@@ -2972,8 +3104,8 @@ interface getToolTipDataRes {
   offset: Point
 }
 
-interface CurrentDataIndexRes {
-  index: number[]|number
+export interface CurrentDataIndexRes {
+  index: number|number[]
   group: number[]
 }
 

@@ -6,19 +6,20 @@ import { GlobalConfig } from "../types/config";
 import { Animation } from '../animation';
 import { ColumnExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface/canvas.type";
+import { EventListener } from "../event";
 
 /**
  * 柱状图渲染器
  */
 export class ColumnChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -27,14 +28,14 @@ export class ColumnChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -56,7 +57,7 @@ export class ColumnChartRenderer extends BaseRenderer {
     if (this.opts.yAxis.showTitle) {
       let maxTitleHeight = 0;
       for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio) : this.opts.fontSize)
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -67,14 +68,14 @@ export class ColumnChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -116,7 +117,7 @@ export class ColumnChartRenderer extends BaseRenderer {
       this.opts._scrollDistance_ = offsetLeft;
     }
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -141,7 +142,7 @@ export class ColumnChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
 
@@ -183,6 +184,7 @@ export class ColumnChartRenderer extends BaseRenderer {
             point.x = this.opts.area[3] + validWidth * ((item as number[])[0] - xminRange) / (xmaxRange - xminRange);
           } else {
             value = (item as ValueAndColorData).value;
+            point.color = (item as ValueAndColorData).color
           }
         }
         point.x += eachSpacing / 2;
@@ -221,6 +223,7 @@ export class ColumnChartRenderer extends BaseRenderer {
           let value = item;
           if (typeof item === 'object' && item !== null) {
             value = (item as ValueAndColorData).value;
+            point.color = (item as ValueAndColorData).color
           }
           height = validHeight * (Number(value) - minRange) / (maxRange - minRange);
           height0 = 0;
@@ -237,14 +240,14 @@ export class ColumnChartRenderer extends BaseRenderer {
   }
 
   private fixColumnStackData(points: Array<DataPoints|null>, eachSpacing: number) {
-    let categoryGap = this.opts.extra.column!.categoryGap ? (this.opts.extra.column!.categoryGap * this.opts.pixelRatio) : 0;
+    let categoryGap = this.opts.extra.column!.categoryGap ? (this.opts.extra.column!.categoryGap * this.opts.pixelRatio!) : 0;
     return points.map((item, index) => {
       if (item === null) {
         return null;
       }
       item.width = Math.ceil(eachSpacing - 2 * categoryGap);
       if (this.opts.extra.column && this.opts.extra.column.width && +this.opts.extra.column.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio!);
       }
       if (item.width <= 0) {
         item.width = 1;
@@ -254,14 +257,14 @@ export class ColumnChartRenderer extends BaseRenderer {
   }
 
   private fixColumnMeterData(points: Array<DataPoints|null>, eachSpacing: number, seriesIndex: number, border: number) {
-    let categoryGap = this.opts.extra.column?.categoryGap ? (this.opts.extra.column.categoryGap! * this.opts.pixelRatio) : 0;
+    let categoryGap = this.opts.extra.column?.categoryGap ? (this.opts.extra.column.categoryGap! * this.opts.pixelRatio!) : 0;
     return points.map((item) => {
       if (item === null) {
         return null;
       }
       item.width = eachSpacing - 2 * categoryGap;
       if (this.opts.extra.column && this.opts.extra.column.width && +this.opts.extra.column.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.column.width * this.opts.pixelRatio!);
       }
       if (seriesIndex > 0) {
         item.width -= border;
@@ -278,9 +281,9 @@ export class ColumnChartRenderer extends BaseRenderer {
     points.forEach((item, index) => {
       if (item !== null) {
         this.context.beginPath();
-        let fontSize = series.textSize ? (series.textSize * this.opts.pixelRatio) : this.opts.fontSize;
+        let fontSize = series.textSize ? (series.textSize * this.opts.pixelRatio!) : this.opts.fontSize!;
         this.setFontSize(fontSize);
-        this.setFillStyle(series.textColor || this.opts.fontColor);
+        this.setFillStyle(series.textColor || this.opts.fontColor!);
         let value = data[index]
         if (typeof data[index] === 'object' && data[index] !== null) {
           if (data[index]!.constructor.toString().indexOf('Array') > -1) {
@@ -293,38 +296,38 @@ export class ColumnChartRenderer extends BaseRenderer {
         }
         let formatVal = series.formatter ? series.formatter(Number(value),index,series,this.opts) : value;
         this.setTextAlign('center');
-        let startY = item.y - 4 * this.opts.pixelRatio + textOffset * this.opts.pixelRatio;
+        let startY = item.y - 4 * this.opts.pixelRatio! + textOffset * this.opts.pixelRatio!;
         if(item.y > series.zeroPoints){
-          startY = item.y + textOffset * this.opts.pixelRatio + fontSize;
+          startY = item.y + textOffset * this.opts.pixelRatio! + fontSize;
         }
         if(Position == 'insideTop'){
-          startY = item.y + fontSize + textOffset * this.opts.pixelRatio;
+          startY = item.y + fontSize + textOffset * this.opts.pixelRatio!;
           if(item.y > series.zeroPoints){
-            startY = item.y - textOffset * this.opts.pixelRatio - 4 * this.opts.pixelRatio;
+            startY = item.y - textOffset * this.opts.pixelRatio! - 4 * this.opts.pixelRatio!;
           }
         }
         if(Position == 'center'){
-          startY = item.y + textOffset * this.opts.pixelRatio + (this.opts.height - this.opts.area[2] - item.y + fontSize)/2;
+          startY = item.y + textOffset * this.opts.pixelRatio! + (this.opts.height - this.opts.area[2] - item.y + fontSize)/2;
           if(series.zeroPoints < this.opts.height - this.opts.area[2]){
-            startY = item.y + textOffset * this.opts.pixelRatio + (series.zeroPoints - item.y + fontSize)/2;
+            startY = item.y + textOffset * this.opts.pixelRatio! + (series.zeroPoints - item.y + fontSize)/2;
           }
           if(item.y > series.zeroPoints){
-            startY = item.y - textOffset * this.opts.pixelRatio - (item.y - series.zeroPoints - fontSize)/2;
+            startY = item.y - textOffset * this.opts.pixelRatio! - (item.y - series.zeroPoints - fontSize)/2;
           }
           if(this.opts.extra.column!.type == 'stack'){
-            startY = item.y + textOffset *this.opts.pixelRatio + (item.y0! - item.y + fontSize)/2;
+            startY = item.y + textOffset * this.opts.pixelRatio! + (item.y0! - item.y + fontSize)/2;
           }
         }
         if(Position == 'bottom'){
-          startY = this.opts.height - this.opts.area[2] + textOffset * this.opts.pixelRatio - 4 * this.opts.pixelRatio;
+          startY = this.opts.height - this.opts.area[2] + textOffset * this.opts.pixelRatio! - 4 * this.opts.pixelRatio!;
           if(series.zeroPoints < this.opts.height - this.opts.area[2]){
-            startY = series.zeroPoints + textOffset * this.opts.pixelRatio - 4 * this.opts.pixelRatio;
+            startY = series.zeroPoints + textOffset * this.opts.pixelRatio! - 4 * this.opts.pixelRatio!;
           }
           if(item.y > series.zeroPoints){
-            startY = series.zeroPoints - textOffset * this.opts.pixelRatio + fontSize + 2 * this.opts.pixelRatio;
+            startY = series.zeroPoints - textOffset * this.opts.pixelRatio! + fontSize + 2 * this.opts.pixelRatio!;
           }
           if(this.opts.extra.column!.type == 'stack'){
-            startY = item.y0! + textOffset * this.opts.pixelRatio - 4 * this.opts.pixelRatio;
+            startY = item.y0! + textOffset * this.opts.pixelRatio! - 4 * this.opts.pixelRatio!;
           }
         }
         this.context.fillText(String(formatVal), item.x, startY);
@@ -494,7 +497,7 @@ export class ColumnChartRenderer extends BaseRenderer {
               this.context.beginPath();
               if (seriesIndex == 0 && columnOption.meterBorder > 0) {
                 this.setStrokeStyle(eachSeries.color as string);
-                this.setLineWidth(columnOption.meterBorder * this.opts.pixelRatio);
+                this.setLineWidth(columnOption.meterBorder * this.opts.pixelRatio!);
               }
               if(seriesIndex == 0){
                 this.setFillStyle(columnOption.meterFillColor);

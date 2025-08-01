@@ -25,6 +25,9 @@ Series 是所有图表类型的数据系列的联合类型，包括：
 - FunnelSeries：漏斗图数据系列
 - CandleSeries：K线图数据系列
 
+## MapSeries（地图数据系列类型）
+- 兼容GeoJson类型的FeatureCollectionFeatures
+
 ---
 
 ## 各 Series 类型字段说明

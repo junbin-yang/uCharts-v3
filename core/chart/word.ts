@@ -4,19 +4,20 @@ import { BaseRenderer } from "./base";
 import { Animation } from '../animation';
 import { Series, WordSeries } from '../types/series';
 import { WordExtra } from "../types/extra";
+import { EventListener } from "../event";
 
 /**
  * 词云图渲染器
  */
 export class WordChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -25,14 +26,14 @@ export class WordChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -68,7 +69,7 @@ export class WordChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -79,7 +80,7 @@ export class WordChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -92,7 +93,7 @@ export class WordChartRenderer extends BaseRenderer {
       this.opts.chartData.wordCloudData = this.getWordCloudPoint(series, wordOption.type);
     }
     this.context.beginPath();
-    this.setFillStyle(this.opts.background);
+    this.setFillStyle(this.opts.background!);
     this.context.rect(0, 0, this.opts.width, this.opts.height);
     this.context.fill();
     this.context.save();
@@ -104,7 +105,7 @@ export class WordChartRenderer extends BaseRenderer {
         this.context.rotate(90 * Math.PI / 180);
       }
       let text = points[i].name;
-      let tHeight = points[i].textSize * this.opts.pixelRatio;
+      let tHeight = points[i].textSize * this.opts.pixelRatio!;
       let tWidth = this.measureText(text, tHeight);
       this.context.beginPath();
       this.setStrokeStyle(points[i].color);
@@ -147,7 +148,7 @@ export class WordChartRenderer extends BaseRenderer {
       for (let i = 0; i < points.length; i++) {
         let text = points[i].name || "";
         let textSize = points[i].textSize == undefined ? 20 : points[i].textSize!
-        let tHeight = textSize * this.opts.pixelRatio;
+        let tHeight = textSize * this.opts.pixelRatio!;
         let tWidth = this.measureText(text, tHeight);
         let x: number, y: number;
         let area: number[];
@@ -178,7 +179,7 @@ export class WordChartRenderer extends BaseRenderer {
       for (let i = 0; i < points.length; i++) {
         let text = points[i].name || "";
         let textSize = points[i].textSize == undefined ? 20 : points[i].textSize!
-        let tHeight = textSize * this.opts.pixelRatio;
+        let tHeight = textSize * this.opts.pixelRatio!;
         let tWidth = this.measureText(text, tHeight);
         let isSpin = Spin();
         let x: number, y: number, area: number[] = [], areav: number[] = [];

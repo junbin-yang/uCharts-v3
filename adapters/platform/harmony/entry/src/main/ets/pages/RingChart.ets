@@ -38,7 +38,7 @@ export struct RingChart {
               }) {
                 UCharts({controller: item.ctl, onReady: () => {
                   item.ctl.updateData(item.opts)
-                }}).height(260)
+                }})
 
                 //CollapseAndExpand({ value: GetColumnDemoCodeStr(index) })
               }

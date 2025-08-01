@@ -23,6 +23,8 @@
 - `gauge?: Partial<GaugeExtra>` 仪表盘图扩展配置
 - `funnel?: Partial<FunnelExtra>` 漏斗图扩展配置
 - `candle?: Partial<CandleExtra>` K线图扩展配置
+- `map?: Partial<MapExtra>` 地图扩展配置
+- `scatter?: Partial<ScatterExtra>` 散点图扩展配置
 
 ## 各图表扩展配置接口
 
@@ -231,15 +233,31 @@
 
 ### CandleExtra（K线图扩展配置）
 - color: Partial<CandleExtraColor>  K线颜色配置
-  - upLine: string  K线为涨时线颜色，默认#f04864
-  - upFill: string  K线为涨时填充颜色，默认#f04864
-  - downLine: string  K线为跌时线颜色，默认#2fc25b
-  - downFill: string  K线为跌时填充颜色，默认#2fc25b
+- upLine: string  K线为涨时线颜色，默认#f04864
+- upFill: string  K线为涨时填充颜色，默认#f04864
+- downLine: string  K线为跌时线颜色，默认#2fc25b
+- downFill: string  K线为跌时填充颜色，默认#2fc25b
 - average: Partial<CandleExtraAverage>  均线配置
-  - show: boolean  是否叠加显示均线，默认true
-  - name: string[]  均线名称（如["MA5","MA20"]）用于下方图例显示
-  - day: number[]  均线单位日期（如[5,20]为显示5日及20日均线，主要看K线的单位是什么）
-  - color: string[]  均线颜色，如["#1890ff", "#2fc25b"]
+- show: boolean  是否叠加显示均线，默认true
+- name: string[]  均线名称（如["MA5","MA20"]）用于下方图例显示
+- day: number[]  均线单位日期（如[5,20]为显示5日及20日均线，主要看K线的单位是什么）
+- color: string[]  均线颜色，如["#1890ff", "#2fc25b"]
+
+### MapExtra（地图扩展配置）
+- border: boolean	           是否绘制各类别中间的分割线，默认true
+- mercator: boolean          是否进行WGS84转墨卡托投影(开启后可能会造成tooltip不跟手，建议自行转换)，默认false
+- borderWidth: number	       分割线的宽度，默认2
+- borderColor: string	       分割线的颜色，默认#666666
+- fillOpacity: number	       区域内填充透明度，默认0.6
+- active: boolean	           是否启用下面点击激活变色，默认true
+- activeTextColor: string		 点击激活时文字的颜色，默认#FFFFFF
+- activeBorderColor: string	 点击激活时分割线的颜色，默认#F04864
+- activeFillColor: string		 点击激活时分区域内填充颜色，默认#FACC14
+- activeFillOpacity: number  点击激活时分区域内填充颜色透明度，默认1
+- color: string[]		         根据series.value插值计算地图区域对应渐变颜色范围，例如["#E0F7FF", "#B71C1C"]
+
+### ScatterExtra（散点图扩展配置）
+- 暂无扩展配置
 
 ### TooltipOptions（提示窗配置）
 - 详见源码注释。

@@ -6,13 +6,14 @@ import { Series } from "../types/series";
 import { RoseExtra } from "../types/extra";
 import { GlobalConfig } from '../types/config';
 import { CanvasGradient } from "../../interface";
+import { EventListener } from "../event";
 
 /**
  * 玫瑰图渲染器
  */
 export class RoseChartRenderer extends BasePieRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
@@ -20,7 +21,7 @@ export class RoseChartRenderer extends BasePieRenderer {
     let series = this.opts.series;
     series = this.fixPieSeries(series);
     series = ChartsUtil.fillSeries(series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -29,14 +30,14 @@ export class RoseChartRenderer extends BasePieRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -74,7 +75,7 @@ export class RoseChartRenderer extends BasePieRenderer {
     this.opts._pieTextMaxLength_ = this.opts.dataLabel === false ? 0 : this.getPieTextMaxLength(seriesMA);
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -87,7 +88,7 @@ export class RoseChartRenderer extends BasePieRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -106,7 +107,7 @@ export class RoseChartRenderer extends BasePieRenderer {
       customColor: [],
     }, this.opts.extra.rose!);
     if (GlobalConfig.pieChartLinePadding == 0) {
-      GlobalConfig.pieChartLinePadding = roseOption.activeRadius * this.opts.pixelRatio;
+      GlobalConfig.pieChartLinePadding = roseOption.activeRadius * this.opts.pixelRatio!;
     }
     let centerPosition: Point = {
       x: this.opts.area[3] + ((this.opts.width!) - this.opts.area[1] - this.opts.area[3]) / 2,
@@ -119,7 +120,7 @@ export class RoseChartRenderer extends BasePieRenderer {
       radius = minRadius + 10;
     }
     series = this.getRoseDataPoints(series, roseOption.type, minRadius, radius, process);
-    let activeRadius = roseOption.activeRadius * this.opts.pixelRatio;
+    let activeRadius = roseOption.activeRadius * this.opts.pixelRatio!;
     roseOption.customColor = ChartsUtil.fillCustomColor(roseOption.linearType, roseOption.customColor, series);
     series = series.map((eachSeries) => {
       eachSeries._start_ += (roseOption.offsetAngle || 0) * Math.PI / 180;
@@ -137,7 +138,7 @@ export class RoseChartRenderer extends BasePieRenderer {
         }
       }
       this.context.beginPath();
-      this.setLineWidth(roseOption.borderWidth * this.opts.pixelRatio);
+      this.setLineWidth(roseOption.borderWidth * this.opts.pixelRatio!);
       this.context.lineJoin = "round";
       this.setStrokeStyle(roseOption.borderColor);
       let fillcolor: CanvasGradient|string = eachSeries.color!;

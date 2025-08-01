@@ -6,19 +6,20 @@ import { RadarExtra } from "../types/extra";
 import { GlobalConfig } from '../types/config';
 import { CanvasGradient } from "../../interface";
 import { BaseRenderer } from "./base";
+import { EventListener } from "../event";
 
 /**
  * 雷达图渲染器
  */
 export class RadarChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -27,14 +28,14 @@ export class RadarChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -70,7 +71,7 @@ export class RadarChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -83,7 +84,7 @@ export class RadarChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -114,13 +115,13 @@ export class RadarChartRenderer extends BaseRenderer {
     };
     let xr = ((this.opts.width!) - this.opts.area[1] - this.opts.area[3]) / 2
     let yr = ((this.opts.height!) - this.opts.area[0] - this.opts.area[2]) / 2
-    let radius = Math.min(xr - (this.getMaxTextListLength(this.opts.categories as string[], this.opts.fontSize) + GlobalConfig.radarLabelTextMargin), yr - GlobalConfig.radarLabelTextMargin);
-    radius -= GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio;
+    let radius = Math.min(xr - (this.getMaxTextListLength(this.opts.categories as string[], this.opts.fontSize!) + GlobalConfig.radarLabelTextMargin), yr - GlobalConfig.radarLabelTextMargin);
+    radius -= GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio!;
     radius = radius < 10 ? 10 : radius;
     radius = radarOption.radius ? radarOption.radius : radius;
     // 画分割线
     this.context.beginPath();
-    this.setLineWidth(1 * this.opts.pixelRatio);
+    this.setLineWidth(1 * this.opts.pixelRatio!);
     this.setStrokeStyle(radarOption.gridColor);
     coordinateAngle.forEach((angle, index) => {
       let pos = ChartsUtil.convertCoordinateOrigin(radius * Math.cos(angle), radius * Math.sin(angle), centerPosition);
@@ -136,7 +137,7 @@ export class RadarChartRenderer extends BaseRenderer {
     const _loop = (i: number) => {
       let startPos: Point = { x: 0, y: 0 };
       this.context.beginPath();
-      this.setLineWidth(1 * this.opts.pixelRatio);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
       this.setStrokeStyle(radarOption.gridColor);
       if (radarOption.gridType == 'radar') {
         coordinateAngle.forEach((angle, index) => {
@@ -165,7 +166,7 @@ export class RadarChartRenderer extends BaseRenderer {
     radarDataPoints.forEach((eachSeries, seriesIndex) => {
       // 绘制区域数据
       this.context.beginPath();
-      this.setLineWidth(radarOption.borderWidth * this.opts.pixelRatio);
+      this.setLineWidth(radarOption.borderWidth * this.opts.pixelRatio!);
       this.setStrokeStyle(eachSeries.color!);
 
       let fillcolor: CanvasGradient|string = ChartsUtil.hexToRgb(eachSeries.color!, radarOption.opacity);
@@ -206,14 +207,14 @@ export class RadarChartRenderer extends BaseRenderer {
     if(radarOption.axisLabel === true) {
       const maxData = Math.max(radarOption.max, Math.max(...ChartsUtil.dataCombine(series)));
       const stepLength = radius / radarOption.gridCount;
-      const fontSize = this.opts.fontSize * this.opts.pixelRatio;
+      const fontSize = this.opts.fontSize! * this.opts.pixelRatio!;
       this.setFontSize(fontSize);
-      this.setFillStyle(this.opts.fontColor);
+      this.setFillStyle(this.opts.fontColor!);
       this.setTextAlign('left');
       for (let i = 0; i < radarOption.gridCount + 1; i++) {
         let label: number|string = i * maxData / radarOption.gridCount;
         label = label.toFixed(radarOption.axisLabelTofix);
-        this.context.fillText(String(label), centerPosition.x + 3 * this.opts.pixelRatio, centerPosition.y - i * stepLength + fontSize / 2);
+        this.context.fillText(String(label), centerPosition.x + 3 * this.opts.pixelRatio!, centerPosition.y - i * stepLength + fontSize / 2);
       }
     }
 
@@ -224,9 +225,9 @@ export class RadarChartRenderer extends BaseRenderer {
     if (this.opts.dataLabel !== false && process === 1) {
       radarDataPoints.forEach((eachSeries, seriesIndex) => {
         this.context.beginPath();
-        let fontSize = eachSeries.textSize ? eachSeries.textSize * this.opts.pixelRatio : this.opts.fontSize;
+        let fontSize = eachSeries.textSize ? eachSeries.textSize * this.opts.pixelRatio! : this.opts.fontSize!;
         this.setFontSize(fontSize);
-        this.setFillStyle(eachSeries.textColor || this.opts.fontColor);
+        this.setFillStyle(eachSeries.textColor || this.opts.fontColor!);
         eachSeries.data.forEach((item, index) => {
           //如果是中心点垂直的上下点位
           if(Math.abs(item.position.x - centerPosition.x) < 2) {
@@ -319,28 +320,28 @@ export class RadarChartRenderer extends BaseRenderer {
         let posPointAxis = ChartsUtil.convertCoordinateOrigin(posPoint.x, posPoint.y, centerPosition);
         this.setFillStyle(radarOption.labelPointColor!);
         this.context.beginPath();
-        this.context.arc(posPointAxis.x, posPointAxis.y, (radarOption.labelPointRadius!) * this.opts.pixelRatio, 0, 2 * Math.PI, false);
+        this.context.arc(posPointAxis.x, posPointAxis.y, (radarOption.labelPointRadius!) * this.opts.pixelRatio!, 0, 2 * Math.PI, false);
         this.context.closePath();
         this.context.fill();
       }
       if(radarOption.labelShow === true) {
         let pos: Point = {
-          x: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio) * Math.cos(angle),
-          y: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio) * Math.sin(angle)
+          x: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio!) * Math.cos(angle),
+          y: (radius + GlobalConfig.radarLabelTextMargin * this.opts.pixelRatio!) * Math.sin(angle)
         };
         let posRelativeCanvas = ChartsUtil.convertCoordinateOrigin(pos.x, pos.y, centerPosition);
         let startX = posRelativeCanvas.x;
         let startY = posRelativeCanvas.y;
         const categories = this.opts.categories as string[]
         if (ChartsUtil.approximatelyEqual(pos.x, 0)) {
-          startX -= this.measureText(categories[index] || '', this.opts.fontSize) / 2;
+          startX -= this.measureText(categories[index] || '', this.opts.fontSize!) / 2;
         } else if (pos.x < 0) {
-          startX -= this.measureText(categories[index] || '', this.opts.fontSize);
+          startX -= this.measureText(categories[index] || '', this.opts.fontSize!);
         }
         this.context.beginPath();
-        this.setFontSize(this.opts.fontSize);
-        this.setFillStyle(radarOption.labelColor || this.opts.fontColor);
-        this.context.fillText(categories[index] || '', startX, startY + this.opts.fontSize / 2);
+        this.setFontSize(this.opts.fontSize!);
+        this.setFillStyle(radarOption.labelColor || this.opts.fontColor!);
+        this.context.fillText(categories[index] || '', startX, startY + (this.opts.fontSize!) / 2);
         this.context.closePath();
         this.context.stroke();
       }

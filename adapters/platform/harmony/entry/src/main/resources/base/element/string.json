@@ -131,6 +131,10 @@
     {
       "name": "charts_candle",
       "value": "K线图"
+    },
+    {
+      "name": "charts_map",
+      "value": "地图"
     }
   ]
 }

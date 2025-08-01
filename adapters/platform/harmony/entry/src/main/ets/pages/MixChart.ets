@@ -10,6 +10,8 @@ export struct MixChart {
   @State title: string = ""
   @State icon: Resource = $r("app.media.column")
   private demoData = SetMixChartDemo()
+  @State contentWidth: number|string = "auto"
+  @State contentHeight: number|string = 300
 
   aboutToAppear(): void {
     const Param: Record<string, object> = RouterUtil.navPathStack.getParamByName("mix")[0] as Record<string, object>
@@ -36,9 +38,23 @@ export struct MixChart {
                 wrap: FlexWrap.Wrap,
                 space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
               }) {
-                UCharts({controller: item.ctl, onReady: () => {
+                Button("Height+20").onClick(()=>{
+                  /*
+                  item.opts.rotate = true
+                  item.opts.rotateLock = true
                   item.ctl.updateData(item.opts)
-                }}).height(260)
+                  */
+                  this.contentHeight = this.contentHeight as number + 20
+                })
+                Button("Height-20").onClick(()=>{
+                  this.contentHeight = this.contentHeight as number - 20
+                })
+                UCharts({controller: item.ctl,
+                  contentWidth: this.contentWidth,
+                  contentHeight: this.contentHeight,
+                  onReady: () => {
+                    item.ctl.updateData(item.opts)
+                }})
 
                 //CollapseAndExpand({ value: GetColumnDemoCodeStr(index) })
               }

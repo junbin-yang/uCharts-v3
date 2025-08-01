@@ -158,34 +158,35 @@ export type AnyType = any
 图表选项配置
 ```typescript
 export interface ChartOptions {
-  type: ChartType                                    // 图表类型
-  context?: CanvasContext                           // CanvasRenderingContext2D
-  pixelRatio: number                                // 设备像素比
-  fontSize: number                                  // 全局默认字体大小，默认13
-  fontColor: string                                 // 全局默认字体颜色，16进制颜色格式，默认#666666
-  background: string                                // 背景颜色，开启滚动条后请赋值
-  title: Partial<TitleOptions>                      // 标题配置，此配置仅适用于ring、arcbar、gauge，直角坐标系图表可在X轴配置/Y轴配置中设置标题
-  subtitle: Partial<TitleOptions>                   // 副标题配置，此配置仅适用于ring、arcbar、gauge，直角坐标系图表可在X轴配置/Y轴配置中设置标题
-  animation: boolean                                // 是否动画展示图表，默认true
-  timing: AnimationTiming                           // 默认easeOut
-  duration: number                                  // 动画展示时长，单位毫秒，默认1000
-  enableScroll: boolean                             // 开启滚动条，X轴配置里需要配置itemCount单屏幕数据点数量，默认false
-  scrollPosition: 'current'|'left'|'right'          // 连续更新数据时，滚动条的位置。默认'current'。可选值："current"当前位置,"left"左对齐,"right"右对齐
-  yAxis: Partial<YAxisOptions>                      // Y轴选项
-  xAxis: Partial<XAxisOptions>                      // X轴选项
-  rotate: boolean                                   // 横屏模式，默认false
-  rotateLock: boolean                               // 横屏锁定模式，默认false，如果开启横屏模式后，图表交互每次都会旋转90度，请赋值true
-  padding: [number, number, number, number]         // 画布填充边距，顺序为上右下左，例如[10,15,25,15]
-  categories: Array<string>                         // 图表数据集，部分图表类型不需要categories
-  series: Array<Series>                             // 图表数据集，请按不同图表类型传入对应的标准数据
-  legend: Partial<LegendOptions>                    // 图例配置
-  extra: Extra                                      // 扩展配置
-  touchMoveLimit: number                            // 图表拖拽时，每秒重新渲染的帧数，默认60（用于图表拖拽卡顿，可以降低js与视图层交互的次数，理论上24帧/秒就够用了）
-  dataLabel: boolean                                // 是否显示图表区域内数据点上方的数据文案，默认true
-  dataPointShape: boolean                           // 是否显示数据点的图形标识，默认true
-  dataPointShapeType: 'solid'|'hollow'             // 图形标识点显示类型，可选值：'solid'实心,'hollow'空心，默认'solid'
-  enableMarkLine: boolean                           // 是否启用标记线功能，也可做为隐藏图表区域内的标记线的开关，默认true
-  [key: string]: AnyType                            // width height
+  type: ChartType
+  categories: Array<string|Partial<ValueAndColorData>>            //图表数据集，部分图表类型不需要categories
+  series: Array<Series>|MapSeries                                 //图表数据集，请按不同图表类型传入对应的标准数据
+  yAxis: Partial<YAxisOptions>                                    //Y轴选项
+  xAxis: Partial<XAxisOptions>                                    //X轴选项
+  extra: Extra                                                    //扩展配置
+  context?: CanvasContext                                         //CanvasRenderingContext2D
+  pixelRatio?: number                                             //设备像素比
+  fontSize?: number                                               //全局默认字体大小，默认13
+  fontColor?: string                                              //全局默认字体颜色，16进制颜色格式，默认#666666
+  background?: string                                             //背景颜色，开启滚动条后请赋值
+  title?: Partial<TitleOptions>                                   //标题配置，此配置仅适用于ring、arcbar、gauge，直角坐标系图表可在X轴配置/Y轴配置中设置标题
+  subtitle?: Partial<TitleOptions>                                //副标题配置，此配置仅适用于ring、arcbar、gauge，直角坐标系图表可在X轴配置/Y轴配置中设置标题
+  animation?: boolean                                             //是否动画展示图表，默认true
+  timing?: AnimationTiming                                        //默认easeOut
+  duration?: number                                               //动画展示时长，单位毫秒，默认1000
+  enableScroll?: boolean                                          //开启滚动条，X轴配置里需要配置itemCount单屏幕数据点数量，默认false
+  scrollPosition?: 'current'|'left'|'right'                       //连续更新数据时，滚动条的位置。默认'current'。可选值："current"当前位置,"left"左对齐,"right"右对齐
+  rotate?: boolean                                                //横屏模式，默认false
+  rotateLock?: boolean                                            //横屏锁定模式，默认false，如果开启横屏模式后，图表交互每次都会旋转90度，请赋值true
+  padding?: [number, number, number, number]                      //画布填充边距，顺序为上右下左，例如[10,15,25,15]
+  legend?: Partial<LegendOptions>                                 //图例配置
+  touchMoveLimit?: number                                         //图表拖拽时，每秒重新渲染的帧数，默认60（用于图表拖拽卡顿，可以降低js与视图层交互的次数，理论上24帧/秒就够用了）
+  dataLabel?: boolean                                             //是否显示图表区域内数据点上方的数据文案，默认true
+  dataPointShape?: boolean                                        //是否显示数据点的图形标识，默认true
+  dataPointShapeType?: 'solid'|'hollow'                           //图形标识点显示类型，可选值：'solid'实心,'hollow'空心，默认'solid'
+  enableMarkLine?: boolean                                        //是否启用标记线功能，也可做为隐藏图表区域内的标记线的开关，默认true
+  color?: Array<string>                                           //主题颜色，16进制颜色格式
+  [key: string]: AnyType                                          // width height
 }
 ```
 

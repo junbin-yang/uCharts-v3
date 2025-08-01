@@ -6,13 +6,14 @@ import { Animation } from '../animation';
 import { Series } from "../types/series";
 import { BarExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface/canvas.type";
+import { EventListener } from "../event";
 
 /**
  * 条状图渲染器
  */
 export class BarChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
@@ -20,7 +21,7 @@ export class BarChartRenderer extends BaseRenderer {
     let series = this.opts.series;
     let categories: string[] = this.opts.categories as string[];
     series = ChartsUtil.fillSeries(series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -29,14 +30,14 @@ export class BarChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -58,7 +59,7 @@ export class BarChartRenderer extends BaseRenderer {
     if (this.opts.yAxis.showTitle) {
       let maxTitleHeight = 0;
       for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio) : this.opts.fontSize)
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -69,14 +70,14 @@ export class BarChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -114,7 +115,7 @@ export class BarChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -139,7 +140,7 @@ export class BarChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -390,13 +391,13 @@ export class BarChartRenderer extends BaseRenderer {
       }
       let seriesGap = 0;
       let categoryGap = 0;
-      seriesGap = this.opts.extra.bar?.seriesGap ? this.opts.extra.bar?.seriesGap * this.opts.pixelRatio : 0;
-      categoryGap = this.opts.extra.bar?.categoryGap ? this.opts.extra.bar?.categoryGap * this.opts.pixelRatio : 0;
+      seriesGap = this.opts.extra.bar?.seriesGap ? this.opts.extra.bar?.seriesGap * this.opts.pixelRatio! : 0;
+      categoryGap = this.opts.extra.bar?.categoryGap ? this.opts.extra.bar?.categoryGap * this.opts.pixelRatio! : 0;
       seriesGap =  Math.min(seriesGap, eachSpacing / columnLen)
       categoryGap =  Math.min(categoryGap, eachSpacing / columnLen)
       item.width = Math.ceil((eachSpacing - 2 * categoryGap - seriesGap * (columnLen - 1)) / columnLen);
       if (this.opts.extra.bar && this.opts.extra.bar.width && +this.opts.extra.bar.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.bar.width * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.bar.width * this.opts.pixelRatio!);
       }
       if (item.width <= 0) {
         item.width = 1;
@@ -407,14 +408,14 @@ export class BarChartRenderer extends BaseRenderer {
   }
 
   private fixBarStackData(points: (DataPoints | null)[], eachSpacing: number) {
-    let categoryGap = this.opts.extra.bar?.categoryGap ? this.opts.extra.bar?.categoryGap * this.opts.pixelRatio : 0;
+    let categoryGap = this.opts.extra.bar?.categoryGap ? this.opts.extra.bar?.categoryGap * this.opts.pixelRatio! : 0;
     return points.map((item, index) => {
       if (item === null) {
         return null;
       }
       item.width = Math.ceil(eachSpacing - 2 * categoryGap);
       if (this.opts.extra.bar && this.opts.extra.bar.width && +this.opts.extra.bar.width > 0) {
-        item.width = Math.min(item.width, +this.opts.extra.bar.width * this.opts.pixelRatio);
+        item.width = Math.min(item.width, +this.opts.extra.bar.width * this.opts.pixelRatio!);
       }
       if (item.width <= 0) {
         item.width = 1;
@@ -430,13 +431,13 @@ export class BarChartRenderer extends BaseRenderer {
     points.forEach((item, index) => {
       if (item !== null) {
         this.context.beginPath();
-        let fontSize = series.textSize ? series.textSize * this.opts.pixelRatio : this.opts.fontSize;
+        let fontSize = series.textSize ? series.textSize * this.opts.pixelRatio! : this.opts.fontSize!;
         this.setFontSize(fontSize);
-        this.setFillStyle(series.textColor || this.opts.fontColor);
+        this.setFillStyle(series.textColor || this.opts.fontColor!);
         let value = data[index]
         let formatVal = series.formatter ? series.formatter(value,index,series,this.opts) : value;
         this.setTextAlign('left');
-        this.context.fillText(String(formatVal), item.x + 4 * this.opts.pixelRatio , item.y + fontSize / 2 - 3 );
+        this.context.fillText(String(formatVal), item.x + 4 * this.opts.pixelRatio! , item.y + fontSize / 2 - 3 );
         this.context.closePath();
         this.context.stroke();
       }

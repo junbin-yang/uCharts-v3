@@ -32,7 +32,12 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 - **仪表盘 (gauge)**
 - **漏斗图 (funnel)**
 - **K线图 (candle)**
+- **地图 (map)**
 - **更多类型持续开发中...**
+
+## 体验预览
+
+升级到 HarmonyOS NEXT 的手机, 可在应用商店搜索 `best`、`ibest` 关键字, 下载第一个名为 `IBest-UI` 的应用, 即可体验。
 
 ## 下载安装
 
@@ -107,6 +112,14 @@ struct Index {
 
 - 本库专为 HarmonyOS 平台适配，充分利用鸿蒙 Canvas 绘图能力。
 - 如需自定义扩展，可参考 adapters/platform/harmony 目录下的适配代码。
+
+## 官方生态
+
+| 项目                       | 描述                                                               |                                                                                                                           |
+|:-------------------------|:-----------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------|
+| @ibestservices/ibest_ui    | 一个**轻量、简单易用、可定制主题、支持深色模式和浅色模式**的鸿蒙开源UI组件库。            | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-ui')">地址</a>    |
+| @ibestservices/ibest_ui_v2 | 一个**轻量、简单易用、可定制主题、支持深色模式和浅色模式**的鸿蒙开源UI组件库，基于状态管理v2版本。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-ui-v2')">地址</a> |
+| @ibestservices/area-data | 中国省市区数据，适用于鸿蒙 ArkUI 的 TextPicker 和 IBest-UI 的 IBestCascader 等组件。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Farea-data')">地址</a> |
 
 ## 链接
 - [Github](https://github.com/junbin-yang/uCharts-v3)

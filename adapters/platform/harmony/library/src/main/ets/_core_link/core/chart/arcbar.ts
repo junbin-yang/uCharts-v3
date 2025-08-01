@@ -5,19 +5,20 @@ import { Series, ArcBarSeries } from '../types/series';
 import { ArcBarExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface";
 import { BasePieRenderer, pieDataPointsRes } from "./pie";
+import { EventListener } from "../event";
 
 /**
  * 进度条渲染器
  */
 export class ArcBarChartRenderer extends BasePieRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -26,14 +27,14 @@ export class ArcBarChartRenderer extends BasePieRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -69,7 +70,7 @@ export class ArcBarChartRenderer extends BasePieRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -80,7 +81,7 @@ export class ArcBarChartRenderer extends BasePieRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -114,7 +115,7 @@ export class ArcBarChartRenderer extends BasePieRenderer {
       radius = arcbarOption.radius;
     } else {
       radius = Math.min(centerPosition.x, centerPosition.y);
-      radius -= 5 * this.opts.pixelRatio;
+      radius -= 5 * this.opts.pixelRatio!;
       radius -= arcbarOption.width / 2;
     }
     radius = radius < 10 ? 10 : radius;
@@ -123,14 +124,14 @@ export class ArcBarChartRenderer extends BasePieRenderer {
     for (let i = 0; i < series.length; i++) {
       let eachSeries = series[i] as ArcBarSeries;
       //背景颜色
-      this.setLineWidth(arcbarOption.width * this.opts.pixelRatio);
+      this.setLineWidth(arcbarOption.width * this.opts.pixelRatio!);
       this.setStrokeStyle(arcbarOption.backgroundColor);
       this.setLineCap(arcbarOption.lineCap);
       this.context.beginPath();
       if (arcbarOption.type == 'default') {
-        this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * this.opts.pixelRatio + arcbarOption.gap * this.opts.pixelRatio) * i, arcbarOption.startAngle * Math.PI, arcbarOption.endAngle * Math.PI, arcbarOption.direction == 'ccw');
+        this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * (this.opts.pixelRatio!) + arcbarOption.gap * (this.opts.pixelRatio!)) * i, arcbarOption.startAngle * Math.PI, arcbarOption.endAngle * Math.PI, arcbarOption.direction == 'ccw');
       } else {
-        this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * this.opts.pixelRatio + arcbarOption.gap * this.opts.pixelRatio) * i, 0, 2 * Math.PI, arcbarOption.direction == 'ccw');
+        this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * (this.opts.pixelRatio!) + arcbarOption.gap * (this.opts.pixelRatio!)) * i, 0, 2 * Math.PI, arcbarOption.direction == 'ccw');
       }
       this.context.stroke();
       //进度条
@@ -141,11 +142,11 @@ export class ArcBarChartRenderer extends BasePieRenderer {
         grd.addColorStop(0, ChartsUtil.hexToRgb(eachSeries.color!, 1))
         fillColor = grd;
       }
-      this.setLineWidth(arcbarOption.width * this.opts.pixelRatio);
+      this.setLineWidth(arcbarOption.width * this.opts.pixelRatio!);
       this.setStrokeStyle(fillColor);
       this.setLineCap(arcbarOption.lineCap);
       this.context.beginPath();
-      this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * this.opts.pixelRatio + arcbarOption.gap * this.opts.pixelRatio) * i, arcbarOption.startAngle * Math.PI, eachSeries._proportion_ * Math.PI, arcbarOption.direction == 'ccw');
+      this.context.arc(centerPosition.x, centerPosition.y, radius - (arcbarOption.width * (this.opts.pixelRatio!) + arcbarOption.gap * (this.opts.pixelRatio!)) * i, arcbarOption.startAngle * Math.PI, eachSeries._proportion_ * Math.PI, arcbarOption.direction == 'ccw');
       this.context.stroke();
     }
     this.drawRingTitle(centerPosition);

@@ -1,3 +1,4 @@
+import { FeatureCollectionFeatures } from "./geojson"
 import { ChartOptions } from "./index"
 
 // 所有图表类型的数据系列联合类型
@@ -116,6 +117,9 @@ export interface FunnelSeries extends BaseSeries {
 export interface CandleSeries extends BaseSeries {
   data: Array<number[]>  //数据值
 }
+
+// 地图数据系列
+export type MapSeries = FeatureCollectionFeatures
 
 export interface FunnelSeriesData extends HasLabelSeriesData {
   centerText?: string       //自定义居中标签文字

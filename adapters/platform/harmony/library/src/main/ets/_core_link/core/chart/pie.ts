@@ -6,6 +6,7 @@ import { Series } from '../types/series';
 import { PieExtra, RingExtra } from '../types/extra';
 import { GlobalConfig } from '../types/config';
 import { CanvasGradient } from "../../interface";
+import { EventListener } from "../event";
 
 /**
  * 抽象饼状图、环形图和玫瑰图通用的部分
@@ -31,16 +32,16 @@ export abstract class BasePieRenderer extends BaseRenderer {
       y: this.opts.area[0] + (this.opts.height - this.opts.area[0] - this.opts.area[2]) / 2
     };
     if (GlobalConfig.pieChartLinePadding == 0) {
-      GlobalConfig.pieChartLinePadding = pieOption.activeRadius * this.opts.pixelRatio;
+      GlobalConfig.pieChartLinePadding = pieOption.activeRadius * this.opts.pixelRatio!;
     }
 
     let radius = Math.min((this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2 - GlobalConfig.pieChartLinePadding - GlobalConfig.pieChartTextPadding - this.opts._pieTextMaxLength_, (this.opts.height - this.opts.area[0] - this.opts.area[2]) / 2 - GlobalConfig.pieChartLinePadding - GlobalConfig.pieChartTextPadding);
     radius = radius < 10 ? 10 : radius;
     if (pieOption.customRadius > 0) {
-      radius = pieOption.customRadius * this.opts.pixelRatio;
+      radius = pieOption.customRadius * this.opts.pixelRatio!;
     }
     series = this.getPieDataPoints(series, radius, process);
-    let activeRadius = pieOption.activeRadius *  this.opts.pixelRatio;
+    let activeRadius = pieOption.activeRadius *  this.opts.pixelRatio!;
     pieOption.customColor = ChartsUtil.fillCustomColor(pieOption.linearType, pieOption.customColor, series);
     series = series.map((eachSeries) => {
       eachSeries._start_ += (pieOption.offsetAngle) * Math.PI / 180;
@@ -58,7 +59,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
         }
       }
       this.context.beginPath();
-      this.setLineWidth(pieOption.borderWidth * this.opts.pixelRatio);
+      this.setLineWidth(pieOption.borderWidth * this.opts.pixelRatio!);
       this.context.lineJoin = "round";
       this.setStrokeStyle(pieOption.borderColor);
       let fillcolor: CanvasGradient|string = eachSeries.color!;
@@ -85,7 +86,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
     if (this.opts.type === 'ring') {
       let innerPieWidth = radius * 0.6;
       if (typeof pieOption.ringWidth === 'number' && pieOption.ringWidth > 0) {
-        innerPieWidth = Math.max(0, radius - pieOption.ringWidth * this.opts.pixelRatio);
+        innerPieWidth = Math.max(0, radius - pieOption.ringWidth * this.opts.pixelRatio!);
       }
       this.context.beginPath();
       this.setFillStyle(pieOption.centerColor);
@@ -145,7 +146,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
       // text start
       let orginX3 = orginX1 >= 0 ? orginX1 + GlobalConfig.pieChartTextPadding : orginX1 - GlobalConfig.pieChartTextPadding;
       let orginY3 = orginY1;
-      let textWidth = this.measureText(item.text, item.textSize! * this.opts.pixelRatio || this.opts.fontSize);
+      let textWidth = this.measureText(item.text, item.textSize! * this.opts.pixelRatio! || this.opts.fontSize!);
       let startY = orginY3;
       if (lastTextObject && ChartsUtil.isSameXCoordinateArea(lastTextObject.start, { x: orginX3, y: 0 })) {
         if (orginX3 > 0) {
@@ -182,7 +183,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
           y: 0
         },
         width: textWidth,
-        height: this.opts.fontSize,
+        height: this.opts.fontSize!,
         text: item.text,
         color: item.color,
         textColor: item.textColor,
@@ -199,8 +200,8 @@ export abstract class BasePieRenderer extends BaseRenderer {
       let lineStartPoistion = ChartsUtil.convertCoordinateOrigin(item.lineStart!.x, item.lineStart!.y, center);
       let lineEndPoistion = ChartsUtil.convertCoordinateOrigin(item.lineEnd!.x, item.lineEnd!.y, center);
       let textPosition = ChartsUtil.convertCoordinateOrigin(item.start!.x, item.start!.y, center);
-      this.setLineWidth(1 * this.opts.pixelRatio);
-      this.setFontSize(item.textSize! * this.opts.pixelRatio || this.opts.fontSize);
+      this.setLineWidth(1 * this.opts.pixelRatio!);
+      this.setFontSize(item.textSize! * this.opts.pixelRatio! || this.opts.fontSize!);
       this.context.beginPath();
       this.setStrokeStyle(item.color!);
       this.setFillStyle(item.color!);
@@ -213,12 +214,12 @@ export abstract class BasePieRenderer extends BaseRenderer {
       this.context.closePath();
       this.context.beginPath();
       this.context.moveTo(textPosition.x + item.width, textPosition.y);
-      this.context.arc(curveStartX, textPosition.y, 2 * this.opts.pixelRatio, 0, 2 * Math.PI);
+      this.context.arc(curveStartX, textPosition.y, 2 * this.opts.pixelRatio!, 0, 2 * Math.PI);
       this.context.closePath();
       this.context.fill();
       this.context.beginPath();
-      this.setFontSize(item.textSize! * this.opts.pixelRatio || this.opts.fontSize);
-      this.setFillStyle(item.textColor || this.opts.fontColor);
+      this.setFontSize(item.textSize! * this.opts.pixelRatio! || this.opts.fontSize!);
+      this.setFillStyle(item.textColor || this.opts.fontColor!);
       this.context.fillText(item.text!, textStartX, textPosition.y + 3);
       this.context.closePath();
       this.context.stroke();
@@ -268,38 +269,38 @@ export abstract class BasePieRenderer extends BaseRenderer {
   }
 
   protected drawRingTitle(center: Point) {
-    let titlefontSize = this.opts.title.fontSize || GlobalConfig.titleFontSize;
-    let subtitlefontSize = this.opts.subtitle.fontSize || GlobalConfig.subtitleFontSize;
-    let title = this.opts.title.value || '';
-    let subtitle = this.opts.subtitle.value || '';
-    let titleFontColor = this.opts.title.color || this.opts.fontColor;
-    let subtitleFontColor = this.opts.subtitle.color || this.opts.fontColor;
+    let titlefontSize = this.opts.title?.fontSize! || GlobalConfig.titleFontSize;
+    let subtitlefontSize = this.opts.subtitle?.fontSize! || GlobalConfig.subtitleFontSize;
+    let title = this.opts.title?.value || '';
+    let subtitle = this.opts.subtitle?.value || '';
+    let titleFontColor = this.opts.title?.color || this.opts.fontColor!;
+    let subtitleFontColor = this.opts.subtitle?.color || this.opts.fontColor!;
     let titleHeight = title ? titlefontSize : 0;
     let subtitleHeight = subtitle ? subtitlefontSize : 0;
     let margin = 5;
     if (subtitle) {
-      let textWidth = this.measureText(subtitle, subtitlefontSize * this.opts.pixelRatio);
-      let startX = center.x - textWidth / 2 + (this.opts.subtitle.offsetX|| 0) * this.opts.pixelRatio;
-      let startY = center.y + subtitlefontSize * this.opts.pixelRatio / 2 + (this.opts.subtitle.offsetY || 0) * this.opts.pixelRatio;
+      let textWidth = this.measureText(subtitle, subtitlefontSize * this.opts.pixelRatio!);
+      let startX = center.x - textWidth / 2 + (this.opts.subtitle?.offsetX|| 0) * this.opts.pixelRatio!;
+      let startY = center.y + subtitlefontSize * (this.opts.pixelRatio!) / 2 + (this.opts.subtitle?.offsetY || 0) * this.opts.pixelRatio!;
       if (title) {
-        startY += (titleHeight * this.opts.pixelRatio + margin) / 2;
+        startY += (titleHeight * (this.opts.pixelRatio!) + margin) / 2;
       }
       this.context.beginPath();
-      this.setFontSize(subtitlefontSize * this.opts.pixelRatio);
+      this.setFontSize(subtitlefontSize * this.opts.pixelRatio!);
       this.setFillStyle(subtitleFontColor);
       this.context.fillText(subtitle, startX, startY);
       this.context.closePath();
       this.context.stroke();
     }
     if (title) {
-      let _textWidth = this.measureText(title, titlefontSize * this.opts.pixelRatio);
-      let _startX = center.x - _textWidth / 2 + (this.opts.title.offsetX || 0);
-      let _startY = center.y + titlefontSize * this.opts.pixelRatio / 2 + (this.opts.title.offsetY || 0) * this.opts.pixelRatio;
+      let _textWidth = this.measureText(title, titlefontSize * this.opts.pixelRatio!);
+      let _startX = center.x - _textWidth / 2 + (this.opts.title?.offsetX || 0);
+      let _startY = center.y + titlefontSize * (this.opts.pixelRatio!) / 2 + (this.opts.title?.offsetY || 0) * this.opts.pixelRatio!;
       if (subtitle) {
-        _startY -= (subtitleHeight * this.opts.pixelRatio + margin) / 2;
+        _startY -= (subtitleHeight * (this.opts.pixelRatio!) + margin) / 2;
       }
       this.context.beginPath();
-      this.setFontSize(titlefontSize * this.opts.pixelRatio);
+      this.setFontSize(titlefontSize * (this.opts.pixelRatio!));
       this.setFillStyle(titleFontColor);
       this.context.fillText(title, _startX, _startY);
       this.context.closePath();
@@ -313,7 +314,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
     for (let i = 0; i < series.length; i++) {
       let item: Series = series[i];
       let text = item.formatter ? item.formatter(+item._proportion_.toFixed(2), i, item) : ChartsUtil.toFixed(item._proportion_ * 100) + '%';
-      maxLength = Math.max(maxLength, this.measureText(text, item.textSize! * this.opts.pixelRatio || this.opts.fontSize));
+      maxLength = Math.max(maxLength, this.measureText(text, item.textSize! * this.opts.pixelRatio! || this.opts.fontSize!));
     }
     return maxLength;
   }
@@ -322,8 +323,8 @@ export abstract class BasePieRenderer extends BaseRenderer {
  * 饼状图渲染器
  */
 export class PieChartRenderer extends BasePieRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
@@ -331,7 +332,7 @@ export class PieChartRenderer extends BasePieRenderer {
     let series = this.opts.series;
     series = this.fixPieSeries(series);
     series = ChartsUtil.fillSeries(series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -340,14 +341,14 @@ export class PieChartRenderer extends BasePieRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -385,7 +386,7 @@ export class PieChartRenderer extends BasePieRenderer {
     this.opts._pieTextMaxLength_ = this.opts.dataLabel === false ? 0 : this.getPieTextMaxLength(seriesMA);
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -398,7 +399,7 @@ export class PieChartRenderer extends BasePieRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }

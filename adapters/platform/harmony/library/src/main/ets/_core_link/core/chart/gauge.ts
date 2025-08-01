@@ -5,19 +5,20 @@ import { Series, GaugeSeries, ValueAndColorData } from '../types/series';
 import { GaugeExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface";
 import { BasePieRenderer, pieDataPointsRes } from "./pie";
+import { EventListener } from "../event";
 
 /**
  * 仪表盘渲染器
  */
 export class GaugeChartRenderer extends BasePieRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
   protected render(): void {
     let series = ChartsUtil.fillSeries(this.opts.series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -26,14 +27,14 @@ export class GaugeChartRenderer extends BasePieRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -69,7 +70,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -80,7 +81,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -104,7 +105,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
         width: 15,
         color: 'auto'
       },
-      labelColor: this.opts.fontColor
+      labelColor: this.opts.fontColor!
     }, this.opts.extra.gauge!);
     if (gaugeOption.oldAngle == undefined) {
       gaugeOption.oldAngle = gaugeOption.startAngle;
@@ -118,7 +119,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
       y: this.opts.height / 2
     };
     let radius = Math.min(centerPosition.x, centerPosition.y);
-    radius -= 5 * this.opts.pixelRatio;
+    radius -= 5 * this.opts.pixelRatio!;
     radius -= gaugeOption.width / 2;
     radius = radius < 10 ? 10 : radius;
     let innerRadius = radius - gaugeOption.width;
@@ -166,7 +167,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
         } else {
           this.setStrokeStyle(ChartsUtil.hexToRgb(series[0].color!, 0.3));
         }
-        this.setLineWidth(3 * this.opts.pixelRatio);
+        this.setLineWidth(3 * this.opts.pixelRatio!);
         this.context.moveTo(startX, 0);
         this.context.lineTo(endX, 0);
         this.context.stroke();
@@ -235,7 +236,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
       for (let i = 0; i < (gaugeOption.splitLine.splitNumber!) + 1; i++) {
         this.context.beginPath();
         this.setStrokeStyle(gaugeOption.splitLine.color!);
-        this.setLineWidth(2 * this.opts.pixelRatio);
+        this.setLineWidth(2 * this.opts.pixelRatio!);
         this.context.moveTo(startX, 0);
         this.context.lineTo(endX, 0);
         this.context.stroke();
@@ -248,7 +249,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
       for (let i = 0; i < (gaugeOption.splitLine.splitNumber!) * (gaugeOption.splitLine.childNumber!) + 1; i++) {
         this.context.beginPath();
         this.setStrokeStyle(gaugeOption.splitLine.color!);
-        this.setLineWidth(1 * this.opts.pixelRatio);
+        this.setLineWidth(1 * this.opts.pixelRatio!);
         this.context.moveTo(startX, 0);
         this.context.lineTo(childendX, 0);
         this.context.stroke();
@@ -378,7 +379,7 @@ export class GaugeChartRenderer extends BasePieRenderer {
   }
 
   private drawGaugeLabel(gaugeOption: GaugeExtra, radius: number, centerPosition: Point) {
-    radius -= gaugeOption.width / 2 + gaugeOption.labelOffset * this.opts.pixelRatio;
+    radius -= gaugeOption.width / 2 + gaugeOption.labelOffset * this.opts.pixelRatio!;
     radius = radius < 10 ? 10 : radius;
     let totalAngle = gaugeOption.startAngle - gaugeOption.endAngle;
     if (gaugeOption.endAngle < gaugeOption.startAngle) {
@@ -395,14 +396,14 @@ export class GaugeChartRenderer extends BasePieRenderer {
         y: radius * Math.sin(nowAngle * Math.PI)
       };
       let labelText = gaugeOption.formatter ? gaugeOption.formatter(nowNumber, i, this.opts) : nowNumber;
-      pos.x += centerPosition.x - this.measureText(String(labelText), this.opts.fontSize) / 2;
+      pos.x += centerPosition.x - this.measureText(String(labelText), this.opts.fontSize!) / 2;
       pos.y += centerPosition.y;
       let startX = pos.x;
       let startY = pos.y;
       this.context.beginPath();
-      this.setFontSize(this.opts.fontSize);
+      this.setFontSize(this.opts.fontSize!);
       this.setFillStyle(gaugeOption.labelColor);
-      this.context.fillText(String(labelText), startX, startY + this.opts.fontSize / 2);
+      this.context.fillText(String(labelText), startX, startY + (this.opts.fontSize!) / 2);
       this.context.closePath();
       this.context.stroke();
       nowAngle += splitAngle;

@@ -22,6 +22,8 @@ export interface Extra {
   gauge?: Partial<GaugeExtra>
   funnel?: Partial<FunnelExtra>
   candle?: Partial<CandleExtra>
+  map?: Partial<MapExtra>
+  scatter?: Partial<ScatterExtra>
 }
 
 /**
@@ -314,6 +316,25 @@ export interface CandleExtraAverage {
   day: number[]		  //均线单位日期（例如[5,20]为显示5日及20日均线，主要看K线的单位是什么，也就是根据每隔5个或者20个K线值计算）
   color: string[]		//均线颜色，例如["#1890ff", "#2fc25b"]
 }
+
+/**
+ * 地图扩展配置
+ */
+export interface MapExtra {
+  border: boolean	          //是否绘制各类别中间的分割线，默认true
+  mercator: boolean          //是否进行WGS84转墨卡托投影(开启后可能会造成tooltip不跟手，建议自行转换)，默认false
+  borderWidth: number	      //分割线的宽度，默认2
+  borderColor: string	      //分割线的颜色，默认#666666
+  fillOpacity: number	      //区域内填充透明度，默认0.6
+  active: boolean	          //是否启用下面点击激活变色，默认true
+  activeTextColor: string		//点击激活时文字的颜色，默认#FFFFFF
+  activeBorderColor: string	//点击激活时分割线的颜色，默认#F04864
+  activeFillColor: string		//点击激活时分区域内填充颜色，默认#FACC14
+  activeFillOpacity:	number	//点击激活时分区域内填充颜色透明度，默认1
+  color: string[]		//根据series.value插值计算地图区域对应渐变颜色范围，例如["#E0F7FF", "#B71C1C"]
+}
+
+export interface ScatterExtra {}
 
 /**
  * 提示窗配置

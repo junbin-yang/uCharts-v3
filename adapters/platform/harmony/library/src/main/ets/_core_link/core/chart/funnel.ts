@@ -6,13 +6,14 @@ import { Series } from "../types/series";
 import { FunnelExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface";
 import { BaseRenderer } from "./base";
+import { EventListener } from "../event";
 
 /**
  * 漏斗图渲染器
  */
 export class FunnelChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
@@ -20,7 +21,7 @@ export class FunnelChartRenderer extends BaseRenderer {
     let series = this.opts.series;
     series = this.fixPieSeries(series);
     series = ChartsUtil.fillSeries(series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -29,14 +30,14 @@ export class FunnelChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -72,7 +73,7 @@ export class FunnelChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -85,7 +86,7 @@ export class FunnelChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
   }
@@ -109,7 +110,7 @@ export class FunnelChartRenderer extends BaseRenderer {
       x: this.opts.area[3] + (this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2,
       y: this.opts.height - this.opts.area[2]
     };
-    let activeWidth = funnelOption.activeWidth * this.opts.pixelRatio;
+    let activeWidth = funnelOption.activeWidth * this.opts.pixelRatio!;
     let radius = Math.min((this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2 - activeWidth, (this.opts.height - this.opts.area[0] - this.opts.area[2]) / 2 - activeWidth);
     let seriesNew = this.getFunnelDataPoints(series, radius, funnelOption, eachSpacing, process);
     this.context.save();
@@ -133,7 +134,7 @@ export class FunnelChartRenderer extends BaseRenderer {
           }
           seriesNew[i].funnelArea = [centerPosition.x - seriesNew[i].radius, centerPosition.y - eachSpacing * (i + 1), centerPosition.x + seriesNew[i].radius, centerPosition.y - eachSpacing * i];
           this.context.beginPath();
-          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio);
+          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio!);
           this.setStrokeStyle(funnelOption.borderColor);
           let fillColor: CanvasGradient|string = ChartsUtil.hexToRgb(seriesNew[i].color!, funnelOption.fillOpacity);
           if (funnelOption.linearType == 'custom') {
@@ -170,7 +171,7 @@ export class FunnelChartRenderer extends BaseRenderer {
           }
           seriesNew[i].funnelArea = [centerPosition.x - seriesNew[i].radius, centerPosition.y - eachSpacing * (i + 1), centerPosition.x + seriesNew[i].radius, centerPosition.y - eachSpacing * i];
           this.context.beginPath();
-          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio);
+          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio!);
           this.setStrokeStyle(funnelOption.borderColor);
           let fillColor: CanvasGradient|string = ChartsUtil.hexToRgb(seriesNew[i].color!, funnelOption.fillOpacity);
           if (funnelOption.linearType == 'custom') {
@@ -214,7 +215,7 @@ export class FunnelChartRenderer extends BaseRenderer {
           }
           seriesNew[i].funnelArea = [centerPosition.x - seriesNew[i].radius, centerPosition.y - eachSpacing, centerPosition.x + seriesNew[i].radius, centerPosition.y ];
           this.context.beginPath();
-          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio);
+          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio!);
           this.setStrokeStyle(funnelOption.borderColor);
           let fillColor: CanvasGradient|string = ChartsUtil.hexToRgb(seriesNew[i].color!, funnelOption.fillOpacity);
           if (funnelOption.linearType == 'custom') {
@@ -253,7 +254,7 @@ export class FunnelChartRenderer extends BaseRenderer {
           }
           seriesNew[i].funnelArea = [centerPosition.x - seriesNew[i].radius, centerPosition.y - eachSpacing * (seriesNew.length - i), centerPosition.x + seriesNew[i].radius, centerPosition.y - eachSpacing * (seriesNew.length - i - 1)];
           this.context.beginPath();
-          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio);
+          this.setLineWidth(funnelOption.borderWidth * this.opts.pixelRatio!);
           this.setStrokeStyle(funnelOption.borderColor);
           let fillColor: CanvasGradient|string = ChartsUtil.hexToRgb(seriesNew[i].color!, funnelOption.fillOpacity);
           if (funnelOption.linearType == 'custom') {
@@ -326,8 +327,8 @@ export class FunnelChartRenderer extends BaseRenderer {
         }
         endX = startX + activeWidth * 2;
         startY = item.funnelArea[1] + eachSpacing / 2;
-        fontSize = item.textSize ? item.textSize * this.opts.pixelRatio : this.opts.fontSize * this.opts.pixelRatio;
-        this.setLineWidth(1 * this.opts.pixelRatio);
+        fontSize = item.textSize ? item.textSize * this.opts.pixelRatio! : this.opts.fontSize! * this.opts.pixelRatio!;
+        this.setLineWidth(1 * this.opts.pixelRatio!);
         this.setStrokeStyle(item.color!);
         this.setFillStyle(item.color!);
         this.context.beginPath();
@@ -337,12 +338,12 @@ export class FunnelChartRenderer extends BaseRenderer {
         this.context.closePath();
         this.context.beginPath();
         this.context.moveTo(endX, startY);
-        this.context.arc(endX, startY, 2 * this.opts.pixelRatio, 0, 2 * Math.PI);
+        this.context.arc(endX, startY, 2 * this.opts.pixelRatio!, 0, 2 * Math.PI);
         this.context.closePath();
         this.context.fill();
         this.context.beginPath();
         this.setFontSize(fontSize);
-        this.setFillStyle(item.textColor || this.opts.fontColor);
+        this.setFillStyle(item.textColor || this.opts.fontColor!);
         this.context.fillText(text, endX + 5, startY + fontSize / 2 - 2);
         this.context.closePath();
         this.context.stroke();
@@ -356,8 +357,8 @@ export class FunnelChartRenderer extends BaseRenderer {
         }
         endX = startX - activeWidth * 2;
         startY = item.funnelArea[1] + eachSpacing / 2;
-        fontSize = item.textSize ? item.textSize * this.opts.pixelRatio : this.opts.fontSize * this.opts.pixelRatio;
-        this.setLineWidth(1 * this.opts.pixelRatio);
+        fontSize = item.textSize ? item.textSize * this.opts.pixelRatio! : this.opts.fontSize! * this.opts.pixelRatio!;
+        this.setLineWidth(1 * this.opts.pixelRatio!);
         this.setStrokeStyle(item.color!);
         this.setFillStyle(item.color!);
         this.context.beginPath();
@@ -372,7 +373,7 @@ export class FunnelChartRenderer extends BaseRenderer {
         this.context.fill();
         this.context.beginPath();
         this.setFontSize(fontSize);
-        this.setFillStyle(item.textColor || this.opts.fontColor);
+        this.setFillStyle(item.textColor || this.opts.fontColor!);
         this.context.fillText(text, endX - 5 - this.measureText(text, fontSize), startY + fontSize / 2 - 2);
         this.context.closePath();
         this.context.stroke();
@@ -387,7 +388,7 @@ export class FunnelChartRenderer extends BaseRenderer {
       let startY, fontSize;
       if (item.centerText) {
         startY = item.funnelArea[1] + eachSpacing / 2;
-        fontSize = item.centerTextSize * this.opts.pixelRatio || this.opts.fontSize * this.opts.pixelRatio;
+        fontSize = item.centerTextSize * this.opts.pixelRatio! || this.opts.fontSize! * this.opts.pixelRatio!;
         this.context.beginPath();
         this.setFontSize(fontSize);
         this.setFillStyle(item.centerTextColor || "#FFFFFF");

@@ -6,13 +6,14 @@ import { Series } from "../types/series";
 import { ChartsUtil } from "../utils";
 import { Animation } from '../animation';
 import { CanvasGradient } from "../../interface/canvas.type";
+import { EventListener } from "../event";
 
 /**
  * 山峰图渲染器
  */
 export class MountChartRenderer extends BaseRenderer {
-  constructor(opts: Partial<ChartOptions>) {
-    super(opts);
+  constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
+    super(opts, events);
     this.render();
   }
 
@@ -25,7 +26,7 @@ export class MountChartRenderer extends BaseRenderer {
     }
     this.opts.categories = categories;
     series = ChartsUtil.fillSeries(series, this.opts);
-    const duration = this.opts.animation ? this.opts.duration : 0;
+    const duration = this.opts.animation! ? this.opts.duration! : 0;
     this.animation && this.animation.stop();
     let seriesMA = series;
     /* 过滤掉show=false的series */
@@ -34,14 +35,14 @@ export class MountChartRenderer extends BaseRenderer {
     this.opts.area = new Array(4);
     //复位绘图区域
     for (let j = 0; j < 4; j++) {
-      this.opts.area[j] = this.opts.padding[j] * this.opts.pixelRatio;
+      this.opts.area[j] = this.opts.padding![j] * this.opts.pixelRatio!;
     }
     //通过计算三大区域：图例、X轴、Y轴的大小，确定绘图区域
     const calLegendData = this.calculateLegendData(seriesMA, this.opts.chartData);
     const legendHeight = calLegendData.area.wholeHeight;
     const legendWidth = calLegendData.area.wholeWidth;
 
-    switch (this.opts.legend.position) {
+    switch (this.opts.legend!.position) {
       case 'top':
         this.opts.area[0] += legendHeight;
         break;
@@ -63,7 +64,7 @@ export class MountChartRenderer extends BaseRenderer {
     if (this.opts.yAxis.showTitle) {
       let maxTitleHeight = 0;
       for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio) : this.opts.fontSize)
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -74,14 +75,14 @@ export class MountChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -124,7 +125,7 @@ export class MountChartRenderer extends BaseRenderer {
     }
 
     this.animation = new Animation({
-      timing: this.opts.timing,
+      timing: this.opts.timing!,
       duration: duration,
       onProcess: (process: number) => {
         this.context.clearRect(0, 0, this.opts.width, this.opts.height);
@@ -149,7 +150,7 @@ export class MountChartRenderer extends BaseRenderer {
         this.drawCanvas();
       },
       onFinish: () => {
-        this.event.emit('renderComplete');
+        this.event.emit('renderComplete', this.opts);
       }
     });
 
@@ -223,7 +224,7 @@ export class MountChartRenderer extends BaseRenderer {
             this.setStrokeStyle(strokeColor);
             this.setFillStyle(fillColor);
             if(mountOption.borderWidth > 0){
-              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio);
+              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio!);
               this.context.stroke();
             }
             this.context.fill();
@@ -258,7 +259,7 @@ export class MountChartRenderer extends BaseRenderer {
             this.setStrokeStyle(strokeColor);
             this.setFillStyle(fillColor);
             if(mountOption.borderWidth > 0){
-              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio);
+              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio!);
               this.context.stroke();
             }
             this.context.fill();
@@ -326,7 +327,7 @@ export class MountChartRenderer extends BaseRenderer {
             this.setStrokeStyle(strokeColor);
             this.setFillStyle(fillColor);
             if(mountOption.borderWidth > 0){
-              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio);
+              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio!);
               this.context.closePath();
               this.context.stroke();
             }
@@ -362,7 +363,7 @@ export class MountChartRenderer extends BaseRenderer {
             this.setStrokeStyle(strokeColor);
             this.setFillStyle(fillColor);
             if(mountOption.borderWidth > 0){
-              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio);
+              this.setLineWidth(mountOption.borderWidth * this.opts.pixelRatio!);
               this.context.stroke();
             }
             this.context.fill();
@@ -421,15 +422,15 @@ export class MountChartRenderer extends BaseRenderer {
     points.forEach((item, index) => {
       if (item !== null) {
         this.context.beginPath();
-        let fontSize = series[index].textSize ? series[index].textSize! * this.opts.pixelRatio : this.opts.fontSize;
+        let fontSize = series[index].textSize ? series[index].textSize! * this.opts.pixelRatio! : this.opts.fontSize!;
         this.setFontSize(fontSize);
-        this.setFillStyle(series[index].textColor || this.opts.fontColor);
+        this.setFillStyle(series[index].textColor || this.opts.fontColor!);
         let value = item.value!
         let formatVal = series[index].formatter ? series[index].formatter!(value,index,series[index],this.opts) : value;
         this.setTextAlign('center');
-        let startY = item.y - 4 * this.opts.pixelRatio + textOffset * this.opts.pixelRatio;
+        let startY = item.y - 4 * (this.opts.pixelRatio!) + textOffset * this.opts.pixelRatio!;
         if(item.y > zeroPoints){
-          startY = item.y + textOffset * this.opts.pixelRatio + fontSize;
+          startY = item.y + textOffset * (this.opts.pixelRatio!) + fontSize;
         }
         this.context.fillText(String(formatVal), item.x, startY);
         this.context.closePath();

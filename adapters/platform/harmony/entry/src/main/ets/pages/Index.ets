@@ -21,6 +21,7 @@ import { ArcBarChart } from './ArcbarChart';
 import { GaugeChart } from './GaugeChart';
 import { FunnelChart } from './FunnelChart';
 import { CandleChart } from './CandleChart';
+import { MapChart } from './MapChart';
 
 @Entry
 @Component
@@ -95,7 +96,8 @@ struct Index {
     { key: "arcbar", name: $r("app.string.charts_arcbar"), icon: $r("app.media.arcbar") },
     { key: "gauge", name: $r("app.string.charts_gauge"), icon: $r("app.media.gauge") },
     { key: "funnel", name: $r("app.string.charts_funnel"), icon: $r("app.media.funnel") },
-    { key: "candle", name: $r("app.string.charts_candle"), icon: $r("app.media.candle") }
+    { key: "candle", name: $r("app.string.charts_candle"), icon: $r("app.media.candle") },
+    { key: "map", name: $r("app.string.charts_map"), icon: $r("app.media.map") }
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -111,11 +113,12 @@ struct Index {
             }.zIndex(1)
           }
           .padding({top: this.topBarHeight})
+          /*
           IBestNoticeBar({
             leftIcon: "volume-o",
             text: this.notice
           })
-
+          */
           Flex({ direction: FlexDirection.Row,
             alignItems: ItemAlign.Center,
             justifyContent: FlexAlign.Center,
@@ -266,6 +269,8 @@ struct Index {
       FunnelChart()
     } else if(name === 'candle') {
       CandleChart()
+    } else if(name === 'map') {
+      MapChart()
     }
   }
 

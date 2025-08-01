@@ -120,8 +120,8 @@ export class ChartsUtil {
     for (let i = 0; i < series.length; i++) {
       let item: Series = series[i];
       if (!item.color) {
-        item.color = GlobalConfig.color[index];
-        index = (index + 1) % GlobalConfig.color.length;
+        item.color = opts.color![index];
+        index = (index + 1) % opts.color!.length;
       }
       if (!item.linearIndex) {
         item.linearIndex = i;
