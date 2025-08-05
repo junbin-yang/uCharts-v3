@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCharts 热力图测试</title>
+    <title>UCharts 热力图演示 - 包含分页功能测试</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,7 +11,7 @@
             background-color: #f5f5f5;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 20px;
@@ -76,12 +76,42 @@
             border-radius: 2px;
             display: inline-block;
         }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-section.desktop {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        .test-section.mobile {
+            border-color: #dc3545;
+            background: #fff8f8;
+            max-width: 500px;
+            margin: 30px auto;
+        }
+        .test-info {
+            background: #e9ecef;
+            border-left: 4px solid #6c757d;
+            font-size: 14px;
+        }
+        .pagination-demo {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>UCharts 热力图演示</h1>
-        <p class="subtitle">GitHub风格的贡献热力图</p>
+        <p class="subtitle">GitHub风格的贡献热力图 - 包含分页功能测试</p>
         
         <div class="info">
             <strong>功能特性：</strong>
@@ -91,6 +121,7 @@
                 <li>📱 响应式设计，自动适应容器</li>
                 <li>🔄 支持圆角自定义</li>
                 <li>📊 可配置图例位置</li>
+                <li>📑 <strong>NEW!</strong> 自动分页功能 - 容器宽度不足时自动启用</li>
             </ul>
         </div>
         
@@ -126,7 +157,75 @@
         
         <div class="info">
             <strong>使用说明：</strong>
-            <p>这是一个仿GitHub贡献图的热力图示例，显示2023年全年的活动数据。每个小方块代表一天，颜色深浅表示当天的活动强度。工作日的活动概率更高，周末相对较低。</p>
+            <p>这是一个仿GitHub贡献图的热力图示例，显示全年的活动数据。每个小方块代表一天，颜色深浅表示当天的活动强度。工作日的活动概率更高，周末相对较低。</p>
+        </div>
+
+        <!-- 分页功能测试区域 -->
+        <div class="pagination-demo">
+            <h1 style="text-align: center; color: #333; margin-bottom: 20px;">📑 分页功能测试</h1>
+            <div class="info">
+                <strong>测试说明：</strong>
+                <ul>
+                    <li>🖥️ 桌面版测试：容器宽度900px，应显示完整年份热力图</li>
+                    <li>📱 手机版测试：容器宽度450px，应自动启用分页功能</li>
+                    <li>🔄 分页模式下，底部会显示导航控件（上一页/下一页）</li>
+                    <li>📅 可通过下拉框控制每页显示的月份数（3、4、6、12个月）</li>
+                    <li>🆕 可通过按钮控制导航显示和执行分页动作</li>
+                </ul>
+            </div>
+
+            <!-- 桌面版测试 -->
+            <div class="test-section desktop">
+                <h2>🖥️ 桌面版测试 (宽度: 900px)</h2>
+                <div class="test-info info">
+                    <strong>预期行为：</strong> 容器宽度充足，应显示完整的年度热力图，不启用分页功能
+                </div>
+                <div class="chart-container">
+                    <canvas id="desktopChart" width="900" height="160"></canvas>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button onclick="toggleNavigation()">切换导航显示</button>
+                <button onclick="executeAction('prev')">执行上一页</button>
+                <button onclick="executeAction('next')">执行下一页</button>
+                <select id="monthsPerPage" onchange="changeMonthsPerPage()">
+                    <option value="3">每页3个月</option>
+                    <option value="4">每页4个月</option>
+                    <option value="6" selected>每页6个月</option>
+                    <option value="12">每页12个月</option>
+                </select>
+            </div>
+
+            <!-- 手机版测试 -->
+            <div class="test-section mobile">
+                <h2>📱 手机版测试 (宽度: 450px)</h2>
+                <div class="test-info info">
+                    <strong>预期行为：</strong> 容器宽度受限，应自动启用分页功能，底部显示导航控件，可点击切换页面
+                </div>
+                <div class="chart-container">
+                    <canvas id="mobileChart" width="450" height="180"></canvas>
+                </div>
+            </div>
+        
+            <div class="info">
+                <strong>交互说明：</strong>
+                <p>在手机版测试区域中，如果启用了分页功能，你可以：</p>
+                <ul>
+                    <li>看到底部的页面指示器（如 "Jan - Jun (1/2)" 或根据设置显示不同范围）</li>
+                    <li>点击 "< Prev" 和 "Next >" 按钮切换页面</li>
+                    <li>通过下拉框选择每页显示的月份数，实时改变分页方式</li>
+                    <li>使用"切换导航显示"按钮控制导航控件的显示/隐藏</li>
+                    <li>使用"执行上一页/下一页"按钮通过代码触发分页动作</li>
+                </ul>
+                <p><strong>分页示例：</strong></p>
+                <ul>
+                    <li>每页3个月：将分为4页 (Jan-Mar, Apr-Jun, Jul-Sep, Oct-Dec)</li>
+                    <li>每页4个月：将分为3页 (Jan-Apr, May-Aug, Sep-Dec)</li>
+                    <li>每页6个月：将分为2页 (Jan-Jun, Jul-Dec)</li>
+                    <li>每页12个月：将显示为1页 (Jan-Dec)</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -134,20 +233,44 @@
     <script src="../adapters/dist/h5/ucharts-h5.min.js"></script>
     <script>
         let currentChart = null;
+        let desktopChart = null;
+        let mobileChart = null;
         let currentLegendPosition = 'center';
         let currentCornerRadius = 0;
         let currentYear = 2023;
+        let navigationVisible = true; // 分页导航显示状态
+        let currentMonthsPerPage = 6; // 每页显示的月份数
 
         document.getElementById('yearSelect').addEventListener('change', (e) => {
-            currentYear = e.target.value
-            currentChart.updateData({
-                series: [{
-                    data: generateHeatmapData(currentYear)
-                }]
-            })
+            currentYear = e.target.value;
+            const newData = generateHeatmapData(currentYear);
+            
+            if (currentChart) {
+                currentChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
+            
+            if (desktopChart) {
+                desktopChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
+            
+            if (mobileChart) {
+                mobileChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
         });
         
-        // 生成2023年的随机热力图数据
+        // 生成随机热力图数据
         function generateHeatmapData(year) {
             const data = [];
             const startDate = new Date(year, 0, 1);
@@ -209,9 +332,9 @@
                     }
                 });
                 
-                console.log('热力图创建成功');
+                console.log('主热力图创建成功');
             } catch (error) {
-                console.error('创建热力图时发生错误:', error);
+                console.error('创建主热力图时发生错误:', error);
                 
                 // 显示错误信息
                 ctx.fillStyle = '#ff0000';
@@ -220,49 +343,214 @@
                 ctx.fillText('热力图渲染失败: ' + error.message, canvas.width / 2, canvas.height / 2);
             }
         }
+
+        function createDesktopChart(data = null) {
+            const canvas = document.getElementById('desktopChart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const heatmapData = data || generateHeatmapData(currentYear);
+            
+            try {
+                desktopChart = new UCharts({
+                    type: "heatmap",
+                    context: ctx,
+                    series: [{
+                        data: heatmapData
+                    }],
+                    color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+                    extra: {
+                        heatmap: {
+                            cellGap: 3,
+                            cellRadius: 2,
+                            legend: {
+                                show: true,
+                                position: 'center',
+                                labelLess: 'Less',
+                                labelMore: 'More',
+                                cellSize: 10,
+                                cellGap: 4,
+                                cellRadius: 2,
+                                textGap: 8,
+                                colorLevels: 5
+                            },
+                            monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                        }
+                    }
+                });
+                
+                console.log('桌面版热力图创建成功');
+            } catch (error) {
+                console.error('创建桌面版热力图时发生错误:', error);
+            }
+        }
+
+        function createMobileChart(data = null) {
+            const canvas = document.getElementById('mobileChart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const heatmapData = data || generateHeatmapData(currentYear);
+            
+            try {
+                mobileChart = new UCharts({
+                    type: "heatmap",
+                    context: ctx,
+                    series: [{
+                        data: heatmapData
+                    }],
+                    color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+                    extra: {
+                        heatmap: {
+                            cellGap: 2,
+                            cellRadius: 2,
+                            legend: {
+                                show: true,
+                                position: 'right',
+                                labelLess: 'Less',
+                                labelMore: 'More',
+                                cellSize: 9,
+                                cellGap: 3,
+                                cellRadius: 2,
+                                textGap: 6,
+                                colorLevels: 5
+                            },
+                            pagination: {
+                                showNavigation: navigationVisible,
+                                navigationAction: null,
+                                monthsPerPage: currentMonthsPerPage
+                            },
+                            monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                        }
+                    }
+                });
+                
+                console.log('手机版热力图创建成功');
+            } catch (error) {
+                console.error('创建手机版热力图时发生错误:', error);
+            }
+        }
         
         function generateNewData() {
             console.log('重新生成数据...');
-            currentChart.updateData({
-                series: [{
-                    data: generateHeatmapData(currentYear)
-                }]
-            })
+            const newData = generateHeatmapData(currentYear);
+            
+            if (currentChart) {
+                currentChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
+            
+            if (desktopChart) {
+                desktopChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
+            
+            if (mobileChart) {
+                mobileChart.updateData({
+                    series: [{
+                        data: newData
+                    }]
+                });
+            }
         }
         
         function changeLegendPosition(position) {
             console.log('切换图例位置到:', position);
             currentLegendPosition = position;
-            currentChart.updateData({
-                extra: {
-                    heatmap: {
-                        legend: {
-                            position: currentLegendPosition
+            if (currentChart) {
+                currentChart.updateData({
+                    extra: {
+                        heatmap: {
+                            legend: {
+                                position: currentLegendPosition
+                            }
                         }
                     }
-                }
-            })
+                });
+            }
         }
         
         function changeCornerRadius() {
             currentCornerRadius = currentCornerRadius === 6 ? 0 : 6;
             console.log('切换圆角到:', currentCornerRadius);
-            currentChart.updateData({
-                extra: {
-                    heatmap: {
-                        cellRadius: currentCornerRadius,
-                        legend: {
-                            cellRadius: currentCornerRadius
+            if (currentChart) {
+                currentChart.updateData({
+                    extra: {
+                        heatmap: {
+                            cellRadius: currentCornerRadius,
+                            legend: {
+                                cellRadius: currentCornerRadius
+                            }
                         }
                     }
-                }
-            })
+                });
+            }
+        }
+        
+        // 切换分页导航显示状态
+        function toggleNavigation() {
+            navigationVisible = !navigationVisible;
+            console.log('切换导航显示状态到:', navigationVisible);
+            
+            if (mobileChart) {
+                mobileChart.updateData({
+                    extra: {
+                        heatmap: {
+                            pagination: {
+                                showNavigation: navigationVisible
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 执行分页动作
+        function executeAction(action) {
+            console.log('执行分页动作:', action);
+            
+            if (mobileChart) {
+                mobileChart.updateData({
+                    extra: {
+                        heatmap: {
+                            pagination: {
+                                navigationAction: action
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 改变每页显示的月份数
+        function changeMonthsPerPage() {
+            const select = document.getElementById('monthsPerPage');
+            currentMonthsPerPage = parseInt(select.value);
+            console.log('改变每页月份数到:', currentMonthsPerPage);
+            
+            if (mobileChart) {
+                mobileChart.updateData({
+                    extra: {
+                        heatmap: {
+                            pagination: {
+                                monthsPerPage: currentMonthsPerPage
+                            }
+                        }
+                    }
+                });
+            }
         }
         
         // 页面加载完成后创建热力图
         window.onload = function() {
             console.log('页面加载完成，开始创建热力图...');
             createHeatmapChart();
+            createDesktopChart();
+            createMobileChart();
         };
         
         // 错误处理

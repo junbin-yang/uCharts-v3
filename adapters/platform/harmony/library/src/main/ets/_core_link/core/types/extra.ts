@@ -427,4 +427,5 @@ export interface HeatmapLegendOptions {
 export interface HeatmapPaginationOptions {
   showNavigation: boolean                                //是否显示分页导航控件，默认true
   navigationAction: 'prev' | 'next' | null               //分页切换动作，'prev'上一页，'next'下一页，null表示无动作，默认null
+  monthsPerPage: number                                  //每页显示的月份数量，默认6，有效范围值[1,12]
 }

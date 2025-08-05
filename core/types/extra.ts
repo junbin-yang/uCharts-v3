@@ -402,6 +402,7 @@ export interface HeatmapExtra {
   monthLabels: string[]                                  //月份标签，默认英文缩写
   dayLabels: string[]                                    //星期标签，默认英文缩写
   legend: Partial<HeatmapLegendOptions>                  //图例配置
+  pagination: Partial<HeatmapPaginationOptions>          //分页配置
 }
 
 /**
@@ -418,4 +419,13 @@ export interface HeatmapLegendOptions {
   cellRadius: number                                     //图例格子圆角，默认2
   textGap: number                                        //文本与颜色块间距，默认8
   colorLevels: number                                    //颜色等级数量，默认5，有效范围值[3,6]
+}
+
+/**
+ * 热力图分页配置
+ */
+export interface HeatmapPaginationOptions {
+  showNavigation: boolean                                //是否显示分页导航控件，默认true
+  navigationAction: 'prev' | 'next' | null               //分页切换动作，'prev'上一页，'next'下一页，null表示无动作，默认null
+  monthsPerPage: number                                  //每页显示的月份数量，默认6，有效范围值[1,12]
 }

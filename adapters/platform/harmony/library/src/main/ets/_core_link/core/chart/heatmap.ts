@@ -117,7 +117,8 @@ export class HeatmapChartRenderer extends BaseRenderer {
       },
       pagination: {
         showNavigation: true,
-        navigationAction: null
+        navigationAction: null,
+        monthsPerPage: 6
       },
       monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -138,27 +139,31 @@ export class HeatmapChartRenderer extends BaseRenderer {
    * 处理分页导航动作
    */
   private handleNavigationAction(): void {
-    const action = this.opts.extra.heatmap!.pagination!.navigationAction;
+    let action = this.opts.extra.heatmap!.pagination!.navigationAction;
     if (!action) return;
+
+    let page = this.pagination.currentPage;
 
     // 执行相应的导航动作
     switch (action) {
       case 'prev':
-        this.prevPage();
+        page = page - 1;
         break;
       case 'next':
-        this.nextPage();
+        page = page + 1;
         break;
     }
 
     // 执行动作后重置为null，避免重复执行
     this.opts.extra.heatmap!.pagination!.navigationAction = null;
+
+    if (page < 0 || page >= this.pagination.totalPages) return;
+    this.pagination.currentPage = page;
   }
 
   protected render(): void {
     // 处理分页导航动作
     this.handleNavigationAction();
-    
     this.fillSeriesData();
     this.checkPaginationNeed();
     this.calculateLayoutMetrics();
@@ -207,7 +212,11 @@ export class HeatmapChartRenderer extends BaseRenderer {
     // 如果容器宽度小于所需宽度，启用分页
     if (this.opts.width < requiredWidth) {
       this.pagination.enabled = true;
-      this.pagination.totalPages = 2; // 按6个月分页，一年分2页
+      // 根据monthsPerPage动态计算总页数
+      const monthsPerPage = this.opts.extra.heatmap!.pagination!.monthsPerPage!;
+      const validMonthsPerPage = Math.max(1, Math.min(12, monthsPerPage));
+      this.pagination.monthsPerPage = validMonthsPerPage;
+      this.pagination.totalPages = Math.ceil(12 / validMonthsPerPage);
       this.pagination.currentPage = Math.max(0, Math.min(this.pagination.currentPage, this.pagination.totalPages - 1));
       this.preparePageData();
     } else {
@@ -286,7 +295,7 @@ export class HeatmapChartRenderer extends BaseRenderer {
     const navY = this.opts.height - this.layout.navigationHeight - 5;
     const centerX = this.opts.width / 2;
     
-    // 设置文本样式
+    // 设置文字样式
     this.setFontSize(12);
     this.setFillStyle(this.opts.fontColor!);
     this.setTextAlign('center');
@@ -294,7 +303,20 @@ export class HeatmapChartRenderer extends BaseRenderer {
 
     // 绘制页面信息
     const pageInfo = `${this.pagination.currentPage + 1} / ${this.pagination.totalPages}`;
-    const timeRange = this.pagination.currentPage === 0 ? 'Jan - Jun' : 'Jul - Dec';
+    
+    // 根据monthsPerPage动态生成时间范围显示
+    const monthsPerPage = this.pagination.monthsPerPage;
+    const startMonth = this.pagination.currentPage * monthsPerPage;
+    const endMonth = Math.min(startMonth + monthsPerPage - 1, 11);
+    
+    const monthNames = this.opts.extra.heatmap!.monthLabels!;
+    let timeRange: string;
+    if (startMonth === endMonth) {
+      timeRange = monthNames[startMonth];
+    } else {
+      timeRange = `${monthNames[startMonth]} - ${monthNames[endMonth]}`;
+    }
+    
     const displayText = `${timeRange} (${pageInfo})`;
     
     ctx.fillText(displayText, centerX, navY);
@@ -595,7 +617,7 @@ export class HeatmapChartRenderer extends BaseRenderer {
     
     const spacing: Record<string, number> = this.drawData["spacing"];
     const drawnMonths = new Set();
-    const labelY = spacing["outer"] + (this.opts.fontSize!) / 2 + spacing["textVertical"];
+    const labelY = spacing["outer"] + this.opts.fontSize! / 2 + spacing["textVertical"];
     
     // 确定要绘制的月份范围
     let startMonth = 0;
@@ -712,7 +734,7 @@ export class HeatmapChartRenderer extends BaseRenderer {
                     
       this.drawRoundedRect(
         currentX, 
-        legendY - (this.opts.extra.heatmap!.legend!.cellSize!) / 2,
+        legendY - this.opts.extra.heatmap!.legend!.cellSize! / 2, 
         this.opts.extra.heatmap!.legend!.cellSize!, 
         this.opts.extra.heatmap!.legend!.cellSize!,
         this.opts.extra.heatmap!.legend!.cellRadius!
