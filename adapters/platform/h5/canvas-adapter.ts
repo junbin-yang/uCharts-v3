@@ -218,4 +218,12 @@ export class H5CanvasContext implements CanvasContext {
   strokeText(text: string, x: number, y: number, maxWidth?: number): void {
     this.ctx.strokeText(text, x, y, maxWidth);
   }
+
+  strokeRect(x: number, y: number, w: number, h: number): void {
+    this.ctx.strokeRect(x, y, w, h);
+  }
+
+  arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void {
+    this.ctx.arcTo(x1, y1, x2, y2, radius);
+  }
 } 

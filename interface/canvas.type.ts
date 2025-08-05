@@ -38,7 +38,9 @@ export declare class CanvasContext {
   /* createRadialGradient 和 createCircularGradient 最少支持一个即可，平台适配时只需保证其中一个支持。另一个返回undefined即可 */
   createRadialGradient(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): CanvasGradient;
   createCircularGradient(x: number, y: number, r: number): CanvasGradient;
-  strokeText(text: string, x: number, y: number, maxWidth?: number): void
+  strokeText(text: string, x: number, y: number, maxWidth?: number): void;
+  strokeRect(x: number, y: number, w: number, h: number): void;
+  arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
 }
 export declare type CanvasLineJoin = "bevel" | "miter" | "round";
 export declare type CanvasTextAlign = "center" | "end" | "left" | "right" | "start";

@@ -135,6 +135,10 @@
     {
       "name": "charts_map",
       "value": "地图"
+    },
+    {
+      "name": "charts_heatmap",
+      "value": "贡献热力图"
     }
   ]
 }

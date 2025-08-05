@@ -19,6 +19,7 @@ import { FunnelChartRenderer } from "./chart/funnel";
 import { CandleChartRenderer } from "./chart/candle";
 import { MapChartRenderer } from "./chart/map";
 import { EventListener } from "./event";
+import { HeatmapChartRenderer } from "./chart/heatmap";
 
 /**
  * 图表工厂类
@@ -68,6 +69,8 @@ export class Factory {
         return new CandleChartRenderer(opts, events);
       case 'map':
         return new MapChartRenderer(opts, events);
+      case 'heatmap':
+        return new HeatmapChartRenderer(opts, events);
       // TODO: 添加其他图表类型的渲染器
       // TODO: 每次新增图表后getCurrentDataIndex和showToolTip方法内需要适配图表操作逻辑
       default:

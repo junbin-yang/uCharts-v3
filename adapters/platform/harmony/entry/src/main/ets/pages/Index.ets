@@ -22,6 +22,7 @@ import { GaugeChart } from './GaugeChart';
 import { FunnelChart } from './FunnelChart';
 import { CandleChart } from './CandleChart';
 import { MapChart } from './MapChart';
+import { HeatmapChart } from './HeatmapChart';
 
 @Entry
 @Component
@@ -97,7 +98,8 @@ struct Index {
     { key: "gauge", name: $r("app.string.charts_gauge"), icon: $r("app.media.gauge") },
     { key: "funnel", name: $r("app.string.charts_funnel"), icon: $r("app.media.funnel") },
     { key: "candle", name: $r("app.string.charts_candle"), icon: $r("app.media.candle") },
-    { key: "map", name: $r("app.string.charts_map"), icon: $r("app.media.map") }
+    { key: "map", name: $r("app.string.charts_map"), icon: $r("app.media.map") },
+    { key: "heatmap", name: $r("app.string.charts_heatmap"), icon: $r("app.media.scatter") }
   ]
   @State isPressed: Array<boolean> = new Array(this.chartList.length)
 
@@ -271,6 +273,8 @@ struct Index {
       CandleChart()
     } else if(name === 'map') {
       MapChart()
+    } else if(name === 'heatmap') {
+      HeatmapChart()
     }
   }
 

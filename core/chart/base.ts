@@ -139,7 +139,8 @@ export abstract class BaseRenderer {
         ring: {},
         rose: {},
         scatter: {},
-        word: {}
+        word: {},
+        heatmap: {}
       },
     }
 
@@ -240,7 +241,7 @@ export abstract class BaseRenderer {
     this.event.on(type, listener)
   }
 
-  private getTouches(touches: Point) {
+  protected getTouches(touches: Point) {
     let res: Point = {x: 0, y: 0}
     if (this.opts.rotate) {
       res.y = this.opts.height - touches.x * this.opts.pixelRatio!;

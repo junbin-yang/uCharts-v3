@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCharts 热力图测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            margin: 20px 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .info {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .legend-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .color-sample {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UCharts 热力图演示</h1>
+        <p class="subtitle">GitHub风格的贡献热力图</p>
+        
+        <div class="info">
+            <strong>功能特性：</strong>
+            <ul>
+                <li>📅 完整年度日历布局</li>
+                <li>🎨 5级颜色强度映射</li>
+                <li>📱 响应式设计，自动适应容器</li>
+                <li>🔄 支持圆角自定义</li>
+                <li>📊 可配置图例位置</li>
+            </ul>
+        </div>
+        
+        <div class="legend-info">
+            <span>贡献强度：</span>
+            <span>Less</span>
+            <span class="color-sample" style="background-color: #ebedf0;"></span>
+            <span class="color-sample" style="background-color: #c6e48b;"></span>
+            <span class="color-sample" style="background-color: #7bc96f;"></span>
+            <span class="color-sample" style="background-color: #239a3b;"></span>
+            <span class="color-sample" style="background-color: #196127;"></span>
+            <span>More</span>
+        </div>
+        
+        <div class="controls">
+            <select id="yearSelect" style="height: 30px">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023" selected="true">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+            </select>
+            <button onclick="generateNewData()">重新生成数据</button>
+            <button onclick="changeLegendPosition('left')">图例左对齐</button>
+            <button onclick="changeLegendPosition('center')">图例居中</button>
+            <button onclick="changeLegendPosition('right')">图例右对齐</button>
+            <button onclick="changeCornerRadius()">切换圆角</button>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="heatmapChart" width="900px" height="160px"></canvas>
+        </div>
+        
+        <div class="info">
+            <strong>使用说明：</strong>
+            <p>这是一个仿GitHub贡献图的热力图示例，显示2023年全年的活动数据。每个小方块代表一天，颜色深浅表示当天的活动强度。工作日的活动概率更高，周末相对较低。</p>
+        </div>
+    </div>
+
+    <!-- 引入构建后的uCharts库 -->
+    <script src="../adapters/dist/h5/ucharts-h5.min.js"></script>
+    <script>
+        let currentChart = null;
+        let currentLegendPosition = 'center';
+        let currentCornerRadius = 0;
+        let currentYear = 2023;
+
+        document.getElementById('yearSelect').addEventListener('change', (e) => {
+            currentYear = e.target.value
+            currentChart.updateData({
+                series: [{
+                    data: generateHeatmapData(currentYear)
+                }]
+            })
+        });
+        
+        // 生成2023年的随机热力图数据
+        function generateHeatmapData(year) {
+            const data = [];
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31);
+            
+            for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                const dayOfWeek = date.getDay();
+                let value = 0;
+                
+                // 工作日更可能有数据，周末概率较低
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    // 工作日：70%概率有数据，1-15范围
+                    value = Math.random() < 0.7 ? Math.floor(Math.random() * 15) + 1 : 0;
+                } else {
+                    // 周末：30%概率有数据，1-8范围
+                    value = Math.random() < 0.3 ? Math.floor(Math.random() * 8) + 1 : 0;
+                }
+                
+                data.push({
+                    date: new Date(date).toLocaleDateString('en-CA'), // YYYY-MM-DD 格式
+                    value: value
+                });
+            }
+            
+            return data;
+        }
+        
+        function createHeatmapChart(data = null) {
+            const canvas = document.getElementById('heatmapChart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const heatmapData = data || generateHeatmapData(currentYear);
+            
+            try {
+                currentChart = new UCharts({
+                    type: "heatmap",
+                    context: ctx,
+                    series: [{
+                        data: heatmapData
+                    }],
+                    color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127', '#0a3d18'],
+                    extra: {
+                        heatmap: {
+                            cellGap: 3,
+                            cellRadius: currentCornerRadius,
+                            legend: {
+                                show: true,
+                                position: currentLegendPosition,
+                                labelLess: 'Less',
+                                labelMore: 'More',
+                                cellSize: 10,
+                                cellGap: 4,
+                                cellRadius: currentCornerRadius,
+                                textGap: 8,
+                                colorLevels: 5
+                            },
+                            monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                        }
+                    }
+                });
+                
+                console.log('热力图创建成功');
+            } catch (error) {
+                console.error('创建热力图时发生错误:', error);
+                
+                // 显示错误信息
+                ctx.fillStyle = '#ff0000';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('热力图渲染失败: ' + error.message, canvas.width / 2, canvas.height / 2);
+            }
+        }
+        
+        function generateNewData() {
+            console.log('重新生成数据...');
+            currentChart.updateData({
+                series: [{
+                    data: generateHeatmapData(currentYear)
+                }]
+            })
+        }
+        
+        function changeLegendPosition(position) {
+            console.log('切换图例位置到:', position);
+            currentLegendPosition = position;
+            currentChart.updateData({
+                extra: {
+                    heatmap: {
+                        legend: {
+                            position: currentLegendPosition
+                        }
+                    }
+                }
+            })
+        }
+        
+        function changeCornerRadius() {
+            currentCornerRadius = currentCornerRadius === 6 ? 0 : 6;
+            console.log('切换圆角到:', currentCornerRadius);
+            currentChart.updateData({
+                extra: {
+                    heatmap: {
+                        cellRadius: currentCornerRadius,
+                        legend: {
+                            cellRadius: currentCornerRadius
+                        }
+                    }
+                }
+            })
+        }
+        
+        // 页面加载完成后创建热力图
+        window.onload = function() {
+            console.log('页面加载完成，开始创建热力图...');
+            createHeatmapChart();
+        };
+        
+        // 错误处理
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('JavaScript错误:', msg, 'at', url, ':', lineNo, ':', columnNo);
+            console.error('错误对象:', error);
+            return false;
+        };
+    </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ export type Series =
     | ArcBarSeries
     | GaugeSeries
     | FunnelSeries
+    | HeatmapSeries
     | NameAndValueData   // use fixPieSeries
 
 // 柱状图数据系列
@@ -161,4 +162,15 @@ export interface BaseSeries {
   formatter?: (value: number|string, index: number, series: Series, opts?: ChartOptions) => string
 
   [key: string]: any
+}
+
+// 热力图数据系列
+export interface HeatmapSeries extends BaseSeries {
+  data: Array<HeatmapDataItem>  //热力图数据数组
+}
+
+// 热力图数据项
+export interface HeatmapDataItem {
+  date: Date | string         //日期，可以是Date对象或字符串格式(YYYY-MM-DD)
+  value: number               //数值，用于计算颜色强度
 }

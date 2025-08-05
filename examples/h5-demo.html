@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uCharts-v3 H5 Demo</title>
+    <title>UCharts H5 Demo</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,7 +50,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>uCharts-v3 H5 演示</h1>
+        <h1>UCharts H5 演示</h1>
         
         <div class="controls">
             <button onclick="createLineChart()">折线图</button>
@@ -68,9 +68,12 @@
           <button onclick="createFunnelBarChart()">漏斗图</button>
           <button onclick="createCandleBarChart()">K线图</button>
       </div>
+        <div class="controls">
+          <button onclick="createHeatmapChart()">热力图</button>
+      </div>
         
         <div class="chart-container">
-            <canvas id="chart" width="600px" height="400px"></canvas>
+            <canvas id="chart" width="800px" height="400px"></canvas>
         </div>
     </div>
 
@@ -638,6 +641,67 @@
                   }
                 }
             });
+        }
+
+        function createHeatmapChart() {
+          const canvas = document.getElementById('chart');
+          const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+
+          // 生成随机热力图数据
+          function generateHeatmapData() {
+            const year = new Date().getFullYear();
+            const startDate = new Date(year, 0, 1);
+            const endDate = new Date(year, 11, 31);
+            const data = [];
+            for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                const dayOfWeek = date.getDay();
+                let value = 0;
+                
+                // 工作日更可能有数据，周末概率较低
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    // 工作日：70%概率有数据，1-15范围
+                    value = Math.random() < 0.7 ? Math.floor(Math.random() * 15) + 1 : 0;
+                } else {
+                    // 周末：30%概率有数据，1-8范围
+                    value = Math.random() < 0.3 ? Math.floor(Math.random() * 8) + 1 : 0;
+                }
+                
+                data.push({
+                    date: new Date(date).toLocaleDateString('en-CA'), // YYYY-MM-DD 格式
+                    value: value
+                });
+            }
+            
+            return data;
+          }
+          
+          const chart = new UCharts({
+            type: "heatmap",
+            context: ctx,
+            series: [{
+              data: generateHeatmapData(),
+            }],
+            color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127', '#0a3d18'],
+            extra: {
+              heatmap: {
+                cellGap: 3,
+                cellRadius: 2,
+                dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                legend: {
+                  show: true,
+                  position: 'right',
+                  labelLess: 'Less',
+                  labelMore: 'More',
+                  cellSize: 10,
+                  cellGap: 4,
+                  cellRadius: 2,
+                  textGap: 8,
+                  colorLevels: 5
+                }
+              }
+            }
+          });
         }
 
         // 页面加载完成后默认显示折线图

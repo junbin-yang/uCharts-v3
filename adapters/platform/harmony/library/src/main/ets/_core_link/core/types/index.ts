@@ -48,7 +48,7 @@ export interface ChartOptions {
  * 图表类型
  * column 柱状图 | mount 山峰图 | bar 条状图 | line 折线图 | area 区域图 | scatter 散点图 | bubble 气泡图 | mix 混合图 | pie 饼状图 | ring 圆环图 | rose 玫瑰图 | radar 雷达图 | arcbar 进度条 | gauge 仪表盘 | funnel 漏斗图 | candle K线图 | map 地图 | word 词云图
  */
-export type ChartType = "column" | "bar" | "mount"  | "line" | "area" | "scatter" | "bubble" | "mix" | "pie" | "ring" | "rose" | "radar" | "arcbar" | "gauge" | "funnel" | "candle" | "map" | "word"
+export type ChartType = "column" | "bar" | "mount"  | "line" | "area" | "scatter" | "bubble" | "mix" | "pie" | "ring" | "rose" | "radar" | "arcbar" | "gauge" | "funnel" | "candle" | "map" | "word" | "heatmap"
 
 /**
  * 标题配置

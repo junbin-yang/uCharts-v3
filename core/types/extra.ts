@@ -24,6 +24,7 @@ export interface Extra {
   candle?: Partial<CandleExtra>
   map?: Partial<MapExtra>
   scatter?: Partial<ScatterExtra>
+  heatmap?: Partial<HeatmapExtra>
 }
 
 /**
@@ -390,4 +391,31 @@ export interface MarkLineData {
   labelBgOpacity: number	//数据标签背景颜色透明度，默认0.8
 
   [key: string]: any;  //yAxisIndex
+}
+
+/**
+ * 热力图扩展配置
+ */
+export interface HeatmapExtra {
+  cellGap: number                                        //格子间隙，默认3
+  cellRadius: number                                     //格子圆角，默认2
+  monthLabels: string[]                                  //月份标签，默认英文缩写
+  dayLabels: string[]                                    //星期标签，默认英文缩写
+  legend: Partial<HeatmapLegendOptions>                  //图例配置
+}
+
+/**
+ * 热力图图例配置
+ */
+export interface HeatmapLegendOptions {
+  show: boolean                                          //是否显示图例，默认true
+  position: 'left'|'center'|'right'                      //图例位置，默认center
+  labelLess: string                                      //较少标签，默认'Less'
+  labelMore: string                                      //较多标签，默认'More'
+  fontSize: number                                       //字体大小，默认11
+  cellSize: number                                       //图例格子大小，默认9
+  cellGap: number                                        //图例格子间隙，默认4
+  cellRadius: number                                     //图例格子圆角，默认2
+  textGap: number                                        //文本与颜色块间距，默认8
+  colorLevels: number                                    //颜色等级数量，默认5，有效范围值[3,6]
 }
