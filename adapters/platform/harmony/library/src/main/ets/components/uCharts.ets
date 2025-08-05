@@ -150,7 +150,6 @@ export struct UCharts {
       .onReady(()=>{
         this.controller.reload()
         this.onReady()
-        console.log("####", this.controller.context.width);
       })
       .onMouse((event: MouseEvent) => {
         if(event.action == MouseAction.Press) {

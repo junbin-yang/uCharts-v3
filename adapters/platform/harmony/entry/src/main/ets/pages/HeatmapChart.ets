@@ -31,7 +31,7 @@ export struct HeatmapChart {
                 wrap: FlexWrap.Wrap,
                 space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
               }) {
-                UCharts({controller: item.ctl, onReady: () => {
+                UCharts({controller: item.ctl, contentHeight: 180, onReady: () => {
                   item.ctl.updateData(item.opts)
                 }})
 

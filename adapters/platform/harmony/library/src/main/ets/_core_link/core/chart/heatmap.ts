@@ -1,7 +1,7 @@
 import { CanvasContext } from '../../interface/canvas.type';
 import { BaseRenderer } from './base';
 import { ChartOptions, AnyType, Point, ToolTipOptions } from '../types/index';
-import { HeatmapExtra, HeatmapLegendOptions, TooltipOptions } from '../types/extra';
+import { HeatmapExtra, HeatmapLegendOptions, HeatmapPaginationOptions, TooltipOptions } from '../types/extra';
 import { HeatmapSeries, HeatmapDataItem } from '../types/series';
 import { ChartsUtil } from '../utils/index';
 import { Animation } from '../animation/index';
@@ -20,6 +20,7 @@ interface HeatmapChartLayout {
   contentOffsetX: number
   gridStartX: number         // 网格区域开始X坐标
   gridEndX: number           // 网格区域结束X坐标（精确到最后一个单元格的右边缘）
+  navigationHeight: number   // 分页导航高度
   margins: HeatmapChartLayoutMargins
 }
 
@@ -37,9 +38,19 @@ interface HeatmapChartData {
   isInYear: boolean
 }
 
+// 分页配置
+interface HeatmapPagination {
+  enabled: boolean
+  currentPage: number
+  totalPages: number
+  monthsPerPage: number
+  pageData: HeatmapChartData[]
+}
+
 export class HeatmapChartRenderer extends BaseRenderer {
   private layout: HeatmapChartLayout;
   private drawData: Record<string, any>;
+  private pagination: HeatmapPagination;
 
   constructor(opts: Partial<ChartOptions>, events: Record<string, EventListener[]> = {}) {
     super(opts, events);
@@ -54,8 +65,17 @@ export class HeatmapChartRenderer extends BaseRenderer {
       contentWidth: 0,
       contentOffsetX: 0,
       gridStartX: 0,  
-      gridEndX: 0,    
+      gridEndX: 0,
+      navigationHeight: 30,
       margins: {top: 0, left: 0, right: 0, bottom: 0}
+    };
+
+    this.pagination = {
+      enabled: false,
+      currentPage: 0,
+      totalPages: 1,
+      monthsPerPage: 6,
+      pageData: []
     };
 
     this.drawData = {
@@ -95,6 +115,10 @@ export class HeatmapChartRenderer extends BaseRenderer {
         textGap: 8,
         colorLevels: 5
       },
+      pagination: {
+        showNavigation: true,
+        navigationAction: null
+      },
       monthLabels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       dayLabels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     }
@@ -110,8 +134,33 @@ export class HeatmapChartRenderer extends BaseRenderer {
     this.render();
   }
 
+  /**
+   * 处理分页导航动作
+   */
+  private handleNavigationAction(): void {
+    const action = this.opts.extra.heatmap!.pagination!.navigationAction;
+    if (!action) return;
+
+    // 执行相应的导航动作
+    switch (action) {
+      case 'prev':
+        this.prevPage();
+        break;
+      case 'next':
+        this.nextPage();
+        break;
+    }
+
+    // 执行动作后重置为null，避免重复执行
+    this.opts.extra.heatmap!.pagination!.navigationAction = null;
+  }
+
   protected render(): void {
+    // 处理分页导航动作
+    this.handleNavigationAction();
+    
     this.fillSeriesData();
+    this.checkPaginationNeed();
     this.calculateLayoutMetrics();
 
     const duration = this.opts.animation! ? this.opts.duration! : 0;
@@ -127,6 +176,11 @@ export class HeatmapChartRenderer extends BaseRenderer {
         this.drawMonthLabels();
         this.drawDayLabels();
         this.drawLegend();
+        
+        // 绘制分页导航
+        if (this.pagination.enabled) {
+          this.drawPaginationNavigation();
+        }
                 
         // 绘制热力图网格（带动画效果）
         this.drawHeatmapWithAnimation(process);
@@ -141,19 +195,171 @@ export class HeatmapChartRenderer extends BaseRenderer {
   }
 
   /**
+   * 检查是否需要分页显示
+   */
+  private checkPaginationNeed(): void {
+    // 计算完整年度数据需要的宽度
+    const weeksCount = 53; // 一年最多53周
+    const fullWidth = weeksCount * (12 + this.opts.extra.heatmap!.cellGap!) - this.opts.extra.heatmap!.cellGap!;
+    const requiredWidth = fullWidth + this.layout.maxDayLabelWidth + 
+                         this.drawData.spacing.label + this.drawData.spacing.outer * 2;
+    
+    // 如果容器宽度小于所需宽度，启用分页
+    if (this.opts.width < requiredWidth) {
+      this.pagination.enabled = true;
+      this.pagination.totalPages = 2; // 按6个月分页，一年分2页
+      this.pagination.currentPage = Math.max(0, Math.min(this.pagination.currentPage, this.pagination.totalPages - 1));
+      this.preparePageData();
+    } else {
+      this.pagination.enabled = false;
+      this.pagination.currentPage = 0;
+      this.pagination.totalPages = 1;
+      this.pagination.pageData = this.drawData.data;
+    }
+  }
+
+  /**
+   * 准备当前页的数据
+   */
+  private preparePageData(): void {
+    if (!this.pagination.enabled) {
+      this.pagination.pageData = this.drawData.data;
+      return;
+    }
+
+    const startMonth = this.pagination.currentPage * this.pagination.monthsPerPage;
+    const endMonth = startMonth + this.pagination.monthsPerPage - 1;
+    
+    // 过滤当前页的数据
+    this.pagination.pageData = this.drawData.data.filter((item: HeatmapChartData) => {
+      if (!item.isInYear) return false;
+      const month = item.date.getMonth();
+      return month >= startMonth && month <= endMonth;
+    });
+
+    // 重新计算起始日期，确保包含完整的周
+    if (this.pagination.pageData.length > 0) {
+      const firstDataDate = this.pagination.pageData[0].date;
+      const startOfWeek = new Date(firstDataDate);
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      
+      const lastDataDate = this.pagination.pageData[this.pagination.pageData.length - 1].date;
+      const endOfWeek = new Date(lastDataDate);
+      endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
+      
+      // 生成完整的网格数据
+      const pageGridData: HeatmapChartData[] = [];
+      const currentDate = new Date(startOfWeek);
+      
+      while (currentDate <= endOfWeek) {
+        const existing = this.drawData.data.find((item: HeatmapChartData) => 
+          item.date.toDateString() === currentDate.toDateString()
+        );
+        
+        if (existing) {
+          pageGridData.push(existing);
+        } else {
+          pageGridData.push({
+            date: new Date(currentDate),
+            contributions: 0,
+            level: 0,
+            isInYear: currentDate >= this.drawData.yearStart && currentDate <= this.drawData.yearEnd
+          });
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      this.pagination.pageData = pageGridData;
+    }
+  }
+
+  /**
+   * 绘制分页导航
+   */
+  private drawPaginationNavigation(): void {
+    if (!this.pagination.enabled || !this.opts.extra.heatmap!.pagination!.showNavigation) return;
+
+    const ctx = this.context;
+    ctx.save();
+
+    const navY = this.opts.height - this.layout.navigationHeight - 5;
+    const centerX = this.opts.width / 2;
+    
+    // 设置文本样式
+    this.setFontSize(12);
+    this.setFillStyle(this.opts.fontColor!);
+    this.setTextAlign('center');
+    this.setTextBaseline('middle');
+
+    // 绘制页面信息
+    const pageInfo = `${this.pagination.currentPage + 1} / ${this.pagination.totalPages}`;
+    const timeRange = this.pagination.currentPage === 0 ? 'Jan - Jun' : 'Jul - Dec';
+    const displayText = `${timeRange} (${pageInfo})`;
+    
+    ctx.fillText(displayText, centerX, navY);
+
+    // 绘制导航按钮
+    const buttonWidth = 60;
+    const buttonHeight = 20;
+    const buttonY = navY - buttonHeight / 2;
+    
+    // 上一页按钮
+    if (this.pagination.currentPage > 0) {
+      const prevX = centerX - 80;
+      ctx.strokeStyle = this.opts.fontColor!;
+      ctx.fillText('< Prev', prevX, navY);
+    }
+    
+    // 下一页按钮
+    if (this.pagination.currentPage < this.pagination.totalPages - 1) {
+      const nextX = centerX + 80;
+      ctx.strokeStyle = this.opts.fontColor!;
+      ctx.fillText('Next >', nextX, navY);
+    }
+
+    ctx.restore();
+  }
+
+  /**
+   * 切换到指定页面
+   */
+  public goToPage(page: number): void {
+    if (page < 0 || page >= this.pagination.totalPages) return;
+    
+    this.pagination.currentPage = page;
+    this.render();
+  }
+
+  /**
+   * 下一页
+   */
+  public nextPage(): void {
+    this.goToPage(this.pagination.currentPage + 1);
+  }
+
+  /**
+   * 上一页
+   */
+  public prevPage(): void {
+    this.goToPage(this.pagination.currentPage - 1);
+  }
+
+  /**
    * 绘制带动画效果的热力图
    * @param process 动画进度 (0-1)
    */
   private drawHeatmapWithAnimation(process: number): void {
-    if (this.drawData.data.length === 0) return;
+    const dataToRender = this.pagination.enabled ? this.pagination.pageData : this.drawData.data;
+    if (dataToRender.length === 0) return;
 
     // 计算总周数
-    const totalWeeks = Math.ceil(this.drawData.data.length / 7);
+    const totalWeeks = Math.ceil(dataToRender.length / 7);
     
-    this.drawData.data.forEach((item: HeatmapChartData, index: number) => {
+    dataToRender.forEach((item: HeatmapChartData, index: number) => {
       if (!item.isInYear) return;
 
-      const { x, y } = this.getCellPosition(index);
+      const { x, y } = this.getCellPositionForPagination(index, dataToRender);
       const week = Math.floor(index / 7);
       const day = index % 7;
       
@@ -230,6 +436,19 @@ export class HeatmapChartRenderer extends BaseRenderer {
     return { x, y } as Point;
   }
 
+  /**
+   * 分页模式下的单元格位置计算
+   */
+  private getCellPositionForPagination(index: number, data: HeatmapChartData[]) {
+    const week = Math.floor(index / 7);
+    const day = index % 7;
+                
+    const x = this.layout.margins.left + week * (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!);
+    const y = this.layout.margins.top + day * (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!);
+                
+    return { x, y } as Point;
+  }
+
   private calculateLayoutMetrics() {
     const fontSize = this.opts.fontSize!;
     // 设置文本样式
@@ -259,7 +478,8 @@ export class HeatmapChartRenderer extends BaseRenderer {
       top: this.layout.monthLabelHeight + spacing["outer"],
       left: this.layout.maxDayLabelWidth + spacing["label"],
       right: spacing["outer"],
-      bottom: this.layout.legendHeight + spacing["legend"] + spacing["outer"]
+      bottom: this.layout.legendHeight + spacing["legend"] + spacing["outer"] + 
+              (this.pagination.enabled && this.opts.extra.heatmap!.pagination!.showNavigation ? this.layout.navigationHeight : 0)
     };
                 
     // 计算内容尺寸
@@ -283,7 +503,12 @@ export class HeatmapChartRenderer extends BaseRenderer {
 
   private calculateContentDimensions(spacing: Record<string, number>) {
     // 计算实际周数
-    const weeksCount = this.drawData.data.length > 0 ? Math.ceil(this.drawData.data.length / 7) : 53;
+    let weeksCount: number;
+    if (this.pagination.enabled) {
+      weeksCount = this.pagination.pageData.length > 0 ? Math.ceil(this.pagination.pageData.length / 7) : 26;
+    } else {
+      weeksCount = this.drawData.data.length > 0 ? Math.ceil(this.drawData.data.length / 7) : 53;
+    }
                 
     // 计算单元格大小
     const availableWidth = this.opts.width - this.layout.margins.left - this.layout.margins.right;
@@ -315,18 +540,45 @@ export class HeatmapChartRenderer extends BaseRenderer {
     this.layout.legendY = this.layout.margins.top + 
         7 * (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!) - this.opts.extra.heatmap!.cellGap! + spacing["legend"];
                 
-    switch (this.opts.extra.heatmap!.legend!.position) {
-      case 'left':
-        this.layout.legendX = this.layout.gridStartX;
-        break;
-      case 'right':
-        this.layout.legendX = this.layout.gridEndX - this.layout.legendWidth;
-        break;
-      case 'center':
-      default:
-        const gridCenterX = this.layout.gridStartX + (this.layout.gridEndX - this.layout.gridStartX) / 2;
-        this.layout.legendX = gridCenterX - this.layout.legendWidth / 2;
-        break;
+    // 在分页模式下，调整图例位置计算
+    let gridStartX: number;
+    let gridEndX: number;
+    
+    if (this.pagination.enabled) {
+      // 分页模式下，使用固定的网格宽度基准（基于容器宽度）
+      gridStartX = this.layout.margins.left;
+      // 使用容器可用宽度减去边距作为基准宽度，确保两页的对齐一致
+      const availableGridWidth = this.opts.width - this.layout.margins.left - this.layout.margins.right - spacing["outer"] * 2;
+      gridEndX = gridStartX + availableGridWidth;
+    } else {
+      gridStartX = this.layout.gridStartX;
+      gridEndX = this.layout.gridEndX;
+    }
+    
+    const availableWidth = gridEndX - gridStartX;
+    
+    // 如果图例宽度超过可用宽度，强制居中并限制在容器内
+    if (this.layout.legendWidth > availableWidth) {
+      this.layout.legendX = Math.max(10, (this.opts.width - this.layout.legendWidth) / 2);
+      // 如果还是超出，则限制在容器边界内
+      if (this.layout.legendX + this.layout.legendWidth > this.opts.width - 10) {
+        this.layout.legendX = this.opts.width - this.layout.legendWidth - 10;
+      }
+    } else {
+      // 正常情况下根据配置的位置计算
+      switch (this.opts.extra.heatmap!.legend!.position) {
+        case 'left':
+          this.layout.legendX = gridStartX;
+          break;
+        case 'right':
+          this.layout.legendX = gridEndX - this.layout.legendWidth;
+          break;
+        case 'center':
+        default:
+          const gridCenterX = gridStartX + (gridEndX - gridStartX) / 2;
+          this.layout.legendX = gridCenterX - this.layout.legendWidth / 2;
+          break;
+      }
     }
   }
 
@@ -338,34 +590,58 @@ export class HeatmapChartRenderer extends BaseRenderer {
     this.setFillStyle(this.opts.fontColor!);
     this.setTextAlign('center');
     this.setTextBaseline('middle');
-                
+    
     if (!this.drawData["startDate"]) return;
-                
+    
     const spacing: Record<string, number> = this.drawData["spacing"];
     const drawnMonths = new Set();
-    const labelY = spacing["outer"] + this.opts.fontSize! / 2 + spacing["textVertical"];
-                
-    for (let month = 0; month < 12; month++) {
-        const monthDate = new Date(this.drawData["year"], month, 1);
-                    
-        const monthKey = `${monthDate.getFullYear()}-${monthDate.getMonth()}`;
-        if (drawnMonths.has(monthKey)) continue;
-        drawnMonths.add(monthKey);
-                    
-        if (monthDate > this.drawData["yearEnd"]) break;
-                    
+    const labelY = spacing["outer"] + (this.opts.fontSize!) / 2 + spacing["textVertical"];
+    
+    // 确定要绘制的月份范围
+    let startMonth = 0;
+    let endMonth = 11;
+    
+    if (this.pagination.enabled) {
+      startMonth = this.pagination.currentPage * this.pagination.monthsPerPage;
+      endMonth = startMonth + this.pagination.monthsPerPage - 1;
+    }
+    
+    for (let month = startMonth; month <= endMonth; month++) {
+      const monthDate = new Date(this.drawData["year"], month, 1);
+      
+      const monthKey = `${monthDate.getFullYear()}-${monthDate.getMonth()}`;
+      if (drawnMonths.has(monthKey)) continue;
+      drawnMonths.add(monthKey);
+      
+      if (monthDate > this.drawData["yearEnd"]) break;
+      
+      // 在分页模式下，计算相对于当前页数据的位置
+      let weekIndex: number;
+      if (this.pagination.enabled) {
+        // 找到这个月在当前页数据中的位置
+        const monthDataIndex = this.pagination.pageData.findIndex((item: HeatmapChartData) => 
+          item.isInYear && item.date.getMonth() === month
+        );
+        
+        if (monthDataIndex >= 0) {
+          weekIndex = Math.floor(monthDataIndex / 7);
+        } else {
+          continue; // 如果当前页没有这个月的数据，跳过
+        }
+      } else {
         const daysSinceStart = this.getDaysBetween(this.drawData["startDate"], monthDate);
-        let weekIndex = Math.floor(daysSinceStart / 7);
-                    
+        weekIndex = Math.floor(daysSinceStart / 7);
+        
         if (weekIndex < 0) weekIndex = 0;
         const maxWeeks = Math.ceil(this.drawData.data.length / 7) - 1;
         if (weekIndex > maxWeeks) weekIndex = maxWeeks;
-                    
-        const weekX = this.layout.margins.left + weekIndex * (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!) +
-              (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!) / 2;
-                    
-        const monthName = this.opts.extra.heatmap!.monthLabels![monthDate.getMonth()];
-        ctx.fillText(monthName, weekX, labelY);
+      }
+      
+      const weekX = this.layout.margins.left + weekIndex * (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!) +
+            (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!) / 2;
+      
+      const monthName = this.opts.extra.heatmap!.monthLabels![monthDate.getMonth()];
+      ctx.fillText(monthName, weekX, labelY);
     }
 
     ctx.restore();
@@ -417,26 +693,10 @@ export class HeatmapChartRenderer extends BaseRenderer {
     const totalLegendWidth = lessTextWidth + colorBlocksWidth + moreTextWidth + 
             (this.opts.extra.heatmap!.legend!.textGap!) * 2;
                 
-    let startX;
-    switch (this.opts.extra.heatmap!.legend!.position) {
-      case 'left':
-        // 左对齐：与网格左边缘对齐
-        startX = this.layout.gridStartX;
-        break;
-      case 'right':
-        // 右对齐：与网格右边缘精确对齐
-        startX = this.layout.gridEndX - totalLegendWidth;
-        break;
-      case 'center':
-      default:
-        // 居中对齐：相对于网格中心
-        const gridCenterX = this.layout.gridStartX + (this.layout.gridEndX - this.layout.gridStartX) / 2;
-        startX = gridCenterX - totalLegendWidth / 2;
-        break;
-    }
+    // 使用已经计算好的图例位置
+    let startX = this.layout.legendX;
                 
     // 更新图例位置信息（用于鼠标检测）
-    this.layout.legendX = startX;
     this.layout.legendY = legendY;
     this.layout.legendWidth = totalLegendWidth;
                 
@@ -452,7 +712,7 @@ export class HeatmapChartRenderer extends BaseRenderer {
                     
       this.drawRoundedRect(
         currentX, 
-        legendY - this.opts.extra.heatmap!.legend!.cellSize! / 2, 
+        legendY - (this.opts.extra.heatmap!.legend!.cellSize!) / 2,
         this.opts.extra.heatmap!.legend!.cellSize!, 
         this.opts.extra.heatmap!.legend!.cellSize!,
         this.opts.extra.heatmap!.legend!.cellRadius!
@@ -574,7 +834,14 @@ export class HeatmapChartRenderer extends BaseRenderer {
    * 图例点击交互
    */
   public touchLegend(touches: Point, animation?: boolean) {
-    let index = this.isPointInLegend(touches.x, touches.y)
+    let _touches = this.getTouches(touches);
+    
+    // 检查是否点击了分页导航按钮
+    if (this.pagination.enabled && this.checkNavigationClick(_touches.x, _touches.y)) {
+      return;
+    }
+    
+    let index = this.isPointInLegend(_touches.x, _touches.y)
     console.log("####touchLegend", index)
   }
 
@@ -599,12 +866,13 @@ export class HeatmapChartRenderer extends BaseRenderer {
       return;
     }
 
+    const dataToCheck = this.pagination.enabled ? this.pagination.pageData : this.drawData.data;
     const week = Math.floor((_touches.x - this.layout.margins.left) / (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!));
     const day = Math.floor((_touches.y - this.layout.margins.top) / (this.layout.cellSize + this.opts.extra.heatmap!.cellGap!));
     const index = week * 7 + day;
 
-    if (index >= 0 && index < this.drawData.data.length) {
-      const item = this.drawData.data[index];
+    if (index >= 0 && index < dataToCheck.length) {
+      const item = dataToCheck[index];
       if (item && item.isInYear && item.contributions > 0) {
         const date = item.date;
         const formattedDate = date.toLocaleDateString('en-US', {
@@ -627,6 +895,45 @@ export class HeatmapChartRenderer extends BaseRenderer {
                     
     this.drawData.tooltip.visible = false;
     this.render();
+  }
+
+  /**
+   * 检查是否点击了导航按钮
+   */
+  private checkNavigationClick(x: number, y: number): boolean {
+    if (!this.pagination.enabled) return false;
+
+    const navY = this.opts.height - this.layout.navigationHeight - 5;
+    const centerX = this.opts.width / 2;
+    const buttonWidth = 60;
+    const buttonHeight = 20;
+    const buttonY = navY - buttonHeight / 2;
+
+    // 检查上一页按钮
+    if (this.pagination.currentPage > 0) {
+      const prevX = centerX - 80;
+      const prevLeft = prevX - buttonWidth / 2;
+      const prevRight = prevX + buttonWidth / 2;
+      
+      if (x >= prevLeft && x <= prevRight && y >= buttonY && y <= buttonY + buttonHeight) {
+        this.prevPage();
+        return true;
+      }
+    }
+
+    // 检查下一页按钮
+    if (this.pagination.currentPage < this.pagination.totalPages - 1) {
+      const nextX = centerX + 80;
+      const nextLeft = nextX - buttonWidth / 2;
+      const nextRight = nextX + buttonWidth / 2;
+      
+      if (x >= nextLeft && x <= nextRight && y >= buttonY && y <= buttonY + buttonHeight) {
+        this.nextPage();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private drawTooltip() {
