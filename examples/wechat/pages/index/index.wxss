@@ -1,0 +1,46 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.chart-container {
+  background-color: #fff;
+  border-radius: 10rpx;
+  padding: 20rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.btn {
+  flex: 1;
+  min-width: 200rpx;
+  background-color: #007aff;
+  color: white;
+  border: none;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  margin: 0 10rpx;
+}
+
+.btn:active {
+  background-color: #0056cc;
+}

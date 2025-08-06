@@ -25,16 +25,18 @@
   "scripts": {
     "build": "node adapters/build.js",
     "build:h5": "node adapters/build.js build h5",
-    "build:wechat": "node adapters/build.js build wechat",
+    "build:wechat": "cd adapters/platform/wechat && npm run build",
     "build:uniapp": "node adapters/build.js build uniapp",
     "dev": "node adapters/build.js build h5 --watch",
+    "dev:wechat": "cd adapters/platform/wechat && npm run build -- --watch",
     "clean": "node adapters/build.js clean",
-    "prepublishOnly": "npm run clean && npm run build"
+    "clean:wechat": "cd adapters/platform/wechat && npm run clean",
+    "prepublishOnly": "npm run clean && npm run build && npm run build:wechat"
   },
   "devDependencies": {
     "typescript": "5.0.0"
   },
   "keywords": ["chart", "multi-platform", "typescript"],
-  "author": ["junbin.yang", "qiuyun"],
+  "author": "junbin.yang",
   "license": "Apache License 2.0"
-} 
+}

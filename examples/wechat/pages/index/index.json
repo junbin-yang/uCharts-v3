@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "ucharts": "../../components/ucharts/ucharts"
+  },
+  "navigationBarTitleText": "UCharts 示例"
+}

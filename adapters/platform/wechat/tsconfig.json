@@ -1,35 +1,30 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "ESNext",
+    "target": "es2019",
+    "module": "esnext",
     "moduleResolution": "node",
-    "lib": ["ES2018", "DOM"],
+    "rootDir": "../../../",
+    "outDir": "../../../dist/wechat",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "../../dist/wechat",
-    "rootDir": ".",
     "strict": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["../*"],
-      "@/core/*": ["../../core/*"],
-      "@/interface/*": ["../../interface/*"]
-    }
+    "isolatedModules": true,
+    "noEmit": false
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "../../../core/**/*.ts",
+    "../../../interface/**/*.ts",
+    "./**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "../../dist"
+    "../../../adapters/dist",
+    "../../../examples"
   ]
-} 
+}

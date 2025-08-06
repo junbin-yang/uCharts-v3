@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="header">
+    <text class="title">UCharts 微信小程序示例</text>
+  </view>
+  
+  <view class="chart-container">
+    <ucharts 
+      chart-data="{{chartData}}"
+      canvas-id="myChart"
+      width="350"
+      height="250"
+      bind:chartCreated="onChartCreated"
+      bind:chartUpdated="onChartUpdated"
+      bind:chartError="onChartError">
+    </ucharts>
+  </view>
+
+  <view class="button-group">
+    <button class="btn" bindtap="updateData">更新数据</button>
+  </view>
+</view>

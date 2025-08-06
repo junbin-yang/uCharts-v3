@@ -1,0 +1,10 @@
+<canvas 
+  id="{{canvasId}}" 
+  canvas-id="{{canvasId}}"
+  type="2d"
+  style="width: {{width}}px; height: {{height}}px;"
+  bindtouchstart="touchStart"
+  bindtouchmove="touchMove" 
+  bindtouchend="touchEnd"
+  bindtap="tap">
+</canvas>

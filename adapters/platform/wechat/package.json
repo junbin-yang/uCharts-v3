@@ -1,24 +1,98 @@
 {
   "name": "ucharts-wechat",
-  "version": "1.0.0",
-  "description": "uCharts 微信小程序平台适配器",
-  "main": "../../dist/wechat/ucharts-wechat.js",
-  "module": "../../dist/wechat/ucharts-wechat.esm.js",
-  "types": "../../dist/wechat/types/index.d.ts",
+  "version": "1.0.1-beta.1",
+  "description": "UCharts微信小程序适配器 - 专业的小程序图表组件，支持20+种图表类型",
+  "main": "./ucharts-wechat.min.js",
+  "module": "./ucharts-wechat.esm.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "ucharts-wechat.js",
+    "ucharts-wechat.min.js",
+    "ucharts-wechat.esm.js",
+    "*.map",
+    "types/",
+    "components/",
+    "README.md"
+  ],
   "scripts": {
     "build": "npm run clean && rollup -c rollup.config.js",
-    "build:watch": "rollup -c rollup.config.js -w",
-    "build:prod": "npm run clean && rollup -c rollup.config.js --environment NODE_ENV:production",
-    "clean": "rimraf ../../dist/wechat"
+    "clean": "rimraf ../../dist/wechat && rimraf .publish-temp",
+    "dev": "rollup -c rollup.config.js --watch",
+    "prepare:publish": "node prepare-publish.js",
+    "prepublishOnly": "npm run build && npm run prepare:publish",
+    "publish:beta": "node publish.js --beta",
+    "publish:latest": "node publish.js",
+    "pack:check": "npm run prepare:publish && cd .publish-temp && npm pack --dry-run"
   },
+  "keywords": [
+    "wechat",
+    "miniprogram",
+    "chart",
+    "canvas",
+    "visualization",
+    "小程序",
+    "图表",
+    "可视化",
+    "ucharts",
+    "数据可视化",
+    "移动端图表"
+  ],
+  "author": {
+    "name": "UCharts Team",
+    "email": "support@ucharts.com"
+  },
+  "contributors": [
+    {
+      "name": "junbin.yang",
+      "email": "junbin.yang@example.com"
+    },
+    {
+      "name": "qiuyun",
+      "email": "qiuyun@example.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/junbin-yang/uCharts-v3.git",
+    "directory": "adapters/platform/wechat"
+  },
+  "homepage": "https://github.com/junbin-yang/uCharts-v3#readme",
+  "bugs": {
+    "url": "https://github.com/junbin-yang/uCharts-v3/issues"
+  },
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {},
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "rollup": "^3.20.0",
-    "@rollup/plugin-terser": "^0.4.0",
-    "typescript": "^5.0.0",
-    "tslib": "^2.6.0",
-    "rimraf": "^5.0.0"
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rimraf": "^5.0.5",
+    "rollup": "^3.29.5",
+    "typescript": "^5.8.3"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead"
+  ],
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/ucharts"
+  },
+  "exports": {
+    ".": {
+      "import": "./ucharts-wechat.esm.js",
+      "require": "./ucharts-wechat.min.js",
+      "types": "./types/index.d.ts"
+    },
+    "./components": "./components/ucharts/"
   }
-} 
+}
