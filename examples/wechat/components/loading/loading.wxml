@@ -1,0 +1,52 @@
+<!-- 现代化Loading组件模板 -->
+<view class="modern-loading {{innerVisible ? 'modern-loading--visible' : ''}} {{customClass}}" wx:if="{{innerVisible}}">
+  <!-- 遮罩层 -->
+  <view 
+    class="modern-loading__mask {{mask ? 'modern-loading__mask--visible' : ''}}"
+    bindtap="onMaskTap"
+    wx:if="{{mask}}"
+  ></view>
+
+  <!-- 加载内容容器 -->
+  <view class="modern-loading__container {{getSizeClass()}} {{getTypeClass()}}">
+    
+    <!-- 旋转加载器 -->
+    <view class="modern-loading__spinner" wx:if="{{type === 'spinner'}}" animation="{{animationData}}">
+      <view class="spinner-ring" style="border-top-color: {{color}};"></view>
+    </view>
+
+    <!-- 进度条加载器 -->
+    <view class="modern-loading__progress" wx:if="{{type === 'progress'}}">
+      <view class="progress-bar">
+        <view 
+          class="progress-fill" 
+          style="width: {{progress}}; background-color: {{color}};"
+        ></view>
+      </view>
+      <view class="progress-text" wx:if="{{showProgress}}">{{progress}}%</view>
+    </view>
+
+    <!-- 骨架屏加载器 -->
+    <view class="modern-loading__skeleton" wx:if="{{type === 'skeleton'}}">
+      <view class="skeleton-line skeleton-line--title"></view>
+      <view class="skeleton-line skeleton-line--content"></view>
+      <view class="skeleton-line skeleton-line--content"></view>
+      <view class="skeleton-line skeleton-line--short"></view>
+    </view>
+
+    <!-- 脉冲加载器 -->
+    <view class="modern-loading__pulse" wx:if="{{type === 'pulse'}}" animation="{{animationData}}">
+      <view class="pulse-circle" style="background-color: {{color}};"></view>
+    </view>
+
+    <!-- 点动画加载器 -->
+    <view class="modern-loading__dots" wx:if="{{type === 'dots'}}">
+      <view class="dot dot1" style="background-color: {{color}};"></view>
+      <view class="dot dot2" style="background-color: {{color}};"></view>
+      <view class="dot dot3" style="background-color: {{color}};"></view>
+    </view>
+
+    <!-- 加载文案 -->
+    <view class="modern-loading__text" wx:if="{{text}}">{{text}}</view>
+  </view>
+</view>

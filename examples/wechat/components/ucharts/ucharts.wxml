@@ -1,10 +1,46 @@
-<canvas 
-  id="{{canvasId}}" 
-  canvas-id="{{canvasId}}"
-  type="2d"
-  style="width: {{width}}px; height: {{height}}px;"
-  bindtouchstart="touchStart"
-  bindtouchmove="touchMove" 
-  bindtouchend="touchEnd"
-  bindtap="tap">
-</canvas>
+<!-- uCharts图表组件 -->
+<view class="ucharts-container" style="width: {{width}}px; height: {{height}}px; position: relative;">
+  
+  <!-- 图表Canvas - 始终渲染 -->
+  <canvas 
+    id="{{canvasId}}" 
+    canvas-id="{{canvasId}}"
+    type="2d"
+    class="ucharts-canvas"
+    style="width: {{width}}px; height: {{height}}px;"
+    bindtouchstart="touchStart"
+    bindtouchmove="touchMove" 
+    bindtouchend="touchEnd"
+    bindtap="tap"
+  />
+  
+  <!-- 加载状态覆盖层 -->
+  <view 
+    wx:if="{{isLoading && enableLoading}}" 
+    class="ucharts-loading"
+    style="position: absolute; top: 0; left: 0; width: {{width}}px; height: {{height}}px; z-index: 10;"
+  >
+    <loading 
+      visible="{{isLoading}}" 
+      type="{{loadingType}}"
+      text="{{loadingText}}"
+      mask="{{false}}"
+      custom-class="ucharts-loading-inner"
+    />
+  </view>
+  
+  <!-- 错误状态覆盖层 -->
+  <view 
+    wx:if="{{hasError && enableError}}" 
+    class="ucharts-error"
+    style="position: absolute; top: 0; left: 0; width: {{width}}px; height: {{height}}px; z-index: 10;"
+    bindtap="onErrorRetry"
+  >
+    <error 
+      error-message="{{errorMessage}}"
+      show-retry="{{true}}"
+      bind:retry="onErrorRetry"
+    />
+  </view>
+  
+</view>

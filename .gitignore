@@ -12,6 +12,7 @@ build/
 *.tsbuildinfo
 
 # IDE
+.codebuddy/
 .vscode/
 .idea/
 *.swp

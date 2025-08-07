@@ -1,3 +1,4 @@
+/* uCharts演示页面样式 */
 .container {
   padding: 20rpx;
   background-color: #f5f5f5;
@@ -6,41 +7,128 @@
 
 .header {
   text-align: center;
-  margin-bottom: 30rpx;
+  margin-bottom: 40rpx;
+  padding: 30rpx 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16rpx;
+  color: white;
 }
 
 .title {
+  display: block;
   font-size: 36rpx;
   font-weight: bold;
+  margin-bottom: 10rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+.demo-section {
+  margin-bottom: 40rpx;
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
   color: #333;
+  margin-bottom: 20rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 2rpx solid #e0e0e0;
 }
 
 .chart-container {
-  background-color: #fff;
-  border-radius: 10rpx;
-  padding: 20rpx;
-  margin-bottom: 30rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 250px;
+  border: 2rpx dashed #e0e0e0;
+  border-radius: 12rpx;
+  background-color: #fafafa;
 }
 
 .button-group {
   display: flex;
-  justify-content: space-around;
   flex-wrap: wrap;
   gap: 20rpx;
+  margin-bottom: 40rpx;
 }
 
-.btn {
+.demo-button {
   flex: 1;
-  min-width: 200rpx;
-  background-color: #007aff;
+  min-width: 160rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
   border: none;
-  border-radius: 10rpx;
+  border-radius: 40rpx;
   font-size: 28rpx;
-  margin: 0 10rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 15rpx rgba(79, 172, 254, 0.3);
+  transition: all 0.3s ease;
 }
 
-.btn:active {
-  background-color: #0056cc;
+.demo-button:active {
+  transform: translateY(2rpx);
+  box-shadow: 0 2rpx 10rpx rgba(79, 172, 254, 0.3);
+}
+
+.demo-button.error {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  box-shadow: 0 4rpx 15rpx rgba(255, 107, 107, 0.3);
+}
+
+.demo-button.error:active {
+  box-shadow: 0 2rpx 10rpx rgba(255, 107, 107, 0.3);
+}
+
+.status-info {
+  background: white;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.status-text {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 750rpx) {
+  .demo-button {
+    flex: 1 1 calc(50% - 10rpx);
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #1a1a1a;
+  }
+  
+  .demo-section,
+  .status-info {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+  
+  .section-title {
+    color: #e0e0e0;
+    border-bottom-color: #404040;
+  }
+  
+  .chart-container {
+    background-color: #333;
+    border-color: #404040;
+  }
 }

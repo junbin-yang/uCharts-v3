@@ -33,8 +33,8 @@ function copyToComponents() {
               console.log('✅ 已复制 wx-ucharts-v3.min.js 到适配器组件目录');
               
               // 2. 复制整个组件目录到示例项目
-              const componentSourceDir = path.resolve(__dirname, 'components/ucharts');
-              const exampleTargetDir = path.resolve(__dirname, '../../../examples/wechat/components/ucharts');
+              const componentSourceDir = path.resolve(__dirname, 'components');
+              const exampleTargetDir = path.resolve(__dirname, '../../../examples/wechat/components');
               
               // 确保示例项目组件目录存在
               if (!fs.existsSync(path.dirname(exampleTargetDir))) {

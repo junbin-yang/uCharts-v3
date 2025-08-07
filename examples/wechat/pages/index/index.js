@@ -1,73 +1,90 @@
-// 微信小程序使用示例
+// uCharts折线图演示页面
 Page({
   data: {
-    // 图表配置数据
-    chartData: {
-      type: "line",
-      categories: ["2018", "2019", "2020", "2021", "2022", "2023"],
-      series: [
-        {
-          name: "成交量A",
-          data: [35, 8, 25, 37, 4, 20]
-        },
-        {
-          name: "成交量B", 
-          data: [70, 40, 65, 100, 44, 68]
-        },
-        {
-          name: "成交量C",
-          data: [100, 80, 95, 150, 112, 132]
-        }
-      ],
-      padding: [15, 10, 0, 15],
-      xAxis: { disableGrid: true },
-      yAxis: { gridType: "dash", dashLength: 2 },
-      extra: {
-        line: {
-          type: "straight",
-          width: 2,
-          activeType: "hollow"
-        }
+    // 折线图数据
+    lineChartData: {},
+    
+    // 演示数据
+    demoData: {
+      line: {
+        type: 'line',
+        categories: ['一月', '二月', '三月', '四月', '五月', '六月'],
+        series: [{
+          name: '销售额',
+          data: [35, 20, 25, 10, 15, 30]
+        }, {
+          name: '利润',
+          data: [18, 12, 15, 8, 10, 20]
+        }]
       }
     }
   },
 
-  onLoad: function() {
-    console.log('页面加载完成');
+  onLoad() {
+    // 延迟加载演示数据
+    setTimeout(() => {
+      this.loadDemoData();
+    }, 500);
   },
 
-  // 图表创建完成回调
-  onChartCreated: function(e) {
-    console.log('图表创建完成:', e.detail.chart);
-    this.chart = e.detail.chart;
-  },
-
-  // 图表更新完成回调
-  onChartUpdated: function(e) {
-    console.log('图表更新完成:', e.detail.data);
-  },
-
-  // 图表错误回调
-  onChartError: function(e) {
-    console.error('图表错误:', e.detail.error);
-    wx.showToast({
-      title: '图表加载失败',
-      icon: 'none'
+  /**
+   * 加载演示数据
+   */
+  loadDemoData() {
+    this.setData({
+      lineChartData: this.data.demoData.line
     });
   },
 
-  // 更新数据
-  updateData: function() {
-    const newData = this.data.chartData.series.map(series => ({
-      ...series,
-      data: series.data.map(() => Math.floor(Math.random() * 150))
-    }));
+  /**
+   * 更新图表数据
+   */
+  updateChartData() {
+    const newData = {
+      type: 'line',
+      categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+      series: [{
+        name: '营收',
+        data: [
+          Math.floor(Math.random() * 100) + 50,
+          Math.floor(Math.random() * 100) + 50,
+          Math.floor(Math.random() * 100) + 50,
+          Math.floor(Math.random() * 100) + 50
+        ]
+      }]
+    };
 
     this.setData({
-      chartData: {
-        ...this.data.chartData,
-        series: newData
-      }
+      lineChartData: newData
+    });
+  },
+
+  /**
+   * 图表创建完成事件
+   */
+  onChartCreated(e) {
+    console.log('图表创建完成:', e.detail);
+  },
+
+  /**
+   * 图表更新完成事件
+   */
+  onChartUpdated(e) {
+    console.log('图表更新完成:', e.detail);
+  },
+
+  /**
+   * 图表错误事件
+   */
+  onChartError(e) {
+    console.error('图表错误:', e.detail);
+    const { error, canvasId } = e.detail;
+    
+    wx.showModal({
+      title: '图表错误',
+      content: `图表发生错误: ${error}`,
+      showCancel: false,
+      confirmText: '确定'
     });
   }
 });

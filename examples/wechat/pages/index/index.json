@@ -1,6 +1,6 @@
 {
+  "navigationBarTitleText": "UCharts V3版本演示",
   "usingComponents": {
-    "ucharts": "../../components/ucharts/ucharts"
-  },
-  "navigationBarTitleText": "UCharts 示例"
+    "ucharts": "/components/ucharts/ucharts"
+  }
 }

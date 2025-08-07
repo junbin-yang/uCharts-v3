@@ -1,21 +1,26 @@
 <view class="container">
   <view class="header">
-    <text class="title">UCharts 微信小程序示例</text>
-  </view>
-  
-  <view class="chart-container">
-    <ucharts 
-      chart-data="{{chartData}}"
-      canvas-id="myChart"
-      width="350"
-      height="250"
-      bind:chartCreated="onChartCreated"
-      bind:chartUpdated="onChartUpdated"
-      bind:chartError="onChartError">
-    </ucharts>
+    <text class="title">UCharts 折线图演示</text>
   </view>
 
+  <!-- 折线图演示 -->
+  <view class="demo-section">
+    <view class="section-title">折线图</view>
+    <view class="chart-container">
+      <ucharts 
+        canvas-id="line-chart-canvas"
+        chartData="{{lineChartData}}"
+        width="{{350}}"
+        height="{{250}}"
+        bind:chartCreated="onChartCreated"
+        bind:chartError="onChartError"
+        bind:chartUpdated="onChartUpdated"
+      />
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
   <view class="button-group">
-    <button class="btn" bindtap="updateData">更新数据</button>
+    <button class="demo-button" bindtap="updateChartData">更新数据</button>
   </view>
 </view>

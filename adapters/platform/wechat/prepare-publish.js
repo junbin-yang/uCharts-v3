@@ -101,7 +101,7 @@ console.log('✅ 创建临时package.json');
 
 // 7. 创建发布用的README到临时目录
 const tempReadmePath = path.join(tempDir, 'README.md');
-const readmeContent = `# UCharts 微信小程序可视化图表库
+const readmeContent = `# UCharts 微信小程序可视化图表组件
 
 UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图表库，现已适配 微信小程序 平台。支持多种常用图表类型，满足微信应用的数据可视化需求。
 
@@ -113,7 +113,9 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 - ⚡ **高性能渲染**：底层优化，动画流畅
 - 🔌 **易于扩展**：支持自定义图表类型和平台适配
 - 🍭 **自定义样式**：支持主题定制
-- 📦 **开箱即用** - 提供自定义组件，直接引入使用
+- 📦 **开箱即用**：提供自定义组件，直接引入使用
+- 🔄 **状态管理**：内置加载状态管理
+- ❌ **重试机制**：内置错误处理和重试机制
 
 ## 安装
 
@@ -144,106 +146,273 @@ cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 }
 \`\`\`
 
-### 3. 在页面中使用组件
+### 3. 基础用法
+
+在页面的 \`.wxml\` 文件中使用组件：
 
 \`\`\`xml
 <ucharts 
-  id="mychart" 
-  canvas-id="mychart" 
-  chart-data="{{chartData}}"
-  width="{{750}}" 
-  height="{{500}}">
-</ucharts>
+  canvas-id="my-chart"
+  chartData="{{chartData}}"
+  width="{{350}}"
+  height="{{250}}"
+  bind:chartCreated="onChartCreated"
+  bind:chartError="onChartError"
+/>
 \`\`\`
 
-### 4. 在页面JS中配置图表数据
+在页面的 \`.js\` 文件中定义数据：
 
 \`\`\`javascript
 Page({
   data: {
     chartData: {
       type: 'line',
-      categories: ['1月', '2月', '3月', '4月', '5月', '6月'],
+      categories: ['一月', '二月', '三月', '四月', '五月', '六月'],
       series: [{
         name: '销售额',
-        data: [35, 20, 25, 10, 12, 40]
-      }],
-      animation: true,
-      background: '#FFFFFF',
-      color: ['#1890FF', '#91CB74', '#FAC858'],
-      padding: [15, 15, 0, 15],
-      legend: {},
-      xAxis: {
-        disableGrid: true
-      },
-      yAxis: {
-        gridType: 'dash'
-      },
-      extra: {
-        line: {
-          type: 'straight',
-          width: 2
-        }
-      }
+        data: [35, 20, 25, 10, 15, 30]
+      }]
     }
   },
 
-  onLoad() {
-    // 页面加载时图表会自动渲染
+  onChartCreated(e) {
+    console.log('图表创建完成:', e.detail);
   },
 
-  // 动态更新图表数据
-  updateChart() {
-    this.setData({
-      chartData: {
-        ...this.data.chartData,
-        series: [{
-          name: '销售额',
-          data: [45, 30, 35, 20, 22, 50] // 新数据
-        }]
-      }
-    });
+  onChartError(e) {
+    console.error('图表错误:', e.detail);
   }
 });
 \`\`\`
 
-## 组件属性
+## 属性配置
 
-| 属性名 | 类型 | 默认值 | 说明 |
-|--------|------|--------|------|
-| canvas-id | String | - | Canvas的唯一标识符 |
-| chart-data | Object | - | 图表配置数据对象 |
-| width | Number | 375 | 图表宽度（rpx） |
-| height | Number | 250 | 图表高度（rpx） |
-| disable-scroll | Boolean | false | 禁用图表滚动 |
-| enable-tooltip | Boolean | true | 启用提示框 |
+| 属性名 | 类型 | 默认值 | 必填 | 说明 |
+|--------|------|--------|------|------|
+| chartData | Object | {} | 是 | 图表配置数据 |
+| canvas-id | String | 'ucharts' | 否 | Canvas 元素 ID |
+| width | Number | 375 | 否 | 图表宽度（px） |
+| height | Number | 250 | 否 | 图表高度（px） |
+| pixelRatio | Number | 1 | 否 | 像素比 |
+| enableLoading | Boolean | true | 否 | 是否启用内部加载组件 |
+| enableError | Boolean | true | 否 | 是否启用内部错误组件 |
+| loadingType | String | 'skeleton' | 否 | 加载动画类型 |
+| loadingText | String | '加载中...' | 否 | 加载提示文本 |
 
-## 支持的图表类型
+## 事件回调
 
-- 📊 **柱状图** (column) - 垂直柱状图表
-- 📈 **折线图** (line) - 数据趋势展示
-- 📉 **区域图** (area) - 填充区域的折线图
-- 📊 **条状图** (bar) - 水平条状图表
-- 🥧 **饼状图** (pie) - 圆形数据占比图
-- 🍩 **圆环图** (ring) - 环形数据占比图
-- 🕸️ **雷达图** (radar) - 多维数据对比
-- 📊 **进度条** (arcbar) - 弧形进度显示
-- ⏲️ **仪表盘** (gauge) - 仪表盘样式图表
-- 🔻 **漏斗图** (funnel) - 转化流程图表
-- 📈 **K线图** (candle) - 股票价格图表
-- 🔥 **热力图** (heatmap) - 数据密度图
-- 更多图表类型...
+| 事件名 | 说明 | 回调参数 |
+|--------|------|----------|
+| bind:chartCreated | 图表创建完成 | { chart, canvasId, canvas, context } |
+| bind:chartUpdated | 图表更新完成 | { data } |
+| bind:chartError | 图表错误 | { error, canvasId } |
+| bind:errorRetry | 用户点击重试 | {} |
+
+
+## 使用场景
+
+### 1. 基础图表
+
+\`\`\`xml
+<ucharts 
+  canvas-id="basic-chart"
+  chartData="{{chartData}}"
+  width="{{350}}"
+  height="{{250}}"
+/>
+\`\`\`
+
+### 2. 禁用内部状态管理
+
+如果你想使用自己的加载和错误处理逻辑：
+
+\`\`\`xml
+<ucharts 
+  canvas-id="custom-chart"
+  chartData="{{chartData}}"
+  enableLoading="{{false}}"
+  enableError="{{false}}"
+  width="{{350}}"
+  height="{{250}}"
+/>
+\`\`\`
+
+### 3. 自定义加载样式
+
+\`\`\`xml
+<ucharts 
+  canvas-id="custom-loading-chart"
+  chartData="{{chartData}}"
+  loadingType="spinner"
+  loadingText="数据加载中..."
+  width="{{350}}"
+  height="{{250}}"
+/>
+\`\`\`
+
+### 4. 动态更新数据
+
+\`\`\`javascript
+// 在页面 JS 中
+updateChartData() {
+  const newData = {
+    type: 'line',
+    categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+    series: [{
+      name: '营收',
+      data: [
+        Math.floor(Math.random() * 100) + 50,
+        Math.floor(Math.random() * 100) + 50,
+        Math.floor(Math.random() * 100) + 50,
+        Math.floor(Math.random() * 100) + 50
+      ]
+    }]
+  };
+
+  this.setData({
+    chartData: newData
+  });
+}
+\`\`\`
+
+## 加载动画类型
+
+支持的 \`loadingType\` 值：
+
+- \`skeleton\` - 骨架屏动画（默认）
+- \`spinner\` - 旋转加载器
+- \`pulse\` - 脉冲动画
+- \`dots\` - 点状加载器
+
+## 错误处理
+
+组件内置错误处理机制：
+
+1. **Canvas 初始化失败**：显示错误信息和重试按钮
+2. **图表创建失败**：显示具体错误信息
+3. **用户重试**：点击错误区域可重新初始化图表
 
 ## 注意事项
 
-1. **组件使用**：推荐使用自定义组件方式，无需手动处理Canvas API
-2. **数据更新**：通过修改 \`chart-data\` 属性实现图表数据更新
-3. **兼容性**：支持微信小程序基础库 2.9.0+
-4. **像素比**：组件会自动处理设备像素比适配
+1. **Canvas ID 唯一性**：确保每个图表组件的 \`canvas-id\` 在页面中唯一
+2. **数据格式**：确保 \`chartData\` 符合 uCharts 的数据格式要求
+3. **尺寸设置**：建议根据屏幕尺寸动态设置图表宽高
+4. **性能优化**：避免频繁更新大量数据，可使用防抖处理
+
+## 完整示例
+
+\`\`\`xml
+<!-- 页面 WXML -->
+<view class="chart-container">
+  <ucharts 
+    canvas-id="sales-chart"
+    chartData="{{salesData}}"
+    width="{{chartWidth}}"
+    height="{{chartHeight}}"
+    loadingType="skeleton"
+    loadingText="正在加载销售数据..."
+    bind:chartCreated="onChartCreated"
+    bind:chartError="onChartError"
+    bind:chartUpdated="onChartUpdated"
+  />
+  
+  <button bindtap="updateData">更新数据</button>
+</view>
+\`\`\`
+
+\`\`\`javascript
+// 页面 JS
+Page({
+  data: {
+    chartWidth: 350,
+    chartHeight: 250,
+    salesData: {}
+  },
+
+  onLoad() {
+    // 获取屏幕尺寸
+    const systemInfo = wx.getSystemInfoSync();
+    const chartWidth = Math.min(systemInfo.windowWidth - 40, 350);
+    
+    this.setData({
+      chartWidth,
+      chartHeight: chartWidth * 0.7
+    });
+
+    // 加载数据
+    this.loadChartData();
+  },
+
+  loadChartData() {
+    // 模拟数据加载
+    setTimeout(() => {
+      this.setData({
+        salesData: {
+          type: 'line',
+          categories: ['1月', '2月', '3月', '4月', '5月', '6月'],
+          series: [{
+            name: '销售额',
+            data: [35, 20, 25, 10, 15, 30]
+          }]
+        }
+      });
+    }, 1000);
+  },
+
+  updateData() {
+    const newData = {
+      type: 'line',
+      categories: ['1月', '2月', '3月', '4月', '5月', '6月'],
+      series: [{
+        name: '销售额',
+        data: Array.from({length: 6}, () => Math.floor(Math.random() * 50) + 10)
+      }]
+    };
+
+    this.setData({
+      salesData: newData
+    });
+  },
+
+  onChartCreated(e) {
+    console.log('图表创建完成:', e.detail);
+    wx.showToast({
+      title: '图表加载完成',
+      icon: 'success'
+    });
+  },
+
+  onChartError(e) {
+    console.error('图表错误:', e.detail);
+    wx.showModal({
+      title: '图表错误',
+      content: e.detail.error,
+      showCancel: false
+    });
+  },
+
+  onChartUpdated(e) {
+    console.log('图表更新完成:', e.detail);
+  }
+});
+\`\`\`
+
+## API 文档
+
+详见[文档](https://github.com/junbin-yang/uCharts-v3/tree/master/docs)目录。
 
 ## 许可证
 
-Apache-2.0
+本项目采用 **Apache License 2.0** 开源协议。
+
+- 允许自由使用、修改、分发和商业应用
+- 需保留原始版权声明和许可证文件
+- 详细条款请见根目录 LICENSE 文件
+
+## 贡献
+
+欢迎提交Issue和Pull Request来改进这个项目。
 
 ## 相关链接
 
