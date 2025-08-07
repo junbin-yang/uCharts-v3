@@ -1,24 +1,24 @@
 {
-  "name": "ucharts-v3",
+  "name": "ucharts",
   "version": "1.0.0",
-  "description": "多平台图表库",
-  "main": "adapters/dist/h5/ucharts-h5.min.js",
-  "module": "adapters/dist/h5/ucharts-h5.esm.js",
+  "description": "一款基于TypeScript的高性能跨平台数据可视化图表库，支持H5、小程序、鸿蒙等不同设备平台。",
+  "main": "adapters/dist/h5/ucharts-v3.min.js",
+  "module": "adapters/dist/h5/ucharts-v3.esm.js",
   "types": "adapters/dist/h5/types/index.d.ts",
   "exports": {
     "./h5": {
-      "import": "./adapters/dist/h5/ucharts-h5.esm.js",
-      "require": "./adapters/dist/h5/ucharts-h5.min.js",
+      "import": "./adapters/dist/h5/ucharts-v3.esm.js",
+      "require": "./adapters/dist/h5/ucharts-v3.min.js",
       "types": "./adapters/dist/h5/types/index.d.ts"
     },
     "./wechat": {
-      "import": "./adapters/dist/wechat/ucharts-wechat.esm.js",
-      "require": "./adapters/dist/wechat/ucharts-wechat.js",
+      "import": "./adapters/dist/wechat/wx-ucharts-v3.esm.js",
+      "require": "./adapters/dist/wechat/wx-ucharts-v3.js",
       "types": "./adapters/dist/wechat/types/index.d.ts"
     },
     "./uniapp": {
-      "import": "./adapters/dist/uniapp/ucharts-uniapp.esm.js",
-      "require": "./adapters/dist/uniapp/ucharts-uniapp.js",
+      "import": "./adapters/dist/uniapp/uni-ucharts-v3.esm.js",
+      "require": "./adapters/dist/uniapp/uni-ucharts-v3.js",
       "types": "./adapters/dist/uniapp/types/index.d.ts"
     }
   },

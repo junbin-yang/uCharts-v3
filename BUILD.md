@@ -143,33 +143,24 @@ npm run publish:beta
 **安装：**
 ```bash
 # 正式版本
-npm install ucharts-h5
+npm install ucharts-v3
 
 # 测试版本
-npm install ucharts-h5@beta
+npm install ucharts-v3@beta
 ```
 
 **在Web项目中使用：**
 
-1. HTML直接引入：
 ```html
-<script src="node_modules/ucharts-h5/ucharts-h5.min.js"></script>
+<script src="node_modules/ucharts-v3/ucharts-v3.min.js"></script>
 <script>
-  const chart = new UCharts.H5UCharts(ctx, options);
+  const canvas = document.getElementById('chart');
+  const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+  const chart = new UCharts.H5UCharts({
+    ...options,
+    context: ctx
+  });
 </script>
-```
-
-2. ES模块导入：
-```javascript
-import { H5UCharts } from 'ucharts-h5';
-const chart = new H5UCharts(ctx, options);
-```
-
-3. TypeScript使用：
-```typescript
-import { H5UCharts, ChartOptions } from 'ucharts-h5';
-const options: ChartOptions = { /* 配置 */ };
-const chart = new H5UCharts(ctx, options);
 ```
 
 #### 6. 发布前准备
@@ -225,17 +216,17 @@ npm run publish:beta
 **安装：**
 ```bash
 # 正式版本
-npm install ucharts-wechat
+npm install wx-ucharts-v3
 
 # 测试版本
-npm install ucharts-wechat@beta
+npm install wx-ucharts-v3@beta
 ```
 
 **在小程序中使用：**
 
 1. 复制组件到项目：
 ```bash
-cp -r node_modules/ucharts-wechat/components/ucharts ./components/
+cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 ```
 
 2. 在页面json中注册组件：

@@ -7,14 +7,14 @@ module.exports = {
   input: 'index.ts',
   output: [
     {
-      file: '../../dist/uniapp/ucharts-uniapp.js',
+      file: '../../dist/uniapp/uni-ucharts-v3.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
       sourcemap: true
     },
     {
-      file: '../../dist/uniapp/ucharts-uniapp.min.js',
+      file: '../../dist/uniapp/uni-ucharts-v3.min.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
@@ -22,7 +22,7 @@ module.exports = {
       sourcemap: true
     },
     {
-      file: '../../dist/uniapp/ucharts-uniapp.esm.js',
+      file: '../../dist/uniapp/uni-ucharts-v3.esm.js',
       format: 'es',
       sourcemap: true
     }

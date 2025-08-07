@@ -1,5 +1,5 @@
 // 引入编译后的UCharts库文件
-import UCharts from './ucharts-wechat.min.js';
+import UCharts from './wx-ucharts-v3.min.js';
 
 Component({
   /**

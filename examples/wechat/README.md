@@ -55,7 +55,7 @@ npm install
 ### 1. 基础图表创建
 ```javascript
 // pages/index/index.js
-import UCharts from '../../components/ucharts/ucharts-wechat.js';
+import UCharts from '../../components/ucharts/wx-ucharts-v3.js';
 
 Page({
   data: {
@@ -157,7 +157,7 @@ examples/wechat/
 │       ├── ucharts.js   # 组件逻辑
 │       ├── ucharts.wxml # 组件模板
 │       ├── ucharts.json # 组件配置
-│       └── ucharts-wechat.js # UCharts库文件
+│       └── wx-ucharts-v3.js # UCharts库文件
 ├── utils/               # 工具函数
 │   └── util.js
 ├── app.js              # 应用入口

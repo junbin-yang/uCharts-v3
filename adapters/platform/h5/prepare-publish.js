@@ -83,24 +83,84 @@ function createPublishPackageJson() {
 }
 
 function createPublishReadme() {
-  const readmeContent = `# UCharts H5适配器
+  const readmeContent = `# UCharts 跨平台可视化图表库
 
-UCharts H5平台适配器，专为Web端图表开发设计。
+## 项目简介
+
+UCharts 是一个基于 TypeScript 实现的类型丰富、高性能、模块化、可扩展、支持主题定制的跨平台图表库。底层渲染逻辑全部采用 TypeScript 实现，上层通过适配层（adapters）适配到不同平台，包括鸿蒙（HarmonyOS）、微信小程序、uniapp 等，真正实现"一套核心，多端复用"。
 
 ## 特性
 
-- 🎯 专门针对H5/Web平台优化
-- 📊 支持20+种图表类型
-- 🎨 丰富的自定义配置选项
-- 📱 响应式设计，支持移动端
-- 🔧 TypeScript支持，完整类型定义
-- ⚡ 高性能Canvas渲染
-- 🎪 支持动画和交互效果
+- 🚀 **跨平台**：支持鸿蒙、微信小程序、uniapp 等主流平台
+- 🧩 **模块化设计**：底层渲染与平台适配解耦，易于扩展和维护
+- 🛡️ **TypeScript 全面支持**：类型安全，开发体验优秀
+- 🎨 **丰富图表类型**：柱状图、条状图、折线图、区域图、山峰图等
+- ⚡ **高性能渲染**：底层优化，动画流畅
+- 🔌 **易于扩展**：支持自定义图表类型和平台适配
+- 🍭 **自定义样式**：支持主题定制
+
+## 图表示例
+
+以下为部分图表类型的实际渲染效果：
+
+- 柱状图
+  
+  ![柱状图](https://junbin-yang.github.io/uCharts-v3/docs/image/column.png) ![柱状图](https://junbin-yang.github.io/uCharts-v3/docs/image/column3.png)
+
+- 区域图
+  
+  ![区域图](https://junbin-yang.github.io/uCharts-v3/docs/image/area1.png) ![区域图](https://junbin-yang.github.io/uCharts-v3/docs/image/area2.png)
+
+- 山峰图
+  
+  ![山峰图](https://junbin-yang.github.io/uCharts-v3/docs/image/mount1.png) ![山峰图](https://junbin-yang.github.io/uCharts-v3/docs/image/mount2.png)
+
+- 散点图
+  
+  ![散点图](https://junbin-yang.github.io/uCharts-v3/docs/image/scatter.png)
+
+- 气泡图
+  
+  ![气泡图](https://junbin-yang.github.io/uCharts-v3/docs/image/bubble.png)
+
+- 饼图
+  
+  ![饼图](https://junbin-yang.github.io/uCharts-v3/docs/image/piepng.png)
+
+- 玫瑰图
+  
+  ![玫瑰图](https://junbin-yang.github.io/uCharts-v3/docs/image/rose.png)
+
+- 雷达图
+  
+  ![雷达图](https://junbin-yang.github.io/uCharts-v3/docs/image/radar.png)
+
+- 词云图
+  
+  ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word1.png) ![词云图](https://junbin-yang.github.io/uCharts-v3/docs/image/word2.png)
+
+- 进度条
+  
+  ![进度条](https://junbin-yang.github.io/uCharts-v3/docs/image/arcbar1.png) ![进度条](https://junbin-yang.github.io/uCharts-v3/docs/image/arcbar2.png)
+
+- 仪表盘
+  
+  ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge1.png) ![仪表盘](https://junbin-yang.github.io/uCharts-v3/docs/image/gauge2.png)
+
+- 漏斗图
+  
+  ![漏斗图](https://junbin-yang.github.io/uCharts-v3/docs/image/funnel1.png) ![漏斗图](https://junbin-yang.github.io/uCharts-v3/docs/image/funnel2.png)
+
+- K线图
+  
+  ![K线图](https://junbin-yang.github.io/uCharts-v3/docs/image/candle.png)
+
+（更多类型和样式可参考Github仓库 docs 目录）
 
 ## 安装
 
 \`\`\`bash
-npm install ucharts-h5
+npm install ucharts-v3
 \`\`\`
 
 ## 快速开始
@@ -116,107 +176,54 @@ npm install ucharts-h5
 <body>
     <canvas id="chart" width="400" height="300"></canvas>
     
-    <script src="node_modules/ucharts-h5/ucharts-h5.min.js"></script>
+    <script src="node_modules/ucharts-v3/ucharts-v3.min.js"></script>
     <script>
         const canvas = document.getElementById('chart');
-        const ctx = canvas.getContext('2d');
+        const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
         
-        const chartData = {
-            categories: ['一月', '二月', '三月', '四月', '五月'],
-            series: [{
-                name: '销售额',
-                data: [35, 20, 25, 10, 15]
-            }]
-        };
-        
-        const chart = new UCharts.H5UCharts(ctx, {
-            type: 'column',
-            data: chartData,
-            width: 400,
-            height: 300
+        const chart = new UCharts({
+            type: "column",
+            context: ctx,
+            categories: ["2018","2019","2020","2021","2022","2023"],
+            series: [
+              {
+                name: "目标值",
+                data: [35,36,31,33,13,34]
+              },
+              {
+                name: "完成量",
+                data: [18,27,21,24,6,28]
+              }
+            ],
+            xAxis: { disableGrid: true },
+            yAxis: { data: [{ min: 0 }] }
         });
-        
-        chart.render();
     </script>
 </body>
 </html>
 \`\`\`
 
-### ES模块用法
-
-\`\`\`javascript
-import { H5UCharts } from 'ucharts-h5';
-
-const canvas = document.getElementById('chart');
-const ctx = canvas.getContext('2d');
-
-const chart = new H5UCharts(ctx, {
-    type: 'line',
-    data: {
-        categories: ['一月', '二月', '三月', '四月', '五月'],
-        series: [{
-            name: '访问量',
-            data: [100, 200, 150, 300, 250]
-        }]
-    },
-    width: 600,
-    height: 400
-});
-
-chart.render();
-\`\`\`
-
-### TypeScript用法
-
-\`\`\`typescript
-import { H5UCharts, ChartOptions } from 'ucharts-h5';
-
-const canvas = document.getElementById('chart') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d')!;
-
-const options: ChartOptions = {
-    type: 'pie',
-    data: {
-        series: [{
-            name: '占比',
-            data: [
-                { name: '苹果', value: 30 },
-                { name: '橙子', value: 25 },
-                { name: '香蕉', value: 20 },
-                { name: '葡萄', value: 25 }
-            ]
-        }]
-    },
-    width: 400,
-    height: 400
-};
-
-const chart = new H5UCharts(ctx, options);
-chart.render();
-\`\`\`
-
 ## 支持的图表类型
 
-- 📊 柱状图 (column)
-- 📈 折线图 (line)
-- 🥧 饼图 (pie)
-- 🍩 环形图 (ring)
-- 📊 条形图 (bar)
-- 📈 面积图 (area)
-- 📊 堆叠柱状图 (stackedColumn)
-- 📈 堆叠折线图 (stackedLine)
-- 📊 分组柱状图 (groupedColumn)
-- 🎯 雷达图 (radar)
-- 📊 散点图 (scatter)
-- 📊 气泡图 (bubble)
-- 📈 K线图 (candle)
-- 📊 漏斗图 (funnel)
-- 📊 仪表盘 (gauge)
-- 📊 词云图 (wordCloud)
-- 📊 热力图 (heatmap)
-- 📊 树图 (treemap)
-- 📊 桑基图 (sankey)
-- 📊 玫瑰图 (rose)
+- **柱状图 (column)**
+- **条状图 (bar)**
+- **折线图 (line)**
+- **区域图 (area)**
+- **山峰图 (mount)**
+- **散点图 (scatter)**
+- **气泡图 (bubble)**
+- **混合图 (mix)**
+- **饼状图 (pie)**
+- **环形图 (ring)**
+- **玫瑰图 (rose)**
+- **雷达图 (radar)**
+- **词云图 (word)**
+- **进度条 (arcbar)**
+- **仪表盘 (gauge)**
+- **漏斗图 (funnel)**
+- **K线图 (candle)**
+- **地图 (map)**
+- **更多类型持续开发中...**
 
 ## 配置选项
 
@@ -271,12 +278,12 @@ function main() {
   // 复制构建产物
   log('📁 复制构建产物...', 'blue');
   const buildFiles = [
-    'ucharts-h5.js',
-    'ucharts-h5.min.js',
-    'ucharts-h5.esm.js',
-    'ucharts-h5.js.map',
-    'ucharts-h5.min.js.map',
-    'ucharts-h5.esm.js.map'
+    'ucharts-v3.js',
+    'ucharts-v3.min.js',
+    'ucharts-v3.esm.js',
+    'ucharts-v3.js.map',
+    'ucharts-v3.min.js.map',
+    'ucharts-v3.esm.js.map'
   ];
   
   buildFiles.forEach(file => {

@@ -1,14 +1,14 @@
 {
-  "name": "ucharts-h5",
-  "version": "1.0.0",
-  "description": "UCharts H5平台适配器 - 专业的Web端图表组件，支持20+种图表类型",
-  "main": "./ucharts-h5.min.js",
-  "module": "./ucharts-h5.esm.js",
+  "name": "ucharts-v3",
+  "version": "1.0.1-beta",
+  "description": "UCharts 是一款基于TypeScript的高性能跨平台数据可视化图表库，支持多种常用图表类型，满足各类应用的数据可视化需求。",
+  "main": "./ucharts-v3.min.js",
+  "module": "./ucharts-v3.esm.js",
   "types": "./types/index.d.ts",
   "files": [
-    "ucharts-h5.js",
-    "ucharts-h5.min.js",
-    "ucharts-h5.esm.js",
+    "ucharts-v3.js",
+    "ucharts-v3.min.js",
+    "ucharts-v3.esm.js",
     "*.map",
     "types/",
     "README.md"
@@ -18,7 +18,7 @@
     "clean": "rimraf ../../dist/h5 && rimraf .publish-temp",
     "dev": "rollup -c rollup.config.js --watch",
     "prepare:publish": "node prepare-publish.js",
-    "prepublishOnly": "npm run build && npm run prepare:publish",
+    "prepublishOnly": "echo 'Skipping build in prepublishOnly - build should be done before publish'",
     "publish:beta": "node publish.js --beta",
     "publish:latest": "node publish.js",
     "pack:check": "npm run prepare:publish && cd .publish-temp && npm pack --dry-run"
@@ -37,16 +37,16 @@
   ],
   "author": {
     "name": "UCharts Team",
-    "email": "support@ucharts.com"
+    "email": "282764407@qq.com"
   },
   "contributors": [
     {
       "name": "junbin.yang",
-      "email": "junbin.yang@example.com"
+      "email": "282764407@qq.com"
     },
     {
       "name": "qiuyun",
-      "email": "qiuyun@example.com"
+      "email": "174748180@qq.com"
     }
   ],
   "repository": {
@@ -81,14 +81,10 @@
     "last 2 versions",
     "not dead"
   ],
-  "funding": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/ucharts"
-  },
   "exports": {
     ".": {
-      "import": "./ucharts-h5.esm.js",
-      "require": "./ucharts-h5.min.js",
+      "import": "./ucharts-v3.esm.js",
+      "require": "./ucharts-v3.min.js",
       "types": "./types/index.d.ts"
     }
   }

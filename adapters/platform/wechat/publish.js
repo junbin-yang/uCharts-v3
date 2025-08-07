@@ -3,10 +3,11 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { confirmVersion, confirmPublish } = require('./version-manager');
 
 /**
  * UCharts微信小程序适配器独立包发布脚本
- * 支持发布到npm的自动化流程
+ * 支持发布到npm的自动化流程，包含版本确认和发布确认
  */
 
 const colors = {
@@ -78,61 +79,90 @@ function runTests() {
   }
 }
 
-function preparePublish() {
-  log('📁 准备发布文件...', 'blue');
-  execCommand('npm run prepare:publish');
-  log('✅ 发布文件准备完成', 'green');
+function buildProject() {
+  log('🔨 构建项目...', 'blue');
+  
+  // 确保在正确的目录执行构建
+  const originalDir = process.cwd();
+  const wechatDir = path.join(__dirname);
+  
+  try {
+    process.chdir(wechatDir);
+    execCommand('npm run build');
+    log('✅ 项目构建完成', 'green');
+  } finally {
+    process.chdir(originalDir);
+  }
 }
 
-function updateVersion(versionType) {
-  log(`📝 更新版本 (${versionType})...`, 'blue');
+function preparePublish() {
+  log('📁 准备发布文件...', 'blue');
+  
+  // 确保在正确的目录执行prepare:publish
+  const originalDir = process.cwd();
+  const wechatDir = path.join(__dirname);
+  
+  try {
+    process.chdir(wechatDir);
+    execCommand('npm run prepare:publish');
+    log('✅ 发布文件准备完成', 'green');
+  } finally {
+    process.chdir(originalDir);
+  }
+}
+
+async function updateVersion(isBeta = false) {
+  log('📝 版本号确认...', 'blue');
   
   const packageJsonPath = path.join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const newVersion = await confirmVersion(packageJsonPath, isBeta);
   
-  const currentVersion = packageJson.version;
-  log(`当前版本: ${currentVersion}`, 'blue');
-  
-  // 使用npm version命令更新版本
-  let newVersion;
-  if (versionType === 'prerelease') {
-    // 如果当前版本不包含预发布标识，先添加beta标识
-    if (!currentVersion.includes('-')) {
-      newVersion = execSync(`npm version prerelease --preid=beta --no-git-tag-version`, { 
-        encoding: 'utf8' 
-      }).trim();
-    } else {
-      newVersion = execSync(`npm version prerelease --no-git-tag-version`, { 
-        encoding: 'utf8' 
-      }).trim();
-    }
-  } else {
-    newVersion = execSync(`npm version ${versionType} --no-git-tag-version`, { 
-      encoding: 'utf8' 
-    }).trim();
+  if (!newVersion) {
+    log('❌ 版本确认失败或用户取消', 'red');
+    process.exit(1);
   }
   
-  log(`新版本: ${newVersion}`, 'green');
   return newVersion;
 }
 
-function publishToNpm(tag = 'latest') {
-  log(`📦 发布到npm (tag: ${tag})...`, 'blue');
+async function publishToNpm(tag = 'latest') {
+  log('🚀 发布确认...', 'blue');
   
-  // 先检查包内容
-  log('📋 检查包内容...', 'blue');
-  try {
-    execCommand('npm pack --dry-run');
-  } catch (error) {
-    log('⚠️  包内容检查失败，继续发布...', 'yellow');
+  const packageJsonPath = path.join(__dirname, '.publish-temp', 'package.json');
+  const publishDir = path.join(__dirname, '.publish-temp');
+  
+  const shouldPublish = await confirmPublish(packageJsonPath, publishDir);
+  
+  if (!shouldPublish) {
+    log('❌ 用户取消发布', 'red');
+    process.exit(1);
   }
   
-  const publishCommand = tag === 'latest' 
-    ? 'npm publish' 
-    : `npm publish --tag ${tag}`;
+  log(`📦 发布到npm (tag: ${tag})...`, 'blue');
+  
+  // 切换到发布目录
+  const originalDir = process.cwd();
+  process.chdir(publishDir);
+  
+  try {
+    // 先检查包内容
+    log('📋 检查包内容...', 'blue');
+    try {
+      execCommand('npm pack --dry-run');
+    } catch (error) {
+      log('⚠️  包内容检查失败，继续发布...', 'yellow');
+    }
     
-  execCommand(publishCommand);
-  log('✅ 发布成功!', 'green');
+    const publishCommand = tag === 'latest' 
+      ? 'npm publish' 
+      : `npm publish --tag ${tag}`;
+      
+    execCommand(publishCommand);
+    log('✅ 发布成功!', 'green');
+  } finally {
+    // 切换回原始目录
+    process.chdir(originalDir);
+  }
 }
 
 function cleanupTempFiles() {
@@ -155,26 +185,26 @@ function cleanupTempFiles() {
 function showPublishInfo(version, tag) {
   log('\n🎉 发布完成!', 'green');
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
-  log(`📦 包名: ucharts-wechat`, 'blue');
+  log(`📦 包名: wx-ucharts-v3`, 'blue');
   log(`🏷️  版本: ${version}`, 'blue');
   log(`🔖 标签: ${tag}`, 'blue');
-  log(`🌐 npm: https://www.npmjs.com/package/ucharts-wechat`, 'blue');
+  log(`🌐 npm: https://www.npmjs.com/package/wx-ucharts-v3`, 'blue');
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
   log('\n📥 安装命令:', 'yellow');
   if (tag === 'latest') {
-    log('npm install ucharts-wechat', 'green');
+    log('npm install wx-ucharts-v3', 'green');
   } else {
-    log(`npm install ucharts-wechat@${tag}`, 'green');
+    log(`npm install wx-ucharts-v3@${tag}`, 'green');
   }
   log('\n📖 使用方法:', 'yellow');
-  log('1. 复制组件: cp -r node_modules/ucharts-wechat/components/ucharts ./components/', 'blue');
+  log('1. 复制组件: cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/', 'blue');
   log('2. 注册组件: 在页面json中添加 "ucharts": "../../components/ucharts/ucharts"', 'blue');
   log('3. 使用组件: <ucharts chart-data="{{chartData}}" />', 'blue');
   log('\n📚 详细文档: 查看README.md获取完整使用说明', 'yellow');
 }
 
 // 主函数
-function main() {
+async function main() {
   const args = process.argv.slice(2);
   const isBeta = args.includes('--beta') || args.includes('beta');
   const isLatest = args.includes('--latest') || args.includes('latest') || args.length === 0;
@@ -189,25 +219,20 @@ function main() {
     // 2. 运行测试
     runTests();
     
-    // 3. 准备发布文件
+    // 3. 版本号确认
+    const newVersion = await updateVersion(isBeta);
+    
+    // 4. 构建项目
+    buildProject();
+    
+    // 5. 准备发布文件
     preparePublish();
     
-    // 4. 更新版本
-    let versionType, tag;
-    if (isBeta) {
-      versionType = 'prerelease';
-      tag = 'beta';
-    } else if (isLatest) {
-      versionType = 'patch'; // 可以改为 minor 或 major
-      tag = 'latest';
-    }
+    // 6. 发布确认和发布到npm
+    const tag = isBeta ? 'beta' : 'latest';
+    await publishToNpm(tag);
     
-    const newVersion = updateVersion(versionType);
-    
-    // 5. 发布到npm
-    publishToNpm(tag);
-    
-    // 6. 显示发布信息
+    // 7. 显示发布信息
     showPublishInfo(newVersion, tag);
     
   } catch (error) {

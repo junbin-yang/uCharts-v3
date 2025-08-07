@@ -19,10 +19,10 @@ function copyToComponents() {
         // 延迟执行，确保文件已写入磁盘
         setTimeout(() => {
           try {
-            const sourceFile = path.resolve(__dirname, '../../dist/wechat/ucharts-wechat.min.js');
+            const sourceFile = path.resolve(__dirname, '../../dist/wechat/wx-ucharts-v3.min.js');
             
             // 1. 复制到适配器组件目录
-            const adapterTargetFile = path.resolve(__dirname, 'components/ucharts/ucharts-wechat.min.js');
+            const adapterTargetFile = path.resolve(__dirname, 'components/ucharts/wx-ucharts-v3.min.js');
             const adapterTargetDir = path.dirname(adapterTargetFile);
             if (!fs.existsSync(adapterTargetDir)) {
               fs.mkdirSync(adapterTargetDir, { recursive: true });
@@ -30,7 +30,7 @@ function copyToComponents() {
             
             if (fs.existsSync(sourceFile)) {
               fs.copyFileSync(sourceFile, adapterTargetFile);
-              console.log('✅ 已复制 ucharts-wechat.min.js 到适配器组件目录');
+              console.log('✅ 已复制 wx-ucharts-v3.min.js 到适配器组件目录');
               
               // 2. 复制整个组件目录到示例项目
               const componentSourceDir = path.resolve(__dirname, 'components/ucharts');
@@ -87,14 +87,14 @@ module.exports = {
   input: 'index.ts',
   output: [
     {
-      file: '../../dist/wechat/ucharts-wechat.js',
+      file: '../../dist/wechat/wx-ucharts-v3.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
       sourcemap: true
     },
     {
-      file: '../../dist/wechat/ucharts-wechat.min.js',
+      file: '../../dist/wechat/wx-ucharts-v3.min.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
@@ -102,7 +102,7 @@ module.exports = {
       sourcemap: true
     },
     {
-      file: '../../dist/wechat/ucharts-wechat.esm.js',
+      file: '../../dist/wechat/wx-ucharts-v3.esm.js',
       format: 'es',
       sourcemap: true
     }

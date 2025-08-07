@@ -27,12 +27,12 @@ console.log('📁 创建临时发布目录:', tempDir);
 
 // 3. 复制构建文件到临时目录
 const filesToCopy = [
-  'ucharts-wechat.js',
-  'ucharts-wechat.min.js', 
-  'ucharts-wechat.esm.js',
-  'ucharts-wechat.js.map',
-  'ucharts-wechat.min.js.map',
-  'ucharts-wechat.esm.js.map'
+  'wx-ucharts-v3.js',
+  'wx-ucharts-v3.min.js', 
+  'wx-ucharts-v3.esm.js',
+  'wx-ucharts-v3.js.map',
+  'wx-ucharts-v3.min.js.map',
+  'wx-ucharts-v3.esm.js.map'
 ];
 
 console.log('📁 复制构建文件到临时目录...');
@@ -71,14 +71,14 @@ const packageJsonPath = path.join(__dirname, 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // 更新文件路径为临时目录的相对路径
-packageJson.main = './ucharts-wechat.min.js';
-packageJson.module = './ucharts-wechat.esm.js';
+packageJson.main = './wx-ucharts-v3.min.js';
+packageJson.module = './wx-ucharts-v3.esm.js';
 packageJson.types = './types/index.d.ts';
 
 packageJson.files = [
-  'ucharts-wechat.js',
-  'ucharts-wechat.min.js',
-  'ucharts-wechat.esm.js',
+  'wx-ucharts-v3.js',
+  'wx-ucharts-v3.min.js',
+  'wx-ucharts-v3.esm.js',
   '*.map',
   'types/',
   'components/',
@@ -87,8 +87,8 @@ packageJson.files = [
 
 packageJson.exports = {
   ".": {
-    "import": "./ucharts-wechat.esm.js",
-    "require": "./ucharts-wechat.min.js",
+    "import": "./wx-ucharts-v3.esm.js",
+    "require": "./wx-ucharts-v3.min.js",
     "types": "./types/index.d.ts"
   },
   "./components": "./components/ucharts/"
@@ -118,7 +118,7 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 ## 安装
 
 \`\`\`bash
-npm install ucharts-wechat
+npm install wx-ucharts-v3
 \`\`\`
 
 ## 快速开始
@@ -129,7 +129,7 @@ npm install ucharts-wechat
 
 \`\`\`bash
 # 复制组件到小程序项目
-cp -r node_modules/ucharts-wechat/components/ucharts ./components/
+cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 \`\`\`
 
 ### 2. 引入自定义组件

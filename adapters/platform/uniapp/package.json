@@ -1,9 +1,9 @@
 {
-  "name": "ucharts-uniapp",
+  "name": "uni-ucharts-v3",
   "version": "1.0.0",
   "description": "uCharts uni-app平台适配器",
-  "main": "../../dist/uniapp/ucharts-uniapp.js",
-  "module": "../../dist/uniapp/ucharts-uniapp.esm.js",
+  "main": "../../dist/uniapp/uni-ucharts-v3.js",
+  "module": "../../dist/uniapp/uni-ucharts-v3.esm.js",
   "types": "../../dist/uniapp/types/index.d.ts",
   "scripts": {
     "build": "npm run clean && rollup -c rollup.config.js",

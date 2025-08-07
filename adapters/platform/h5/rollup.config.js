@@ -19,10 +19,10 @@ function copyToExamples() {
         // 延迟执行，确保文件已写入磁盘
         setTimeout(() => {
           try {
-            const sourceFile = path.resolve(__dirname, '../../dist/h5/ucharts-h5.min.js');
+            const sourceFile = path.resolve(__dirname, '../../dist/h5/ucharts-v3.min.js');
             
             // 复制到H5示例项目目录
-            const exampleTargetFile = path.resolve(__dirname, '../../../examples/h5/ucharts-h5.min.js');
+            const exampleTargetFile = path.resolve(__dirname, '../../../examples/h5/ucharts-v3.min.js');
             const exampleTargetDir = path.dirname(exampleTargetFile);
             
             // 确保示例项目目录存在
@@ -32,7 +32,7 @@ function copyToExamples() {
             
             if (fs.existsSync(sourceFile)) {
               fs.copyFileSync(sourceFile, exampleTargetFile);
-              console.log('✅ 已复制 ucharts-h5.min.js 到H5示例项目目录');
+              console.log('✅ 已复制 ucharts-v3.min.js 到H5示例项目目录');
             } else {
               console.warn('⚠️ 源文件不存在:', sourceFile);
             }
@@ -49,14 +49,14 @@ module.exports = {
   input: 'index.ts',
   output: [
     {
-      file: '../../dist/h5/ucharts-h5.js',
+      file: '../../dist/h5/ucharts-v3.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
       sourcemap: true
     },
     {
-      file: '../../dist/h5/ucharts-h5.min.js',
+      file: '../../dist/h5/ucharts-v3.min.js',
       format: 'umd',
       name: 'UCharts',
       exports: 'default',
@@ -64,7 +64,7 @@ module.exports = {
       sourcemap: true
     },
     {
-      file: '../../dist/h5/ucharts-h5.esm.js',
+      file: '../../dist/h5/ucharts-v3.esm.js',
       format: 'es',
       sourcemap: true
     }

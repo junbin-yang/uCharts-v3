@@ -111,7 +111,7 @@ UCharts 是一个基于 TypeScript 实现的类型丰富、高性能、模块化
   <canvas id="chart" width="600px" height="400px"></canvas>
   ...
   <!-- 引入构建后的uCharts库 -->
-  <script src="../adapters/dist/h5/ucharts-h5.min.js"></script>
+  <script src="../adapters/dist/h5/ucharts-v3.min.js"></script>
   <script language="JavaScript">
     function createLineChart() {
       const canvas = document.getElementById('chart');

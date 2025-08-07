@@ -15,7 +15,7 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 ## 安装
 
 ```bash
-npm install ucharts-wechat
+npm install wx-ucharts-v3
 ```
 
 ## 快速开始
@@ -26,7 +26,7 @@ npm install ucharts-wechat
 
 ```bash
 # 复制组件到小程序项目
-cp -r node_modules/ucharts-wechat/components/ucharts ./components/
+cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 ```
 
 ### 2. 引入自定义组件
@@ -199,9 +199,9 @@ npm run clean
 
 构建后的文件位于 `../../dist/wechat/` 目录：
 
-- `ucharts-wechat.js` - UMD格式，用于直接引入
-- `ucharts-wechat.min.js` - 压缩版本
-- `ucharts-wechat.esm.js` - ES模块格式
+- `wx-ucharts-v3.js` - UMD格式，用于直接引入
+- `wx-ucharts-v3.min.js` - 压缩版本
+- `wx-ucharts-v3.esm.js` - ES模块格式
 - `types/` - TypeScript类型定义文件
 
 ## 示例项目
