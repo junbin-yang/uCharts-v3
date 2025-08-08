@@ -49,12 +49,11 @@ cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 
 ```xml
 <ucharts 
-  canvas-id="my-chart"
-  chartData="{{chartData}}"
-  width="{{350}}"
-  height="{{250}}"
-  bind:chartCreated="onChartCreated"
-  bind:chartError="onChartError"
+  type="line" 
+  canvas2d="{{true}}" 
+  opts="{{opts}}" 
+  chartData="{{chartData}}" 
+  bindcomplete="complete"
 />
 ```
 
@@ -64,7 +63,6 @@ cp -r node_modules/wx-ucharts-v3/components/ucharts ./components/
 Page({
   data: {
     chartData: {
-      type: 'line',
       categories: ['一月', '二月', '三月', '四月', '五月', '六月'],
       series: [{
         name: '销售额',
@@ -73,12 +71,8 @@ Page({
     }
   },
 
-  onChartCreated(e) {
-    console.log('图表创建完成:', e.detail);
-  },
-
-  onChartError(e) {
-    console.error('图表错误:', e.detail);
+  complete(e) {
+    console.log(e);
   }
 });
 ```
@@ -88,24 +82,46 @@ Page({
 
 | 属性名 | 类型 | 默认值 | 必填 | 说明 |
 |--------|------|--------|------|------|
-| chartData | Object | {} | 是 | 图表配置数据 |
-| canvas-id | String | 'ucharts' | 否 | Canvas 元素 ID |
-| width | Number | 375 | 否 | 图表宽度（px） |
-| height | Number | 250 | 否 | 图表高度（px） |
-| pixelRatio | Number | 1 | 否 | 像素比 |
-| enableLoading | Boolean | true | 否 | 是否启用内部加载组件 |
-| enableError | Boolean | true | 否 | 是否启用内部错误组件 |
-| loadingType | String | 'skeleton' | 否 | 加载动画类型 |
-| loadingText | String | '加载中...' | 否 | 加载提示文本 |
+| type | String | null | 是 | 图表类型，支持：pie、ring、rose、word、funnel、map、arcbar、line、column、bar、area、radar、gauge、candle、mix、tline、tarea、scatter、bubble、demotype |
+| canvasId | String | 'uchartsid' | 否 | Canvas元素ID，如为默认值会自动生成32位随机ID |
+| canvas2d | Boolean | false | 否 | 是否启用Canvas 2D模式 |
+| background | String | 'rgba(0,0,0,0)' | 否 | 图表背景色 |
+| animation | Boolean | true | 否 | 是否启用动画效果 |
+| chartData | Object | {categories: [], series: []} | 否 | 图表数据，包含categories和series |
+| localdata | Array | [] | 否 | 本地数据源，可替代chartData使用 |
+| opts | Object | {} | 否 | 图表配置选项，会与默认配置合并 |
+| loadingType | String | 'skeleton' | 否 | 加载动画类型：skeleton、spinner、pulse、dots |
+| loadingText | String | '加载图表数据...' | 否 | 加载提示文本 |
+| errorShow | Boolean | true | 否 | 是否显示错误信息 |
+| errorReload | Boolean | true | 否 | 是否允许错误重试 |
+| errorMessage | String | null | 否 | 自定义错误信息 |
+| inScrollView | Boolean | false | 否 | 是否在scroll-view组件内 |
+| reshow | Boolean | false | 否 | 重新显示图表 |
+| reload | Boolean | false | 否 | 重新加载图表 |
+| disableScroll | Boolean | false | 否 | 禁用Canvas滚动 |
+| optsWatch | Boolean | true | 否 | 是否监听opts变化 |
+| onzoom | Boolean | false | 否 | 是否启用双指缩放 |
+| ontap | Boolean | true | 否 | 是否启用点击事件 |
+| ontouch | Boolean | false | 否 | 是否启用触摸事件 |
+| onmovetip | Boolean | false | 否 | 是否启用移动提示 |
+| tooltipShow | Boolean | true | 否 | 是否显示工具提示 |
+| tooltipFormat | String | undefined | 否 | 工具提示格式化函数名 |
+| tooltipCustom | Object | undefined | 否 | 自定义工具提示配置 |
+| pageScrollTop | Number | 0 | 否 | 页面滚动距离 |
+| tapLegend | Boolean | true | 否 | 是否启用图例点击 |
 
 ## 事件回调
 
 | 事件名 | 说明 | 回调参数 |
 |--------|------|----------|
-| bind:chartCreated | 图表创建完成 | { chart, canvasId, canvas, context } |
-| bind:chartUpdated | 图表更新完成 | { data } |
-| bind:chartError | 图表错误 | { error, canvasId } |
-| bind:errorRetry | 用户点击重试 | {} |
+| bind:complete | 图表渲染完成 | { type: "complete", complete: true, id: canvasId } |
+| bind:error | 图表错误 | { type: "error", errorShow: boolean, msg: string, id: canvasId } |
+| bind:getIndex | 点击获取数据索引 | { type: "getIndex", event: {x, y}, currentIndex: number, legendIndex: number, id: canvasId, opts: object } |
+| bind:getTouchStart | 触摸开始 | { type: "touchStart", event: touchArray, id: canvasId } |
+| bind:getTouchMove | 触摸移动 | { type: "touchMove", event: touchArray, id: canvasId } |
+| bind:getTouchEnd | 触摸结束 | { type: "touchEnd", event: touchArray, id: canvasId } |
+| bind:scrollLeft | 图表左滑到边界 | { type: "scrollLeft", scrollLeft: true, id: canvasId } |
+| bind:scrollRight | 图表右滑到边界 | { type: "scrollRight", scrollRight: true, id: canvasId } |
 
 
 ## 使用场景
@@ -114,48 +130,65 @@ Page({
 
 ```xml
 <ucharts 
-  canvas-id="basic-chart"
+  type="line"
+  canvasId="basic-chart"
+  canvas2d="{{true}}"
   chartData="{{chartData}}"
-  width="{{350}}"
-  height="{{250}}"
+  bindcomplete="onComplete"
 />
 ```
 
-### 2. 禁用内部状态管理
-
-如果你想使用自己的加载和错误处理逻辑：
+### 2. 使用本地数据源
 
 ```xml
 <ucharts 
-  canvas-id="custom-chart"
-  chartData="{{chartData}}"
-  enableLoading="{{false}}"
-  enableError="{{false}}"
-  width="{{350}}"
-  height="{{250}}"
+  type="column"
+  canvasId="local-chart"
+  localdata="{{localChartData}}"
+  opts="{{chartOpts}}"
+  bindcomplete="onComplete"
 />
 ```
 
-### 3. 自定义加载样式
+### 3. 启用交互功能
 
 ```xml
 <ucharts 
-  canvas-id="custom-loading-chart"
+  type="pie"
+  canvasId="interactive-chart"
+  chartData="{{chartData}}"
+  ontap="{{true}}"
+  ontouch="{{true}}"
+  tapLegend="{{true}}"
+  bindgetIndex="onGetIndex"
+  bindgetTouchStart="onTouchStart"
+  bindcomplete="onComplete"
+/>
+```
+
+### 4. 自定义加载和错误处理
+
+```xml
+<ucharts 
+  type="bar"
+  canvasId="custom-chart"
   chartData="{{chartData}}"
   loadingType="spinner"
   loadingText="数据加载中..."
-  width="{{350}}"
-  height="{{250}}"
+  errorShow="{{true}}"
+  errorReload="{{true}}"
+  errorMessage="{{customErrorMsg}}"
+  binderror="onError"
+  bindcomplete="onComplete"
 />
 ```
 
-### 4. 动态更新数据
+### 5. 动态更新数据
 
 ```javascript
 // 在页面 JS 中
 updateChartData() {
   const newData = {
-    type: 'line',
     categories: ['Q1', 'Q2', 'Q3', 'Q4'],
     series: [{
       name: '营收',
@@ -172,6 +205,21 @@ updateChartData() {
     chartData: newData
   });
 }
+```
+
+### 6. 在滚动视图中使用
+
+```xml
+<scroll-view scroll-y="true">
+  <ucharts 
+    type="area"
+    canvasId="scroll-chart"
+    chartData="{{chartData}}"
+    inScrollView="{{true}}"
+    disableScroll="{{true}}"
+    bindcomplete="onComplete"
+  />
+</scroll-view>
 ```
 
 ## 加载动画类型
@@ -204,18 +252,24 @@ updateChartData() {
 <!-- 页面 WXML -->
 <view class="chart-container">
   <ucharts 
-    canvas-id="sales-chart"
+    type="line"
+    canvasId="sales-chart"
+    canvas2d="{{true}}"
     chartData="{{salesData}}"
-    width="{{chartWidth}}"
-    height="{{chartHeight}}"
+    opts="{{chartOpts}}"
     loadingType="skeleton"
     loadingText="正在加载销售数据..."
-    bind:chartCreated="onChartCreated"
-    bind:chartError="onChartError"
-    bind:chartUpdated="onChartUpdated"
+    ontap="{{true}}"
+    ontouch="{{true}}"
+    tooltipShow="{{true}}"
+    bindcomplete="onComplete"
+    binderror="onError"
+    bindgetIndex="onGetIndex"
+    bindgetTouchStart="onTouchStart"
   />
   
   <button bindtap="updateData">更新数据</button>
+  <button bindtap="changeType">切换图表类型</button>
 </view>
 ```
 
@@ -223,21 +277,32 @@ updateChartData() {
 // 页面 JS
 Page({
   data: {
-    chartWidth: 350,
-    chartHeight: 250,
-    salesData: {}
+    salesData: {},
+    chartOpts: {
+      color: ['#1890FF', '#91CC75', '#FAC858', '#EE6666'],
+      padding: [15, 15, 0, 15],
+      enableScroll: false,
+      legend: {
+        show: true
+      },
+      xAxis: {
+        disableGrid: false
+      },
+      yAxis: {
+        gridType: 'dash',
+        dashLength: 2
+      },
+      extra: {
+        line: {
+          type: 'curve',
+          width: 2,
+          activeType: 'hollow'
+        }
+      }
+    }
   },
 
   onLoad() {
-    // 获取屏幕尺寸
-    const systemInfo = wx.getSystemInfoSync();
-    const chartWidth = Math.min(systemInfo.windowWidth - 40, 350);
-    
-    this.setData({
-      chartWidth,
-      chartHeight: chartWidth * 0.7
-    });
-
     // 加载数据
     this.loadChartData();
   },
@@ -247,11 +312,13 @@ Page({
     setTimeout(() => {
       this.setData({
         salesData: {
-          type: 'line',
           categories: ['1月', '2月', '3月', '4月', '5月', '6月'],
           series: [{
             name: '销售额',
             data: [35, 20, 25, 10, 15, 30]
+          }, {
+            name: '利润',
+            data: [18, 12, 15, 8, 10, 20]
           }]
         }
       });
@@ -260,38 +327,63 @@ Page({
 
   updateData() {
     const newData = {
-      type: 'line',
       categories: ['1月', '2月', '3月', '4月', '5月', '6月'],
       series: [{
         name: '销售额',
         data: Array.from({length: 6}, () => Math.floor(Math.random() * 50) + 10)
+      }, {
+        name: '利润',
+        data: Array.from({length: 6}, () => Math.floor(Math.random() * 30) + 5)
       }]
     };
 
     this.setData({
-      salesData: newData
+      chartData: newData
     });
   },
 
-  onChartCreated(e) {
-    console.log('图表创建完成:', e.detail);
+  changeType() {
+    const types = ['line', 'column', 'area', 'bar'];
+    const currentType = this.data.type || 'line';
+    const currentIndex = types.indexOf(currentType);
+    const nextType = types[(currentIndex + 1) % types.length];
+    
+    this.setData({
+      type: nextType
+    });
+  },
+
+  onComplete(e) {
+    console.log('图表渲染完成:', e.detail);
     wx.showToast({
       title: '图表加载完成',
-      icon: 'success'
+      icon: 'success',
+      duration: 1000
     });
   },
 
-  onChartError(e) {
+  onError(e) {
     console.error('图表错误:', e.detail);
     wx.showModal({
       title: '图表错误',
-      content: e.detail.error,
+      content: e.detail.msg || '图表渲染失败',
       showCancel: false
     });
   },
 
-  onChartUpdated(e) {
-    console.log('图表更新完成:', e.detail);
+  onGetIndex(e) {
+    console.log('点击数据:', e.detail);
+    const { currentIndex, legendIndex } = e.detail;
+    if (currentIndex >= 0) {
+      wx.showToast({
+        title: `点击了第${currentIndex + 1}个数据点`,
+        icon: 'none'
+      });
+    }
+  },
+
+  onTouchStart(e) {
+    console.log('触摸开始:', e.detail);
   }
 });
 ```
