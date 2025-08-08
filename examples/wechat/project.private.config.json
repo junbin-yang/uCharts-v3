@@ -5,7 +5,7 @@
   "setting": {
     "urlCheck": false,
     "coverView": true,
-    "lazyloadPlaceholderEnable": false,
+    "lazyloadPlaceholderEnable": true,
     "skylineRenderEnable": false,
     "preloadBackgroundData": false,
     "autoAudits": false,

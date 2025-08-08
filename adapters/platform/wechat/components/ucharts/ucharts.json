@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "loading": "../loading/loading",
-    "error": "../error/error"
-  }
-}

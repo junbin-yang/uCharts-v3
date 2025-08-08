@@ -1,26 +1,29 @@
 <view class="container">
-  <view class="header">
-    <text class="title">UCharts 折线图演示</text>
-  </view>
-
   <!-- 折线图演示 -->
   <view class="demo-section">
     <view class="section-title">折线图</view>
     <view class="chart-container">
-      <ucharts 
-        canvas-id="line-chart-canvas"
-        chartData="{{lineChartData}}"
-        width="{{350}}"
-        height="{{250}}"
-        bind:chartCreated="onChartCreated"
-        bind:chartError="onChartError"
-        bind:chartUpdated="onChartUpdated"
+      <ucharts-v3 
+        type="line" 
+        canvas2d="{{true}}" 
+        opts="{{opts}}" 
+        chartData="{{lineChartData}}" 
+        bindcomplete="complete"
       />
     </view>
   </view>
 
-  <!-- 操作按钮 -->
-  <view class="button-group">
-    <button class="demo-button" bindtap="updateChartData">更新数据</button>
+  <view class="demo-section">
+    <view class="section-title">柱状图</view>
+    <view class="chart-container">
+      <ucharts-v3 
+        type="column" 
+        canvas2d="{{true}}" 
+        opts="{{opts}}" 
+        chartData="{{columnChartData}}" 
+        bindcomplete="complete"
+      />
+    </view>
   </view>
+
 </view>

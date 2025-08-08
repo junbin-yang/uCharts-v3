@@ -58,66 +58,31 @@ export class UCharts {
         this.chartRenderer?.off(type);
     }
 
-    /**
-     * 处理触摸开始事件
-     * @param e 触摸事件对象
-     */
-    touchStart(e: any) {
-        if (e.touches && e.touches.length > 0) {
-            const touch = e.touches[0];
-            const p: Point = {
-                x: touch.x,
-                y: touch.y
-            };
-            this.chartRenderer?.scrollStart(p);
-        }
-    }
-
-    /**
-     * 处理触摸移动事件
-     * @param e 触摸事件对象
-     */
-    touchMove(e: any) {
-        if (e.touches && e.touches.length > 0) {
-            const touch = e.touches[0];
-            const p: Point = {
-                x: touch.x,
-                y: touch.y
-            };
-            this.chartRenderer?.scroll(p);
-            this.chartRenderer?.showToolTip(p);
-        }
-    }
-
-    /**
-     * 处理触摸结束事件
-     * @param e 触摸事件对象
-     */
-    touchEnd(e: any) {
-        this.chartRenderer?.scrollEnd();
-        
-        // 处理点击事件
-        if (e.changedTouches && e.changedTouches.length > 0) {
-            const touch = e.changedTouches[0];
-            const p: Point = {
-                x: touch.x,
-                y: touch.y
-            };
-            this.chartRenderer?.touchLegend(p);
-            this.chartRenderer?.showToolTip(p);
-        }
-    }
-
-    /**
-     * 处理点击事件
-     * @param e 点击事件对象
-     */
-    tap(e: any) {
-        const p: Point = {
-            x: e.detail.x,
-            y: e.detail.y
-        };
+    touchLegend(p: Point) {
         this.chartRenderer?.touchLegend(p);
+    }
+
+    showToolTip(p: Point) {
         this.chartRenderer?.showToolTip(p);
+    }
+
+    getLegendDataIndex(p: Point) {
+        return this.chartRenderer?.getLegendDataIndex(p);
+    }
+
+    getCurrentDataIndex(p: Point) {
+        return this.chartRenderer?.getCurrentDataIndex(p);
+    }
+
+    scrollStart(p: Point) {
+        this.chartRenderer?.scrollStart(p);
+    }
+
+    scroll(p: Point) {
+        this.chartRenderer?.scroll(p);
+    }
+
+    scrollEnd() {
+        this.chartRenderer?.scrollEnd();
     }
 }

@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "ucharts-error": "../error/error",
+    "ucharts-loading": "../loading/loading"
+  }
+}
