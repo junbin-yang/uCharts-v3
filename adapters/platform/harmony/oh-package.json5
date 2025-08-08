@@ -4,7 +4,7 @@
   "description": "一款基于TypeScript的高性能跨平台数据可视化图表库，支持H5、小程序、鸿蒙等不同设备平台。",
   "dependencies": {
     "@ibestservices/ibest-ui": "2.1.2",
-    "@ibestservices/area-data": "0.0.5",
+    "@ibestservices/area-data": "0.0.6",
     "@ibestservices/ucharts": "file:./library"
   },
   "devDependencies": {

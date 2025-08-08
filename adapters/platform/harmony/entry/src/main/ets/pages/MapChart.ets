@@ -8,7 +8,7 @@ import { UCharts, UChartsController, MapDataRes,
   GeoJsonProperties,
   FeatureCollection} from '@ibestservices/ucharts'
 import { chartDemoType } from "./common/type"
-import { getGenJSON } from "@ibestservices/area-data"
+import { getGeoJSON } from "@ibestservices/area-data"
 
 // 模拟的标记点数据
 interface markPointsType {
@@ -106,7 +106,7 @@ export struct MapChart {
                         let adcode = 100000;
                         if(data) adcode = data["adcode"]
                         // 根据adcode请求到对应的地图数据
-                        const GeoJson3 = getGenJSON(context, adcode.toString()) as FeatureCollection
+                        const GeoJson3 = getGeoJSON(context, adcode.toString()) as FeatureCollection
                         let series = GeoJson3.features;
                         for (let i = 0; i < series.length; i++) {
                           series[i].value = Math.floor(Math.random() * 1000)
@@ -150,8 +150,8 @@ export struct MapChart {
 }
 
 const context = getContext().getApplicationContext() as Context
-const GeoJson1 = getGenJSON(context, '440300') as FeatureCollection
-const GeoJson2 = getGenJSON(context, '360000') as FeatureCollection
+const GeoJson1 = getGeoJSON(context, '440300') as FeatureCollection
+const GeoJson2 = getGeoJSON(context, '360000') as FeatureCollection
 const SetMapChartDemo = () => {
   let series = GeoJson1.features
   // 这里循环一下series，把需要的数据增加到series的属性中，fillOpacity是根据数据来显示的颜色层级透明度
