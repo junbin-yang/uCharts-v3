@@ -726,7 +726,17 @@ Component({
         this._tap(point,true)
       }
       if(this.data.ontouch === true && cfu.option[cid].enableScroll === true && this.data.onzoom === true && e.changedTouches.length == 2){
-        cfu.instance[cid].dobuleZoom(e);
+        const tcs = e.changedTouches;
+        let points = [
+          {
+            x: tcs[0].x ? tcs[0].x : tcs[0].clientX,
+            y: tcs[0].y ? tcs[0].y : tcs[0].clientY
+          },{
+            x: tcs[1].x ? tcs[1].x : tcs[1].clientX,
+            y: tcs[1].y ? tcs[1].y : tcs[1].clientY
+          }
+        ]
+        cfu.instance[cid].doubleZoom(points);
       }
       this.emitMsg({name: 'getTouchMove', params: {type:"touchMove", event:e.changedTouches, id: cid}});
     },

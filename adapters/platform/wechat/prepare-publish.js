@@ -82,7 +82,8 @@ packageJson.files = [
   '*.map',
   'types/',
   'components/',
-  'README.md'
+  'README.md',
+  'CHANGELOG.md'
 ];
 
 packageJson.exports = {
@@ -108,6 +109,17 @@ if (fs.existsSync(sourceReadmePath)) {
   console.log('✅ 复制README.md文件');
 } else {
   console.error('❌ 源README.md文件不存在');
+  process.exit(1);
+}
+
+const sourceChangeLogPath = path.join(__dirname, 'CHANGELOG.md');
+const tempChangeLogPath = path.join(tempDir, 'CHANGELOG.md');
+
+if (fs.existsSync(sourceChangeLogPath)) {
+  fs.copyFileSync(sourceChangeLogPath, tempChangeLogPath);
+  console.log('✅ 复制CHANGELOG.md文件');
+} else {
+  console.error('❌ 源CHANGELOG.md文件不存在');
   process.exit(1);
 }
 

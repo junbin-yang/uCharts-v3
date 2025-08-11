@@ -95,6 +95,12 @@ export class UChartsController {
       this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Move) {
       this.chartRenderer?.scroll(p)
+      if(event.touches.length > 1) {
+        this.chartRenderer?.doubleZoom([
+          {x: event.touches[0].x, y: event.touches[0].y},
+          {x: event.touches[1].x, y: event.touches[1].y}
+        ])
+      }
       if(!this.opts?.enableScroll) this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Up) {
       this.chartRenderer?.scrollEnd()
@@ -235,6 +241,12 @@ export class UChartsControllerV2 {
       this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Move) {
       this.chartRenderer?.scroll(p)
+      if(event.touches.length > 1) {
+        this.chartRenderer?.doubleZoom([
+          {x: event.touches[0].x, y: event.touches[0].y},
+          {x: event.touches[1].x, y: event.touches[1].y}
+        ])
+      }
       if(!this.opts?.enableScroll) this.chartRenderer?.showToolTip(p)
     } else if(event.type == TouchType.Up) {
       this.chartRenderer?.scrollEnd()

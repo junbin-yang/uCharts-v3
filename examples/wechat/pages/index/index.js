@@ -22,19 +22,29 @@ Page({
         }]
       };
       let columnChartData = {
-        categories:["2016", "2017", "2018", "2019"],
+        categories:["2018","2019","2020","2021","2022","2023","2024","2025"],
         series: [
           {
             name: "目标值",
-            data: [35, 31, 13, 34]
+            data: [35,36,31,33,13,34,44,38]
           },
           {
             name: "完成量",
-            data: [18, 21, 6, 28]
+            data: [18,27,21,24,6,28,40,30]
           }
         ]
       };
-      this.setData({ lineChartData, columnChartData });
+      let opts = {
+        touchMoveLimit: 24,
+        enableScroll: true,
+        xAxis: {
+          disableGrid: true,
+          scrollShow: true,
+          itemCount: 4
+        },
+        yAxis: { data: [{ min: 0 }] }
+      }
+      this.setData({ lineChartData, columnChartData, opts });
     }, 800);
   },
   complete(e){

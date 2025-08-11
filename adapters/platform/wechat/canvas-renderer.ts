@@ -85,4 +85,8 @@ export class UCharts {
     scrollEnd() {
         this.chartRenderer?.scrollEnd();
     }
+
+    doubleZoom(p: Point[]) {
+        this.chartRenderer?.doubleZoom(p);
+    }
 }

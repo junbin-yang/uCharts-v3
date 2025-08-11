@@ -3093,6 +3093,65 @@ export abstract class BaseRenderer {
     }
   }
 
+  public doubleZoom(touches: Point[]) {
+    if (this.opts.enableScroll !== true) {
+      console.log('请启用滚动条后使用')
+      return;
+    }
+    if (touches.length < 2) {
+      return;
+    }
+    const ntcs = [this.getTouches(touches[0]), this.getTouches(touches[1])];
+    const xlength = Math.abs(ntcs[0].x - ntcs[1].x);
+
+    // 记录初始的两指之间的数据
+    if(!this.scrollOption.moveCount){
+      let cts0 = {x:touches[0].x,y:this.opts.area[0] / this.opts.pixelRatio! + 2};
+      let cts1 = {x:touches[1].x,y:this.opts.area[0] / this.opts.pixelRatio! + 2};
+      if(this.opts.rotate){
+        cts0 = {x:this.opts.height / this.opts.pix - this.opts.area[0] / this.opts.pix - 2,y:touches[0].y};
+        cts1 = {x:this.opts.height / this.opts.pix - this.opts.area[0] / this.opts.pix - 2,y:touches[1].y};
+      }
+      const moveCurrent1 = this.getCurrentDataIndex(cts0).index as number;
+      const moveCurrent2 = this.getCurrentDataIndex(cts1).index as number;
+      const moveCount = Math.abs(moveCurrent1 - moveCurrent2);
+      this.scrollOption.moveCount = moveCount;
+      this.scrollOption.moveCurrent1 = Math.min(moveCurrent1, moveCurrent2);
+      this.scrollOption.moveCurrent2 = Math.max(moveCurrent1, moveCurrent2);
+      return;
+    }
+
+    let currentEachSpacing = xlength / (this.scrollOption.moveCount as number);
+    let itemCount = (this.opts.width - this.opts.area[1] - this.opts.area[3]) / currentEachSpacing;
+    itemCount = itemCount <= 2 ? 2 : itemCount;
+    itemCount = itemCount >= this.opts.categories.length ? this.opts.categories.length : itemCount;
+    this.opts.animation = false;
+    this.opts.xAxis.itemCount = itemCount;
+    // 重新计算滚动条偏移距离
+    let offsetLeft = 0;
+    let _getXAxisPoints0 = this.getXAxisPoints(this.opts.categories as string[]),
+      xAxisPoints = _getXAxisPoints0.xAxisPoints,
+      startX = _getXAxisPoints0.startX,
+      endX = _getXAxisPoints0.endX,
+      eachSpacing = _getXAxisPoints0.eachSpacing;
+    let currentLeft = eachSpacing * (this.scrollOption.moveCurrent1 as number);
+    let screenWidth = endX - startX;
+    let MaxLeft = screenWidth - eachSpacing * (xAxisPoints.length - 1);
+    offsetLeft = -currentLeft+Math.min(ntcs[0].x,ntcs[1].x)-this.opts.area[3]-eachSpacing;
+    if (offsetLeft > 0) {
+      offsetLeft = 0;
+    }
+    if (offsetLeft < MaxLeft) {
+      offsetLeft = MaxLeft;
+    }
+    this.scrollOption.currentOffset = offsetLeft;
+    this.scrollOption.startTouchX = 0;
+    this.scrollOption.distance = 0;
+    this.calValidDistance(offsetLeft);
+    this.opts._scrollDistance_ = offsetLeft;
+    this.render()
+  }
+
 }
 
 

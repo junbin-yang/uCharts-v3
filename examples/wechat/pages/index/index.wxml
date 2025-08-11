@@ -6,7 +6,6 @@
       <ucharts-v3 
         type="line" 
         canvas2d="{{true}}" 
-        opts="{{opts}}" 
         chartData="{{lineChartData}}" 
         bindcomplete="complete"
       />
@@ -19,6 +18,8 @@
       <ucharts-v3 
         type="column" 
         canvas2d="{{true}}" 
+        onzoom="{{true}}" 
+        ontouch="{{true}}"
         opts="{{opts}}" 
         chartData="{{columnChartData}}" 
         bindcomplete="complete"
