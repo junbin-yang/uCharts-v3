@@ -196,6 +196,14 @@ export abstract class BaseRenderer {
     let scrollPosition = data.scrollPosition || 'current';
     this.opts.width = this.context.width;
     this.opts.height = this.context.height;
+
+    if (this.opts.rotate) {
+      const tempWidth: number = this.opts.width;
+      const tempHeight: number = this.opts.height;
+      this.opts.width = tempHeight;
+      this.opts.height = tempWidth;
+    }
+
     switch (scrollPosition) {
       case 'current':
         this.opts._scrollDistance_ = this.scrollOption.currentOffset;

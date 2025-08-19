@@ -23,6 +23,7 @@ import { FunnelChart } from './FunnelChart';
 import { CandleChart } from './CandleChart';
 import { MapChart } from './MapChart';
 import { HeatmapChart } from './HeatmapChart';
+import { DebugChart } from './Debug';
 
 @Entry
 @Component
@@ -81,6 +82,7 @@ struct Index {
 
   readonly chartList: chartListType [] = [
     //{ key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
+    { key: "debug", name: $r("app.string.charts_debug"), icon: $r("app.media.column") },
     { key: "column", name: $r("app.string.charts_column"), icon: $r("app.media.column") },
     { key: "mount", name: $r("app.string.charts_mount"), icon: $r("app.media.mount") },
     { key: "bar", name: $r("app.string.charts_bar"), icon: $r("app.media.bar") },
@@ -237,6 +239,8 @@ struct Index {
   PageMap(name: string) {
     if(name === 'column_v2') {
       ColumnChartV2()
+    } else if(name === 'debug') {
+      DebugChart()
     } else if(name === 'column') {
       ColumnChart()
     } else if(name === 'mount') {

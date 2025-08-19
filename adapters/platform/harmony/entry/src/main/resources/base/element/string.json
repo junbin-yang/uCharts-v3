@@ -139,6 +139,10 @@
     {
       "name": "charts_heatmap",
       "value": "贡献热力图"
+    },
+    {
+      "name": "charts_debug",
+      "value": "问题定位"
     }
   ]
 }
