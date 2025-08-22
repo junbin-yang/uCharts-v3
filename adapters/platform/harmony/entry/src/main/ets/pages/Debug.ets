@@ -126,44 +126,46 @@ export struct DebugChart {
   @State contentWidth: number|string = "auto"
   @State contentHeight: number|string = 300
   private opts: Partial<ChartOptions> = {
-    type: 'line',
-    padding: [20, 40, 25, 0],
+    type: 'ring',
+    padding: [5, 5, 5, 5],
     dataLabel: false,
+    enableScroll: false,
     legend: {
-      show: true
+      position: 'bottom',
+      lineHeight: 25,
+      float: 'center',
+      fontSize: 12,
+      margin: 0,
+      padding: 0,
+      itemGap: 1
+    },
+    title: {
+      value: '生产状态',
+      fontSize: 12
+    },
+    subtitle: {
+      value: ''
     },
     extra: {
-      line: {
-        linearType: 'none',
-        type: 'curve'
+      tooltip: {
+        showBox: true
+      },
+      ring: {
+        activeRadius: 0,
+        activeOpacity: 1,
+        ringWidth: 25,
+        border: false
       }
     },
-    rotate: false,
-    scrollPosition: 'right',
-    enableScroll: true,
-    xAxis: {
-      scrollShow: true,
-      itemCount: 4,
-      disableGrid: true,
-      scrollAlign: 'right',
-      boundaryGap: 'justify'
-    },
-    yAxis: {
-      disabled: false,
-      disableGrid: false,
-      splitNumber: 3,
-      showTitle: true,
-      data: [{ title: '单位(次)', tofix: 0, }]
-    },
-    categories: ["2018","2019","2020","2021","2022","2023"],
     series: [
       {
-        name: "成交量B",
-        data: [70,40,65,100,44,68]
-      },
-      {
-        name: "成交量C",
-        data: [100,80,95,150,112,132]
+        data: [
+          { name: '未知', value: 40, legendShape: 'square' },
+          { name: '停产', value: 10, legendShape: 'square' },
+          { name: '样片', value: 0, legendShape: 'square' },
+          { name: '预停产', value: 0, legendShape: 'square'},
+          { name: '量产', value: 60, legendShape: 'square' }
+        ]
       }
     ]
   }
@@ -181,26 +183,7 @@ export struct DebugChart {
       Column() {
         Row({space: 5}) {
           Button("update").onClick(()=>{
-            const getRandomInRange = (min: number, max: number): number => {
-              return Math.floor(Math.random() * (max - min + 1)) + min;
-            }
-            const y = Number(this.opts.categories![this.opts.categories!.length - 1]) + 1
-            this.opts.categories!.push(y.toString())
-            this.opts.series = [
-              {
-                name: "成交量B",
-                data: [...this.opts.series![0].data as number[], getRandomInRange(1, 100)]
-              },
-              {
-                name: "成交量C",
-                data: [...this.opts.series![1].data as number[], getRandomInRange(1, 100)]
-              }
-            ]
-            this.chart.updateData({
-              categories: this.opts.categories!,
-              series: this.opts.series,
-              scrollPosition: 'right'
-            })
+
           })
         }
 

@@ -58,6 +58,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
           this.context.fill();
         }
       }
+      if(eachSeries.data == 0) return; // 跳过数据为0的项
       this.context.beginPath();
       this.setLineWidth(pieOption.borderWidth * this.opts.pixelRatio!);
       this.context.lineJoin = "round";
