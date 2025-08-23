@@ -1,6 +1,6 @@
 import { IBestNavBar } from "@ibestservices/ibest-ui"
 import RouterUtil from "./common/utils"
-import { ChartOptions, UCharts, UChartsController, setGlobalConfig } from "@ibestservices/ucharts"
+import { ChartOptions, UCharts, UChartsController, setUChartsGlobalConfig } from "@ibestservices/ucharts"
 import { display } from "@kit.ArkUI"
 
 // #4
@@ -125,7 +125,7 @@ export struct DebugChart {
 
   aboutToAppear(): void {
     /*
-    setGlobalConfig({
+    setUChartsGlobalConfig({
       pieChartLinePadding: 0,
       pieChartTextPadding: 0
     })

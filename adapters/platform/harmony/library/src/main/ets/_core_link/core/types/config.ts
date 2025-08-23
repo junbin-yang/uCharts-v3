@@ -67,6 +67,6 @@ export class ChartsConfig {
 
 export const GlobalConfig: ChartsConfig = new ChartsConfig()
 
-export const setGlobalConfig = (val: Partial<ChartsConfig>) => {
+export const setUChartsGlobalConfig = (val: Partial<ChartsConfig>) => {
   ChartsUtil.objectAssign(GlobalConfig, val)
 }

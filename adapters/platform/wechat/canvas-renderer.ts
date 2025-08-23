@@ -1,7 +1,7 @@
 import { Factory } from '../../../core/factory';
 import { BaseRenderer } from '../../../core/chart/base';
 import { WechatCanvasContext } from './canvas-adapter';
-import { setGlobalConfig, ChartOptions, Point } from '../../../interface';
+import { setUChartsGlobalConfig, ChartOptions, Point } from '../../../interface';
 import { EventType, EventListener } from '../../../core/event';
 
 /**
@@ -14,7 +14,7 @@ export class UCharts {
 
     constructor(opts: Partial<ChartOptions>) {
         // 设置微信小程序的全局配置，字体单位使用px
-        setGlobalConfig({fontUnit: 'px'});
+        setUChartsGlobalConfig({fontUnit: 'px'});
         
         try {
             this.chartRenderer = Factory.createRenderer(opts);

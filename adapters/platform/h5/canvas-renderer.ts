@@ -1,7 +1,7 @@
 import { Factory } from '../../../core/factory';
 import { BaseRenderer } from '../../../core/chart/base';
 import { H5CanvasContext } from './canvas-adapter';
-import { setGlobalConfig, ChartOptions, Point } from '../../../interface';
+import { setUChartsGlobalConfig, ChartOptions, Point } from '../../../interface';
 import { EventType, EventListener } from '../../../core/event';
 
 /**
@@ -12,7 +12,7 @@ export class UCharts {
     private chartRenderer: BaseRenderer;
 
     constructor(opts: Partial<ChartOptions>) {
-        setGlobalConfig({fontUnit: 'px'}) //默认单位用了鸿蒙的vp，根据平台适配一下。
+        setUChartsGlobalConfig({fontUnit: 'px'}) //默认单位用了鸿蒙的vp，根据平台适配一下。
         try {
             this.chartRenderer = Factory.createRenderer(opts);
         } catch (e) {
