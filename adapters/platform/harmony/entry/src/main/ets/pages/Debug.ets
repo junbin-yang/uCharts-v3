@@ -124,33 +124,38 @@ export struct DebugChart {
   @State icon: Resource = $r("app.media.column")
 
   aboutToAppear(): void {
+    /*
     setGlobalConfig({
-      padding: [0,0,0,0],
       pieChartLinePadding: 0,
       pieChartTextPadding: 0
     })
+    */
   }
   private option: Partial<ChartOptions> = {
     type: "pie",
     series: [
       {
         data: [
-          {name:"一班",value:50},
-          {name:"二班",value:30},
-          {name:"三班",value:20},
-          {name:"四班",value:18},
-          {name:"五班",value:8}]
+          {value: 1709.74, name: '储值账户'},
+          {value: 203.6, name: '赠送卡金'},
+          {value: 1415.77, name: '次卡'},
+          {value: 240, name: '套盒'},
+          {value: 0, name: '项目套装'}
+        ]
       }
     ],
     dataLabel: false,
-    dataPointShape: false,
+    padding: [0,0,0,0],
+    //dataPointShape: false,
     legend: {
       show: false
     },
     extra: {
       pie: {
         activeOpacity: 0.5,
-        activeRadius: 10,
+        activeRadius: 2,
+        offsetAngle:0,
+        border: false,
         labelWidth: 15
       }
     }

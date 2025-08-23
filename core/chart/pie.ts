@@ -31,11 +31,42 @@ export abstract class BasePieRenderer extends BaseRenderer {
       x: this.opts.area[3] + (this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2,
       y: this.opts.area[0] + (this.opts.height - this.opts.area[0] - this.opts.area[2]) / 2
     };
+    /*
+    // 原饼图计算半径逻辑存在问题：当绘制区域较小时，固定的padding值占比过大，导致饼图半径变得很小，而边框间隙看起来很大，绘制比例不合理
     if (GlobalConfig.pieChartLinePadding == 0) {
       GlobalConfig.pieChartLinePadding = pieOption.activeRadius * this.opts.pixelRatio!;
     }
-
     let radius = Math.min((this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2 - GlobalConfig.pieChartLinePadding - GlobalConfig.pieChartTextPadding - this.opts._pieTextMaxLength_, (this.opts.height - this.opts.area[0] - this.opts.area[2]) / 2 - GlobalConfig.pieChartLinePadding - GlobalConfig.pieChartTextPadding);
+    */
+
+    /*
+     * 新的自适应方案：根据图表尺寸动态计算padding值，当图表尺寸较小时（小于200），使用比例计算而非固定值；linePadding设为最小5或按比例计算（8%的可用尺寸）；textPadding设为最小2或按比例计算（3%的可用尺寸）
+     * 这样的优化方案可以确保：
+     * 在小尺寸图表中，padding值会按比例缩小，使饼图能占据更合理的空间
+     * 在大尺寸图表中，仍然保持原有的固定padding值，保证视觉效果
+     * 用户仍然可以通过配置activeRadius来自定义边距
+     * */
+    // 计算可用绘图区域的宽高
+    const availableWidth = this.opts.width - this.opts.area[1] - this.opts.area[3];
+    const availableHeight = this.opts.height - this.opts.area[0] - this.opts.area[2];
+    const minDimension = Math.min(availableWidth, availableHeight);
+    // 根据图表尺寸动态计算padding，小图表使用更小的padding
+    let linePadding = GlobalConfig.pieChartLinePadding;
+    let textPadding = GlobalConfig.pieChartTextPadding;
+    // 当图表尺寸较小时，使用比例计算而非固定值
+    if (minDimension < 200) {
+      linePadding = Math.max(5, Math.floor(minDimension * 0.08)); // 最小5，否则按比例计算
+      textPadding = Math.max(2, Math.floor(minDimension * 0.03)); // 最小2，否则按比例计算
+    }
+    // 如果配置了activeRadius，则使用它
+    if (GlobalConfig.pieChartLinePadding == 0) {
+      linePadding = pieOption.activeRadius * this.opts.pixelRatio!;
+    }
+    let radius = Math.min(
+      availableWidth / 2 - linePadding - textPadding - this.opts._pieTextMaxLength_,
+      availableHeight / 2 - linePadding - textPadding
+    );
+
     radius = radius < 10 ? 10 : radius;
     if (pieOption.customRadius > 0) {
       radius = pieOption.customRadius * this.opts.pixelRatio!;
