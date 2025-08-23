@@ -56,10 +56,10 @@ export class BarChartRenderer extends BaseRenderer {
     const yAxisWidth = calYAxisData.yAxisWidth;
 
     //如果显示Y轴标题
-    if (this.opts.yAxis.showTitle) {
+    if (this.opts.yAxis!.showTitle) {
       let maxTitleHeight = 0;
-      for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
+      for (let i = 0; i < this.opts.yAxis!.data!.length; i++) {
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis!.data![i].titleFontSize ? (this.opts.yAxis!.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -70,14 +70,14 @@ export class BarChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -98,7 +98,7 @@ export class BarChartRenderer extends BaseRenderer {
     this.opts.chartData.categoriesData = _calCategoriesData;
 
     //计算右对齐偏移距离
-    if (this.opts.enableScroll && this.opts.xAxis.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
       let offsetLeft = 0
       let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
       let startX: number = this.opts.chartData.xAxisData.startX
@@ -147,8 +147,8 @@ export class BarChartRenderer extends BaseRenderer {
 
   private drawBarDataPoints(series: Series[], process: number = 1) {
     let yAxisPoints: number[] = [];
-    let eachSpacing = (this.opts.height - this.opts.area[0] - this.opts.area[2]) / this.opts.categories.length;
-    for (let i = 0; i < this.opts.categories.length; i++) {
+    let eachSpacing = (this.opts.height - this.opts.area[0] - this.opts.area[2]) / this.opts.categories!.length;
+    for (let i = 0; i < this.opts.categories!.length; i++) {
       yAxisPoints.push(this.opts.area[0] + eachSpacing / 2 + eachSpacing * i);
     }
     let columnOption = ChartsUtil.objectAssign({} as BarExtra, {

@@ -54,7 +54,7 @@ export class RadarChartRenderer extends BaseRenderer {
     this.opts.chartData.xAxisData = {};
 
     //计算右对齐偏移距离
-    if (this.opts.enableScroll && this.opts.xAxis.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
       let offsetLeft = 0
       let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
       let startX: number = this.opts.chartData.xAxisData.startX
@@ -108,7 +108,7 @@ export class RadarChartRenderer extends BaseRenderer {
       linearType: 'none',
       customColor: [],
     }, this.opts.extra.radar!);
-    let coordinateAngle = this.getRadarCoordinateSeries(this.opts.categories.length);
+    let coordinateAngle = this.getRadarCoordinateSeries(this.opts.categories!.length);
     let centerPosition: Point = {
       x: this.opts.area[3] + ((this.opts.width!) - this.opts.area[1] - this.opts.area[3]) / 2,
       y: this.opts.area[0] + ((this.opts.height!) - this.opts.area[0] - this.opts.area[2]) / 2
@@ -312,7 +312,7 @@ export class RadarChartRenderer extends BaseRenderer {
   private drawRadarLabel(angleList: number[], radius: number, centerPosition: Point) {
     let radarOption = this.opts.extra.radar || {};
     angleList.forEach((angle, index) => {
-      if(radarOption.labelPointShow === true && this.opts.categories[index] !== ''){
+      if(radarOption.labelPointShow === true && this.opts.categories![index] !== ''){
         let posPoint: Point = {
           x: radius * Math.cos(angle),
           y: radius * Math.sin(angle)

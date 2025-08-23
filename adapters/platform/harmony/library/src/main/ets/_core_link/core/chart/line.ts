@@ -55,10 +55,10 @@ export class LineChartRenderer extends BaseRenderer {
     const yAxisWidth = calYAxisData.yAxisWidth;
 
     //如果显示Y轴标题
-    if (this.opts.yAxis.showTitle) {
+    if (this.opts.yAxis!.showTitle) {
       let maxTitleHeight = 0;
-      for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
+      for (let i = 0; i < this.opts.yAxis!.data!.length; i++) {
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis!.data![i].titleFontSize ? (this.opts.yAxis!.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -69,14 +69,14 @@ export class LineChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -101,7 +101,7 @@ export class LineChartRenderer extends BaseRenderer {
     this.opts.chartData.categoriesData = _calCategoriesData;
 
     //计算右对齐偏移距离
-    if (this.opts.enableScroll && this.opts.xAxis.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
       let offsetLeft = 0
       let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
       let startX: number = this.opts.chartData.xAxisData.startX
@@ -169,7 +169,7 @@ export class LineChartRenderer extends BaseRenderer {
     if (this.opts._scrollDistance_ && this.opts._scrollDistance_ !== 0 && this.opts.enableScroll === true) {
       this.context.translate(this.opts._scrollDistance_, 0);
       leftSpace = -(this.opts._scrollDistance_ as number) - eachSpacing * 2 + this.opts.area[3];
-      rightSpace = leftSpace + (this.opts.xAxis.itemCount! + 4) * eachSpacing;
+      rightSpace = leftSpace + (this.opts.xAxis!.itemCount! + 4) * eachSpacing;
     }
     series.forEach((eachSeries, seriesIndex) => {
       // 这段很神奇的代码用于解决ios16的setStrokeStyle失效的bug
@@ -282,7 +282,7 @@ export class LineChartRenderer extends BaseRenderer {
   }
 
   private getLineDataPoints(data: Array<number | null> | Array<[number,number]>, minRange: number, maxRange: number, xAxisPoints: number[], eachSpacing: number, lineOption: LineExtra, process: number) {
-    let boundaryGap = this.opts.xAxis.boundaryGap;
+    let boundaryGap = this.opts.xAxis!.boundaryGap;
     let points: Array<DataPoints|null> = [];
     let validHeight = this.opts.height - this.opts.area[0] - this.opts.area[2];
     let validWidth = this.opts.width - this.opts.area[1] - this.opts.area[3];

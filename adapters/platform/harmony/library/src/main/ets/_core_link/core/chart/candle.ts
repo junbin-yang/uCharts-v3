@@ -59,10 +59,10 @@ export class CandleChartRenderer extends BaseRenderer {
     const yAxisWidth = calYAxisData.yAxisWidth;
 
     //如果显示Y轴标题
-    if (this.opts.yAxis.showTitle) {
+    if (this.opts.yAxis!.showTitle) {
       let maxTitleHeight = 0;
-      for (let i = 0; i < this.opts.yAxis.data!.length; i++) {
-        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis.data![i].titleFontSize ? (this.opts.yAxis.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
+      for (let i = 0; i < this.opts.yAxis!.data!.length; i++) {
+        maxTitleHeight = Math.max(maxTitleHeight, this.opts.yAxis!.data![i].titleFontSize ? (this.opts.yAxis!.data![i].titleFontSize! * this.opts.pixelRatio!) : this.opts.fontSize!)
       }
       this.opts.area[0] += maxTitleHeight;
     }
@@ -73,14 +73,14 @@ export class CandleChartRenderer extends BaseRenderer {
     for (let i = 0; i < yAxisWidth.length; i++) {
       if (yAxisWidth[i].position == 'left') {
         if (leftIndex > 0) {
-          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[3] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[3] += yAxisWidth[i].width;
         }
         leftIndex += 1;
       } else if (yAxisWidth[i].position == 'right') {
         if (rightIndex > 0) {
-          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          this.opts.area[1] += yAxisWidth[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         } else {
           this.opts.area[1] += yAxisWidth[i].width;
         }
@@ -106,7 +106,7 @@ export class CandleChartRenderer extends BaseRenderer {
     }
 
     //计算右对齐偏移距离
-    if (this.opts.enableScroll && this.opts.xAxis.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
       let offsetLeft = 0
       let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
       let startX: number = this.opts.chartData.xAxisData.startX
@@ -208,9 +208,9 @@ export class CandleChartRenderer extends BaseRenderer {
     if (this.opts._scrollDistance_ && this.opts._scrollDistance_ !== 0 && this.opts.enableScroll === true) {
       this.context.translate(this.opts._scrollDistance_, 0);
       leftNum = Math.floor(-this.opts._scrollDistance_ / eachSpacing) - 2;
-      rightNum = leftNum + (this.opts.xAxis.itemCount!) + 4;
+      rightNum = leftNum + (this.opts.xAxis!.itemCount!) + 4;
       leftSpace = -this.opts._scrollDistance_ - eachSpacing * 2 + this.opts.area[3];
-      rightSpace = leftSpace + ((this.opts.xAxis.itemCount!) + 4) * eachSpacing;
+      rightSpace = leftSpace + ((this.opts.xAxis!.itemCount!) + 4) * eachSpacing;
     }
     //画均线
     if (candleOption.average.show || seriesMA) {

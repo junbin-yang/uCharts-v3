@@ -13,10 +13,10 @@ export type AnyType = any
  */
 export interface ChartOptions {
   type: ChartType
-  categories: Array<string|Partial<ValueAndColorData>>            //图表数据集，部分图表类型不需要categories
+  categories?: Array<string|Partial<ValueAndColorData>>           //图表数据集，部分图表类型不需要categories
   series: Array<Series>|MapSeries                                 //图表数据集，请按不同图表类型传入对应的标准数据
-  yAxis: Partial<YAxisOptions>                                    //Y轴选项
-  xAxis: Partial<XAxisOptions>                                    //X轴选项
+  yAxis?: Partial<YAxisOptions>                                   //Y轴选项
+  xAxis?: Partial<XAxisOptions>                                   //X轴选项
   extra: Extra                                                    //扩展配置
   context?: CanvasContext                                         //CanvasRenderingContext2D
   pixelRatio?: number                                             //设备像素比

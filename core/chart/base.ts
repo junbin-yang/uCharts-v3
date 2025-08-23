@@ -149,7 +149,7 @@ export abstract class BaseRenderer {
     if (this.opts.background == "" || this.opts.background == "none") this.opts.background = "#FFFFFF";
 
     // 添加一些内部使用的扩展字段
-    this.opts.xAxis.scrollPosition = this.opts.xAxis.scrollAlign;
+    this.opts.xAxis!.scrollPosition = this.opts.xAxis!.scrollAlign;
 
     this.opts.width = this.context.width;
     this.opts.height = this.context.height;
@@ -437,7 +437,7 @@ export abstract class BaseRenderer {
           for (let i = 1; i < this.opts.chartData.xAxisPoints.length; i++) {
             xAxisPoints.push(this.opts.chartData.xAxisPoints[i] - spacing);
           }
-          if ((this.opts.type == 'line' || this.opts.type == 'area') && this.opts.xAxis.boundaryGap == 'justify') {
+          if ((this.opts.type == 'line' || this.opts.type == 'area') && this.opts.xAxis!.boundaryGap == 'justify') {
             xAxisPoints = this.opts.chartData.xAxisPoints;
           }
         }
@@ -608,7 +608,7 @@ export abstract class BaseRenderer {
     } else if (this.opts.type === 'rose') {
       return findRoseChartCurrentIndex(_touches, this.opts.chartData.pieData);
     } else if (this.opts.type === 'radar') {
-      return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories.length);
+      return findRadarChartCurrentIndex(_touches, this.opts.chartData.radarData, this.opts.categories!.length);
     } else if (this.opts.type === 'funnel') {
       return findFunnelChartCurrentIndex(_touches, this.opts.chartData.funnelData);
     } else if (this.opts.type === 'map') {
@@ -1211,7 +1211,7 @@ export abstract class BaseRenderer {
   protected getYAxisTextList(series: Series[], stack: string, yData: Partial<YAxisOptionsData>) {
     let data: (number | ValueAndColorData | null)[] = [];
     if (stack === 'stack') {
-      data = ChartsUtil.dataCombineStack(series, this.opts.categories.length);
+      data = ChartsUtil.dataCombineStack(series, this.opts.categories!.length);
     } else {
       data = ChartsUtil.dataCombine(series);
     }
@@ -1272,9 +1272,9 @@ export abstract class BaseRenderer {
     let dataRange = ChartsUtil.getDataRange(minData, maxData);
     let minRange = (yData.min === undefined || yData.min === null) ? dataRange.minRange : yData.min;
     let maxRange = (yData.max === undefined || yData.max === null) ? dataRange.maxRange : yData.max;
-    let eachRange = (maxRange - minRange) / this.opts.yAxis.splitNumber!;
+    let eachRange = (maxRange - minRange) / this.opts.yAxis!.splitNumber!;
     let range: number[] = [];
-    for (let i = 0; i <= this.opts.yAxis.splitNumber!; i++) {
+    for (let i = 0; i <= this.opts.yAxis!.splitNumber!; i++) {
       range.push(minRange + eachRange * i);
     }
     return range.reverse();
@@ -1283,7 +1283,7 @@ export abstract class BaseRenderer {
   protected getXAxisTextList(series: Series[], stack: string) {
     let data: (number | ValueAndColorData | Array<number>)[] = [];
     if (stack === 'stack') {
-      data = ChartsUtil.dataCombineStack(series, this.opts.categories.length);
+      data = ChartsUtil.dataCombineStack(series, this.opts.categories!.length);
     } else {
       data = ChartsUtil.dataCombine(series);
     }
@@ -1325,11 +1325,11 @@ export abstract class BaseRenderer {
       maxData = Math.max(...sorted);
     }
 
-    if (typeof this.opts.xAxis.min === 'number') {
-      minData = Math.min(this.opts.xAxis.min, minData);
+    if (typeof this.opts.xAxis!.min === 'number') {
+      minData = Math.min(this.opts.xAxis!.min, minData);
     }
-    if (typeof this.opts.xAxis.max === 'number') {
-      maxData = Math.max(this.opts.xAxis.max, maxData);
+    if (typeof this.opts.xAxis!.max === 'number') {
+      maxData = Math.max(this.opts.xAxis!.max, maxData);
     }
 
     if (minData === maxData) {
@@ -1340,8 +1340,8 @@ export abstract class BaseRenderer {
     let minRange = minData;
     let maxRange = maxData;
     let range: number[] = [];
-    let eachRange = (maxRange - minRange) / this.opts.xAxis.splitNumber!;
-    for (let i = 0; i <= this.opts.xAxis.splitNumber!; i++) {
+    let eachRange = (maxRange - minRange) / this.opts.xAxis!.splitNumber!;
+    for (let i = 0; i <= this.opts.xAxis!.splitNumber!; i++) {
       range.push(minRange + eachRange * i);
     }
     return range;
@@ -1356,7 +1356,7 @@ export abstract class BaseRenderer {
       type: ""
     }, this.opts.extra.column!);
     //如果是多Y轴，重新计算
-    const YLength = this.opts.yAxis.data!.length;
+    const YLength = this.opts.yAxis!.data!.length;
     let newSeries: Array<Series[]> = new Array(YLength);
 
     let res: calculateYAxisDataRes = {
@@ -1380,9 +1380,9 @@ export abstract class BaseRenderer {
       let yAxisWidthArr: Array<yAxisWidthType> = new Array(YLength);
 
       for (let i = 0; i < YLength; i++) {
-        let yData = this.opts.yAxis.data![i];
+        let yData = this.opts.yAxis!.data![i];
         //如果总开关不显示，强制每个Y轴为不显示
-        if (this.opts.yAxis.disabled == true) {
+        if (this.opts.yAxis!.disabled == true) {
           yData.disabled = true;
         }
         if(yData.type === 'categories'){
@@ -1423,12 +1423,12 @@ export abstract class BaseRenderer {
       let yAxisWidthArr: Array<yAxisWidthType> = new Array(1);
       if(this.opts.type === 'bar'){
         rangesArr[0] = this.opts.categories as string[];
-        if(!this.opts.yAxis.formatter){
-          this.opts.yAxis.formatter = (val,index,opts) => {return val + (this.opts.yAxis.unit || '')}
+        if(!this.opts.yAxis!.formatter){
+          this.opts.yAxis!.formatter = (val,index,opts) => {return val + (this.opts.yAxis!.unit || '')}
         }
       }else{
-        if(!this.opts.yAxis.formatter){
-          this.opts.yAxis.formatter = (val,index,opts) => {return ChartsUtil.toFixed(Number(val), this.opts.yAxis.tofix ?? 0) + (this.opts.yAxis.unit || '')}
+        if(!this.opts.yAxis!.formatter){
+          this.opts.yAxis!.formatter = (val,index,opts) => {return ChartsUtil.toFixed(Number(val), this.opts.yAxis!.tofix ?? 0) + (this.opts.yAxis!.unit || '')}
         }
         rangesArr[0] = this.getYAxisTextList(series, columnstyle.type!, {});
       }
@@ -1436,15 +1436,15 @@ export abstract class BaseRenderer {
         position: 'left',
         width: 0
       };
-      let yAxisFontSize = this.opts.yAxis.fontSize * this.opts.pixelRatio! || this.opts.fontSize!;
+      let yAxisFontSize = this.opts.yAxis!.fontSize * this.opts.pixelRatio! || this.opts.fontSize!;
       rangesFormatArr[0] = rangesArr[0].map((item: string|number, index: number) => {
         let formattedValue: string;
         if (typeof item === 'string') {
           // 字符串类型（柱状图分类）
-          formattedValue = this.opts.yAxis.formatter!(Number(item), index, this.opts);
+          formattedValue = this.opts.yAxis!.formatter!(Number(item), index, this.opts);
         } else {
           // 数值类型（其他图表Y轴数据）
-          formattedValue = this.opts.yAxis.formatter!(item, index, this.opts);
+          formattedValue = this.opts.yAxis!.formatter!(item, index, this.opts);
         }
 
         // 计算文本宽度并更新
@@ -1454,25 +1454,25 @@ export abstract class BaseRenderer {
         return formattedValue;
       });
       yAxisWidthArr[0].width += 3 * this.opts.pixelRatio!;
-      if (this.opts.yAxis.disabled === true) {
+      if (this.opts.yAxis!.disabled === true) {
         yAxisWidthArr[0] = {
           position: 'left',
           width: 0
         };
-        this.opts.yAxis.data![0] = {
+        this.opts.yAxis!.data![0] = {
           disabled: true
         };
       } else {
-        this.opts.yAxis.data![0] = {
+        this.opts.yAxis!.data![0] = {
           disabled: false,
           position: 'left',
-          max: this.opts.yAxis.max,
-          min: this.opts.yAxis.min,
-          formatter: this.opts.yAxis.formatter
+          max: this.opts.yAxis!.max,
+          min: this.opts.yAxis!.min,
+          formatter: this.opts.yAxis!.formatter
         };
         if(this.opts.type === 'bar'){
-          this.opts.yAxis.data![0].categories = this.opts.categories;
-          this.opts.yAxis.data![0].type = 'categories';
+          this.opts.yAxis!.data![0].categories = this.opts.categories;
+          this.opts.yAxis!.data![0].type = 'categories';
         }
       }
       res.rangesFormat = rangesFormatArr
@@ -1495,7 +1495,7 @@ export abstract class BaseRenderer {
       eachSpacing: 0,
 
       angle: 0,
-      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis.marginTop! * this.opts.pixelRatio!,
+      xAxisHeight: this.opts.xAxis!.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis!.marginTop! * this.opts.pixelRatio!,
       ranges: this.getXAxisTextList(series, style.type!)
     };
     result.rangesFormat = result.ranges.map((item: number) => {
@@ -1514,9 +1514,9 @@ export abstract class BaseRenderer {
     // 计算X轴刻度的属性譬如每个刻度的间隔,刻度的起始点\结束点以及总长
     let eachSpacing = result.eachSpacing;
     let textLength = xAxisScaleValues.map((item) => {
-      return this.measureText(item, this.opts.xAxis.fontSize! * this.opts.pixelRatio!);
+      return this.measureText(item, this.opts.xAxis!.fontSize! * this.opts.pixelRatio!);
     });
-    if (this.opts.xAxis.disabled === true) {
+    if (this.opts.xAxis!.disabled === true) {
       result.xAxisHeight = 0;
     }
     return result;
@@ -1527,9 +1527,9 @@ export abstract class BaseRenderer {
    */
   protected getXAxisPoints(categories: Array<string>) {
     let spacingValid = this.opts.width - this.opts.area[1] - this.opts.area[3];
-    let dataCount = this.opts.enableScroll ? Math.min(this.opts.xAxis.itemCount!, categories.length) : categories.length;
+    let dataCount = this.opts.enableScroll ? Math.min(this.opts.xAxis!.itemCount!, categories.length) : categories.length;
     if ((this.opts.type == 'line' || this.opts.type == 'area' || this.opts.type == 'scatter' || this.opts.type == 'bubble' || this.opts.type == 'bar')
-      && dataCount > 1 && this.opts.xAxis.boundaryGap == 'justify') {
+      && dataCount > 1 && this.opts.xAxis!.boundaryGap == 'justify') {
       dataCount -= 1;
     }
     let widthRatio = 0;
@@ -1545,7 +1545,7 @@ export abstract class BaseRenderer {
     categories.forEach((item, index) => {
       xAxisPoints.push(startX + widthRatio / 2 * eachSpacing + index * eachSpacing);
     });
-    if (this.opts.xAxis.boundaryGap !== 'justify') {
+    if (this.opts.xAxis!.boundaryGap !== 'justify') {
       if (this.opts.enableScroll === true) {
         xAxisPoints.push(startX + widthRatio * eachSpacing + categories.length * eachSpacing);
       } else {
@@ -1563,24 +1563,24 @@ export abstract class BaseRenderer {
   protected calculateCategoriesData(categories: Array<string>) {
     let result: calculateCategoriesDataRes = {
       angle: 0,
-      xAxisHeight: this.opts.xAxis.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis.marginTop! * this.opts.pixelRatio!
+      xAxisHeight: this.opts.xAxis!.lineHeight! * this.opts.pixelRatio! + this.opts.xAxis!.marginTop! * this.opts.pixelRatio!
     };
-    let fontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio!
+    let fontSize = this.opts.xAxis!.fontSize! * this.opts.pixelRatio!
     let categoriesTextLen = categories.map((item,index) => {
-      let xitem = this.opts.xAxis.formatter ? this.opts.xAxis.formatter(item,index,this.opts) : item;
+      let xitem = this.opts.xAxis!.formatter ? this.opts.xAxis!.formatter(item,index,this.opts) : item;
       return this.measureText(String(xitem), fontSize);
     });
     let maxTextLength = Math.max(...categoriesTextLen);
-    if (this.opts.xAxis.rotateLabel == true) {
-      result.angle = this.opts.xAxis.rotateAngle! * Math.PI / 180;
-      let tempHeight = this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 +  Math.abs(maxTextLength * Math.sin(result.angle))
-      tempHeight = tempHeight < fontSize + this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 ? tempHeight + this.opts.xAxis.marginTop! * this.opts.pixelRatio! * 2 : tempHeight;
+    if (this.opts.xAxis!.rotateLabel == true) {
+      result.angle = this.opts.xAxis!.rotateAngle! * Math.PI / 180;
+      let tempHeight = this.opts.xAxis!.marginTop! * this.opts.pixelRatio! * 2 +  Math.abs(maxTextLength * Math.sin(result.angle))
+      tempHeight = tempHeight < fontSize + this.opts.xAxis!.marginTop! * this.opts.pixelRatio! * 2 ? tempHeight + this.opts.xAxis!.marginTop! * this.opts.pixelRatio! * 2 : tempHeight;
       result.xAxisHeight = tempHeight;
     }
-    if (this.opts.enableScroll && this.opts.xAxis.scrollShow) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollShow) {
       result.xAxisHeight += 6 * this.opts.pixelRatio!;
     }
-    if (this.opts.xAxis.disabled) {
+    if (this.opts.xAxis!.disabled) {
       result.xAxisHeight = 0;
     }
     return result;
@@ -1590,11 +1590,11 @@ export abstract class BaseRenderer {
    * 获取Y轴网格
    */
   protected drawYAxisGrid(categories: Array<string>) {
-    if (this.opts.yAxis.disableGrid === true) {
+    if (this.opts.yAxis!.disableGrid === true) {
       return;
     }
     let spacingValid = this.opts.height - this.opts.area[0] - this.opts.area[2];
-    let eachSpacing = spacingValid / this.opts.yAxis.splitNumber!;
+    let eachSpacing = spacingValid / this.opts.yAxis!.splitNumber!;
     let startX: number = this.opts.area[3];
     let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
     let xAxiseachSpacing: number = this.opts.chartData.xAxisData.eachSpacing;
@@ -1606,20 +1606,20 @@ export abstract class BaseRenderer {
     let endX = startX + TotalWidth;
     let points: number[] = [];
     let startY = 1
-    if (this.opts.xAxis.axisLine === false) {
+    if (this.opts.xAxis!.axisLine === false) {
       startY = 0
     }
-    for (let i = startY; i < this.opts.yAxis.splitNumber! + 1; i++) {
+    for (let i = startY; i < this.opts.yAxis!.splitNumber! + 1; i++) {
       points.push(this.opts.height - this.opts.area[2] - eachSpacing * i);
     }
     this.context.save();
     if (this.opts._scrollDistance_ && this.opts._scrollDistance_ !== 0) {
       this.context.translate(this.opts._scrollDistance_, 0);
     }
-    if (this.opts.yAxis.gridType == 'dash') {
-      this.setLineDash([this.opts.yAxis.dashLength! * this.opts.pixelRatio!, this.opts.yAxis.dashLength! * this.opts.pixelRatio!]);
+    if (this.opts.yAxis!.gridType == 'dash') {
+      this.setLineDash([this.opts.yAxis!.dashLength! * this.opts.pixelRatio!, this.opts.yAxis!.dashLength! * this.opts.pixelRatio!]);
     }
-    this.setStrokeStyle(this.opts.yAxis.gridColor!);
+    this.setStrokeStyle(this.opts.yAxis!.gridColor!);
     this.setLineWidth(1 * this.opts.pixelRatio!);
     points.forEach((item, index) => {
       this.context.beginPath();
@@ -1639,13 +1639,13 @@ export abstract class BaseRenderer {
     let eachSpacing: number = xAxisData.eachSpacing
     let boundaryGap: "center" | "justify" = 'center';
     if (this.opts.type == 'bar' || this.opts.type == 'line' || this.opts.type == 'area'|| this.opts.type == 'scatter' || this.opts.type == 'bubble') {
-      boundaryGap = this.opts.xAxis.boundaryGap!;
+      boundaryGap = this.opts.xAxis!.boundaryGap!;
     }
     let startY: number = this.opts.height - this.opts.area[2];
     let endY: number = this.opts.area[0];
 
     //绘制滚动条
-    if (this.opts.enableScroll && this.opts.xAxis.scrollShow) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollShow) {
       let scrollY = this.opts.height - this.opts.area[2] + GlobalConfig.xAxisHeight;
       let scrollScreenWidth = endX - startX;
       let scrollTotalWidth = eachSpacing * (xAxisPoints.length - 1);
@@ -1661,7 +1661,7 @@ export abstract class BaseRenderer {
       this.context.beginPath();
       this.setLineCap('round');
       this.setLineWidth(6 * this.opts.pixelRatio!);
-      this.setStrokeStyle(this.opts.xAxis.scrollBackgroundColor || "#EFEBEF");
+      this.setStrokeStyle(this.opts.xAxis!.scrollBackgroundColor || "#EFEBEF");
       this.context.moveTo(startX, scrollY);
       this.context.lineTo(endX, scrollY);
       this.context.stroke();
@@ -1669,7 +1669,7 @@ export abstract class BaseRenderer {
       this.context.beginPath();
       this.setLineCap('round');
       this.setLineWidth(6 * this.opts.pixelRatio!);
-      this.setStrokeStyle(this.opts.xAxis.scrollColor || "#A6A6A6");
+      this.setStrokeStyle(this.opts.xAxis!.scrollColor || "#A6A6A6");
       this.context.moveTo(startX + scrollLeft, scrollY);
       this.context.lineTo(startX + scrollLeft + scrollWidth, scrollY);
       this.context.stroke();
@@ -1681,8 +1681,8 @@ export abstract class BaseRenderer {
       this.context.translate(this.opts._scrollDistance_, 0);
     }
     //绘制X轴刻度线
-    if (this.opts.xAxis.calibration === true) {
-      this.setStrokeStyle(this.opts.xAxis.gridColor || "#cccccc");
+    if (this.opts.xAxis!.calibration === true) {
+      this.setStrokeStyle(this.opts.xAxis!.gridColor || "#cccccc");
       this.setLineCap('butt');
       this.setLineWidth(1 * this.opts.pixelRatio!);
       xAxisPoints.forEach((item, index) => {
@@ -1696,16 +1696,16 @@ export abstract class BaseRenderer {
       });
     }
     //绘制X轴网
-    if (this.opts.xAxis.disableGrid !== true) {
-      this.setStrokeStyle(this.opts.xAxis.gridColor || "#cccccc");
+    if (this.opts.xAxis!.disableGrid !== true) {
+      this.setStrokeStyle(this.opts.xAxis!.gridColor || "#cccccc");
       this.setLineCap('butt');
       this.setLineWidth(1 * this.opts.pixelRatio!);
-      if (this.opts.xAxis.gridType == 'dash') {
-        this.setLineDash([this.opts.xAxis.dashLength! * this.opts.pixelRatio!, this.opts.xAxis.dashLength! * this.opts.pixelRatio!]);
+      if (this.opts.xAxis!.gridType == 'dash') {
+        this.setLineDash([this.opts.xAxis!.dashLength! * this.opts.pixelRatio!, this.opts.xAxis!.dashLength! * this.opts.pixelRatio!]);
       }
-      this.opts.xAxis.gridEval = this.opts.xAxis.gridEval || 1;
+      this.opts.xAxis!.gridEval = this.opts.xAxis!.gridEval || 1;
       xAxisPoints.forEach((item, index) => {
-        if (index % this.opts.xAxis.gridEval! == 0) {
+        if (index % this.opts.xAxis!.gridEval! == 0) {
           this.context.beginPath();
           this.context.moveTo(item, startY);
           this.context.lineTo(item, endY);
@@ -1715,17 +1715,17 @@ export abstract class BaseRenderer {
       this.setLineDash([]);
     }
     //绘制X轴文案
-    if (this.opts.xAxis.disabled !== true) {
+    if (this.opts.xAxis!.disabled !== true) {
       // 对X轴列表做抽稀处理
       //默认全部显示X轴标签
       let maxXAxisListLength = categories.length;
       //如果设置了X轴单屏数量
-      if (this.opts.xAxis.labelCount) {
+      if (this.opts.xAxis!.labelCount) {
         //如果设置X轴密度
-        if (this.opts.xAxis.itemCount) {
-          maxXAxisListLength = Math.ceil(categories.length / this.opts.xAxis.itemCount * this.opts.xAxis.labelCount);
+        if (this.opts.xAxis!.itemCount) {
+          maxXAxisListLength = Math.ceil(categories.length / this.opts.xAxis!.itemCount * this.opts.xAxis!.labelCount);
         } else {
-          maxXAxisListLength = this.opts.xAxis.labelCount;
+          maxXAxisListLength = this.opts.xAxis!.labelCount;
         }
         maxXAxisListLength -= 1;
       }
@@ -1742,16 +1742,16 @@ export abstract class BaseRenderer {
         }
       }
       newCategories[cgLength - 1] = categories[cgLength - 1];
-      let xAxisFontSize = this.opts.xAxis.fontSize! * this.opts.pixelRatio! || this.opts.fontSize!;
+      let xAxisFontSize = this.opts.xAxis!.fontSize! * this.opts.pixelRatio! || this.opts.fontSize!;
       if (this.opts._xAxisTextAngle_ === 0) {
         newCategories.forEach((item, index) => {
-          let xitem = this.opts.xAxis.formatter ? this.opts.xAxis.formatter(item, index, this.opts) : item;
+          let xitem = this.opts.xAxis!.formatter ? this.opts.xAxis!.formatter(item, index, this.opts) : item;
           let offset = -this.measureText(String(xitem), xAxisFontSize) / 2;
           if (boundaryGap == 'center') {
             offset += eachSpacing / 2;
           }
           let scrollHeight = 0;
-          if (this.opts.xAxis.scrollShow) {
+          if (this.opts.xAxis!.scrollShow) {
             scrollHeight = 6 * this.opts.pixelRatio!;
           }
           // 如果在主视图区域内
@@ -1760,15 +1760,15 @@ export abstract class BaseRenderer {
           if((truePoints - Math.abs(_scrollDistance_)) >= (this.opts.area[3] - 1) && (truePoints - Math.abs(_scrollDistance_)) <= (this.opts.width - this.opts.area[1] + 1)) {
             this.context.beginPath();
             this.setFontSize(xAxisFontSize);
-            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor!);
-            this.context.fillText(String(xitem), xAxisPoints[index] + offset, startY + this.opts.xAxis.marginTop! * (this.opts.pixelRatio!) + (this.opts.xAxis.lineHeight! - this.opts.xAxis.fontSize!) * (this.opts.pixelRatio!) / 2 + this.opts.xAxis.fontSize! * this.opts.pixelRatio!);
+            this.setFillStyle(this.opts.xAxis!.fontColor || this.opts.fontColor!);
+            this.context.fillText(String(xitem), xAxisPoints[index] + offset, startY + this.opts.xAxis!.marginTop! * (this.opts.pixelRatio!) + (this.opts.xAxis!.lineHeight! - this.opts.xAxis!.fontSize!) * (this.opts.pixelRatio!) / 2 + this.opts.xAxis!.fontSize! * this.opts.pixelRatio!);
             this.context.closePath();
             this.context.stroke();
           }
         });
       } else {
         newCategories.forEach((item, index) => {
-          let xitem = this.opts.xAxis.formatter ? this.opts.xAxis.formatter(item, index, this.opts) : item;
+          let xitem = this.opts.xAxis!.formatter ? this.opts.xAxis!.formatter(item, index, this.opts) : item;
           // 如果在主视图区域内
           let _scrollDistance_ = this.opts._scrollDistance_ as number || 0;
           let truePoints = boundaryGap == 'center' ? xAxisPoints[index] + eachSpacing / 2 : xAxisPoints[index];
@@ -1776,18 +1776,18 @@ export abstract class BaseRenderer {
             this.context.save();
             this.context.beginPath();
             this.setFontSize(xAxisFontSize);
-            this.setFillStyle(this.opts.xAxis.fontColor || this.opts.fontColor!);
+            this.setFillStyle(this.opts.xAxis!.fontColor || this.opts.fontColor!);
             let textWidth = this.measureText(String(xitem), xAxisFontSize);
             let offsetX = xAxisPoints[index];
             if (boundaryGap == 'center') {
               offsetX = xAxisPoints[index] + eachSpacing / 2;
             }
             let scrollHeight = 0;
-            if (this.opts.xAxis.scrollShow) {
+            if (this.opts.xAxis!.scrollShow) {
               scrollHeight = 6 * this.opts.pixelRatio!;
             }
-            let offsetY = startY + this.opts.xAxis.marginTop! * this.opts.pixelRatio! + xAxisFontSize - xAxisFontSize * Math.abs(Math.sin(this.opts._xAxisTextAngle_));
-            if(this.opts.xAxis.rotateAngle! < 0){
+            let offsetY = startY + this.opts.xAxis!.marginTop! * this.opts.pixelRatio! + xAxisFontSize - xAxisFontSize * Math.abs(Math.sin(this.opts._xAxisTextAngle_));
+            if(this.opts.xAxis!.rotateAngle! < 0){
               offsetX -= xAxisFontSize / 2;
               textWidth = 0;
             }else{
@@ -1807,21 +1807,21 @@ export abstract class BaseRenderer {
     this.context.restore();
 
     //画X轴标题
-    if (this.opts.xAxis.title) {
+    if (this.opts.xAxis!.title) {
       this.context.beginPath();
-      this.setFontSize(this.opts.xAxis.titleFontSize! * this.opts.pixelRatio!);
-      this.setFillStyle(this.opts.xAxis.titleFontColor!);
-      this.context.fillText(String(this.opts.xAxis.title), this.opts.width - this.opts.area[1] + this.opts.xAxis.titleOffsetX! * this.opts.pixelRatio!,
-        this.opts.height - this.opts.area[2] + this.opts.xAxis.marginTop! * this.opts.pixelRatio! + (this.opts.xAxis.lineHeight! - this.opts.xAxis.titleFontSize!)
-          * (this.opts.pixelRatio!) / 2 + (this.opts.xAxis.titleFontSize! + this.opts.xAxis.titleOffsetY!) * this.opts.pixelRatio!);
+      this.setFontSize(this.opts.xAxis!.titleFontSize! * this.opts.pixelRatio!);
+      this.setFillStyle(this.opts.xAxis!.titleFontColor!);
+      this.context.fillText(String(this.opts.xAxis!.title), this.opts.width - this.opts.area[1] + this.opts.xAxis!.titleOffsetX! * this.opts.pixelRatio!,
+        this.opts.height - this.opts.area[2] + this.opts.xAxis!.marginTop! * this.opts.pixelRatio! + (this.opts.xAxis!.lineHeight! - this.opts.xAxis!.titleFontSize!)
+          * (this.opts.pixelRatio!) / 2 + (this.opts.xAxis!.titleFontSize! + this.opts.xAxis!.titleOffsetY!) * this.opts.pixelRatio!);
       this.context.closePath();
       this.context.stroke();
     }
 
     //绘制X轴轴线
-    if (this.opts.xAxis.axisLine) {
+    if (this.opts.xAxis!.axisLine) {
       this.context.beginPath();
-      this.setStrokeStyle(this.opts.xAxis.axisLineColor!);
+      this.setStrokeStyle(this.opts.xAxis!.axisLineColor!);
       this.setLineWidth(1 * this.opts.pixelRatio!);
       this.context.moveTo(startX, this.opts.height - this.opts.area[2]);
       this.context.lineTo(endX, this.opts.height - this.opts.area[2]);
@@ -1869,7 +1869,7 @@ export abstract class BaseRenderer {
   protected getDataPoints(data: SeriesDataItem[], minRange: number, maxRange: number, xAxisPoints: number[], eachSpacing: number, process: number = 1) {
     let boundaryGap: "center" | "justify" = 'center';
     if (this.opts.type == 'line' || this.opts.type == 'area' || this.opts.type == 'scatter' || this.opts.type == 'bubble' ) {
-      boundaryGap = this.opts.xAxis.boundaryGap ?? 'center';
+      boundaryGap = this.opts.xAxis!.boundaryGap ?? 'center';
     }
     let points: Array<DataPoints|null> = [];
     let validHeight = this.opts.height - this.opts.area[0] - this.opts.area[2];
@@ -1915,21 +1915,21 @@ export abstract class BaseRenderer {
 
 
   protected drawYAxis() {
-    if (this.opts.yAxis.disabled === true) {
+    if (this.opts.yAxis!.disabled === true) {
       return;
     }
     let spacingValid = this.opts.height - this.opts.area[0] - this.opts.area[2];
-    let eachSpacing = spacingValid / this.opts.yAxis.splitNumber!;
+    let eachSpacing = spacingValid / this.opts.yAxis!.splitNumber!;
     let startX: number = this.opts.area[3];
     let endX = this.opts.width - this.opts.area[1];
     let endY = this.opts.height - this.opts.area[2];
     // set YAxis background
     this.context.beginPath();
     this.setFillStyle(this.opts.background!);
-    if (this.opts.enableScroll == true && this.opts.xAxis.scrollPosition && this.opts.xAxis.scrollPosition !== 'left') {
+    if (this.opts.enableScroll == true && this.opts.xAxis!.scrollPosition && this.opts.xAxis!.scrollPosition !== 'left') {
       this.context.fillRect(0, 0, startX, endY + 2 * this.opts.pixelRatio!);
     }
-    if (this.opts.enableScroll == true && this.opts.xAxis.scrollPosition && this.opts.xAxis.scrollPosition !== 'right') {
+    if (this.opts.enableScroll == true && this.opts.xAxis!.scrollPosition && this.opts.xAxis!.scrollPosition !== 'right') {
       this.context.fillRect(endX, 0, this.opts.width, endY + 2 * this.opts.pixelRatio!);
     }
     this.context.closePath();
@@ -1938,16 +1938,16 @@ export abstract class BaseRenderer {
     let tStartLeft: number = this.opts.area[3];
     let tStartRight = this.opts.width - this.opts.area[1];
     let tStartCenter: number = this.opts.area[3] + (this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2;
-    if (this.opts.yAxis.data) {
-      for (let i = 0; i < this.opts.yAxis.data.length; i++) {
-        let yData = this.opts.yAxis.data[i] as YAxisOptionsData;
+    if (this.opts.yAxis!.data) {
+      for (let i = 0; i < this.opts.yAxis!.data.length; i++) {
+        let yData = this.opts.yAxis!.data[i] as YAxisOptionsData;
         let points: number[] = [];
         if(yData.type === 'categories'){
           for (let i = 0; i <= yData.categories.length; i++) {
             points.push(this.opts.area[0] + spacingValid / yData.categories.length / 2 + spacingValid / yData.categories.length * i);
           }
         }else{
-          for (let i = 0; i <= this.opts.yAxis.splitNumber!; i++) {
+          for (let i = 0; i <= this.opts.yAxis!.splitNumber!; i++) {
             points.push(this.opts.area[0] + eachSpacing * i);
           }
         }
@@ -2055,7 +2055,7 @@ export abstract class BaseRenderer {
             this.context.stroke();
           }
           //画Y轴标题
-          if (this.opts.yAxis.showTitle) {
+          if (this.opts.yAxis!.showTitle) {
             let titleFontSize = yData.titleFontSize * this.opts.pixelRatio! || this.opts.fontSize!;
             let title = yData.title;
             this.context.beginPath();
@@ -2072,9 +2072,9 @@ export abstract class BaseRenderer {
             this.context.stroke();
           }
           if (yAxisWidth.position == 'left') {
-            tStartLeft -= (yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio!);
+            tStartLeft -= (yAxisWidth.width + this.opts.yAxis!.padding! * this.opts.pixelRatio!);
           } else {
-            tStartRight += yAxisWidth.width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+            tStartRight += yAxisWidth.width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
           }
         }
       }
@@ -2290,7 +2290,7 @@ export abstract class BaseRenderer {
       let maxVal = Math.max(...ranges[i]);
       let minVal = Math.min(...ranges[i]);
       let item = maxVal - (maxVal - minVal) * (point - minAxis) / spacingValid;
-      let tmp = this.opts.yAxis.data && this.opts.yAxis.data[i].formatter ? this.opts.yAxis.data[i].formatter!(item, i, this.opts) : item.toFixed(0);
+      let tmp = this.opts.yAxis!.data && this.opts.yAxis!.data[i].formatter ? this.opts.yAxis!.data[i].formatter!(item, i, this.opts) : item.toFixed(0);
       items.push(String(tmp))
     }
     return items;
@@ -2353,9 +2353,9 @@ export abstract class BaseRenderer {
         this.context.closePath();
         this.context.stroke();
         if (widthArr[i].position == 'left') {
-          tStartLeft -= (widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!);
+          tStartLeft -= (widthArr[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!);
         } else {
-          tStartRight += widthArr[i].width + this.opts.yAxis.padding! * this.opts.pixelRatio!;
+          tStartRight += widthArr[i].width + this.opts.yAxis!.padding! * this.opts.pixelRatio!;
         }
       }
     }
@@ -2613,15 +2613,15 @@ export abstract class BaseRenderer {
       validDistance = 0;
       this.event.emit('scrollLeft', this.opts);
       this.scrollOption.position = 'left'
-      this.opts.xAxis.scrollPosition = 'left';
+      this.opts.xAxis!.scrollPosition = 'left';
     } else if (Math.abs(distance) >= dataChartWidth - dataChartAreaWidth) {
       validDistance = dataChartAreaWidth - dataChartWidth;
       this.event.emit('scrollRight', this.opts);
       this.scrollOption.position = 'right'
-      this.opts.xAxis.scrollPosition = 'right';
+      this.opts.xAxis!.scrollPosition = 'right';
     } else {
       this.scrollOption.position = distance
-      this.opts.xAxis.scrollPosition = distance;
+      this.opts.xAxis!.scrollPosition = distance;
     }
     return validDistance;
   }
@@ -3132,9 +3132,9 @@ export abstract class BaseRenderer {
     let currentEachSpacing = xlength / (this.scrollOption.moveCount as number);
     let itemCount = (this.opts.width - this.opts.area[1] - this.opts.area[3]) / currentEachSpacing;
     itemCount = itemCount <= 2 ? 2 : itemCount;
-    itemCount = itemCount >= this.opts.categories.length ? this.opts.categories.length : itemCount;
+    itemCount = itemCount >= this.opts.categories!.length ? this.opts.categories!.length : itemCount;
     this.opts.animation = false;
-    this.opts.xAxis.itemCount = itemCount;
+    this.opts.xAxis!.itemCount = itemCount;
     // 重新计算滚动条偏移距离
     let offsetLeft = 0;
     let _getXAxisPoints0 = this.getXAxisPoints(this.opts.categories as string[]),

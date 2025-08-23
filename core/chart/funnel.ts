@@ -56,7 +56,7 @@ export class FunnelChartRenderer extends BaseRenderer {
     this.opts.chartData.xAxisData = {};
 
     //计算右对齐偏移距离
-    if (this.opts.enableScroll && this.opts.xAxis.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
+    if (this.opts.enableScroll && this.opts.xAxis!.scrollAlign == 'right' && this.opts._scrollDistance_ === undefined) {
       let offsetLeft = 0
       let xAxisPoints: number[] = this.opts.chartData.xAxisData.xAxisPoints
       let startX: number = this.opts.chartData.xAxisData.startX
