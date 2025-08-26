@@ -1441,7 +1441,7 @@ export abstract class BaseRenderer {
         let formattedValue: string;
         if (typeof item === 'string') {
           // 字符串类型（柱状图分类）
-          formattedValue = this.opts.yAxis!.formatter!(Number(item), index, this.opts);
+          formattedValue = this.opts.yAxis!.formatter!(String(item), index, this.opts);
         } else {
           // 数值类型（其他图表Y轴数据）
           formattedValue = this.opts.yAxis!.formatter!(item, index, this.opts);

@@ -132,31 +132,37 @@ export struct DebugChart {
     */
   }
   private option: Partial<ChartOptions> = {
-    type: "pie",
+    type: "bar",
+    categories: ["官团","学者","观察员","媒体","听会人员","驻华武官"],
     series: [
       {
-        data: [
-          {value: 1709.74, name: '储值账户'},
-          {value: 203.6, name: '赠送卡金'},
-          {value: 1415.77, name: '次卡'},
-          {value: 240, name: '套盒'},
-          {value: 0, name: '项目套装'}
-        ]
+        name: "目标值",
+        data: [244,92,10,371,0,0]
       }
     ],
-    dataLabel: false,
-    padding: [0,0,0,0],
-    //dataPointShape: false,
+    padding: [15,30,0,5],
     legend: {
-      show: false
+      show: true,
+      fontSize: 12,
+      fontColor: '#666666'
+    },
+    xAxis: {
+      disableGrid: true,
+      min: 0,
+      max: 400
+    },
+    yAxis: {
+      disableGrid: true
     },
     extra: {
-      pie: {
-        activeOpacity: 0.5,
-        activeRadius: 2,
-        offsetAngle:0,
-        border: false,
-        labelWidth: 15
+      bar: {
+        type: "group",
+        width: 30,
+        meterBorder: 1,
+        meterFillColor: "#FFFFFF",
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08,
+        categoryGap: 2
       }
     }
   }
@@ -174,7 +180,7 @@ export struct DebugChart {
       })
       Column() {
         UCharts({
-          controller: this.chart, contentWidth:100, contentHeight:100, onReady: () => {
+          controller: this.chart, onReady: () => {
             this.chart.updateData(this.option)
           }
         }).border({ width: 1 })

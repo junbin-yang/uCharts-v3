@@ -294,7 +294,7 @@ export class ColumnChartRenderer extends BaseRenderer {
             value = _tmp.value
           }
         }
-        let formatVal = series.formatter ? series.formatter(Number(value),index,series,this.opts) : value;
+        let formatVal = series.formatter ? series.formatter(String(value),index,series,this.opts) : value;
         this.setTextAlign('center');
         let startY = item.y - 4 * this.opts.pixelRatio! + textOffset * this.opts.pixelRatio!;
         if(item.y > series.zeroPoints){

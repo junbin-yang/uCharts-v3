@@ -14,7 +14,7 @@ import { MixChart } from './MixChart';
 import { PieChart } from './PieChart';
 import { RingChart } from './RingChart';
 import { RoseChart } from './RoseChart';
-import { HAR_VERSION } from '@ibestservices/ucharts';
+import { UChartsVersion } from '@ibestservices/ucharts';
 import { RadarChart } from './RadarChart';
 import { WordChart } from './WordChart';
 import { ArcBarChart } from './ArcbarChart';
@@ -186,7 +186,7 @@ struct Index {
                 })
                 IBestCell({
                   title: $r("app.string.charts_version"),
-                  value: HAR_VERSION
+                  value: UChartsVersion
                 })
                 IBestCell({
                   title: $r("app.string.charts_docs"),
