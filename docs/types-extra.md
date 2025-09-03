@@ -127,6 +127,7 @@
 - `borderColor: string` 分割线颜色
 - `linearType: 'none'|'custom'` 渐变类型
 - `customColor: string[]` 自定义渐变色
+- `reverse: boolean` //是否逆时针渲染
 
 ### RingExtra（圆环图扩展配置）
 - `ringWidth: number` 圆环宽度
@@ -141,6 +142,7 @@
 - `borderColor: string` 分割线颜色
 - `linearType: 'none'|'custom'` 渐变类型
 - `customColor: string[]` 自定义渐变色
+- `reverse: boolean` //是否逆时针渲染
 
 ### RoseExtra（玫瑰图扩展配置）
 - `type: 'area'|'radius'` 玫瑰图样式
@@ -154,6 +156,7 @@
 - `borderColor: string` 分割线颜色
 - `linearType: 'none'|'custom'` 渐变类型
 - `customColor: string[]` 自定义渐变色
+- `reverse: boolean` //是否逆时针渲染
 
 ### RadarExtra（雷达图扩展配置）
 - `gridType: 'radar'|'circle'` 雷达图网格类型

@@ -80,7 +80,15 @@ const SetLineChartDemo = () => {
         categories: categories,
         series: series,
         padding: [15,10,0,0],
-        xAxis: { disableGrid: true },
+        xAxis: {
+          disableGrid: true,
+          formatter: (value: string | number, index?: number) => {
+            if(index != undefined && index % 2 == 0) {
+              return "-";
+            }
+            return String(value);
+          }
+        },
         yAxis: {
           gridType: "dash",
           dashLength: 2

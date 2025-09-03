@@ -81,7 +81,7 @@ struct Index {
   }
 
   readonly chartList: chartListType [] = [
-    //{ key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
+    { key: "column_v2", name: $r("app.string.charts_stateV2"), icon: $r("app.media.column") },
     { key: "debug", name: $r("app.string.charts_debug"), icon: $r("app.media.column") },
     { key: "column", name: $r("app.string.charts_column"), icon: $r("app.media.column") },
     { key: "mount", name: $r("app.string.charts_mount"), icon: $r("app.media.mount") },

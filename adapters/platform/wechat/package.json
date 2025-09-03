@@ -1,6 +1,6 @@
 {
   "name": "wx-ucharts-v3",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "UCharts 是一款基于TypeScript的高性能跨平台数据可视化图表库，支持多种常用图表类型，满足小程序应用的数据可视化需求。",
   "main": "./wx-ucharts-v3.min.js",
   "module": "./wx-ucharts-v3.esm.js",

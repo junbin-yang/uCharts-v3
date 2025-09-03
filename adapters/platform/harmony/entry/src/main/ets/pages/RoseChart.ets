@@ -90,7 +90,8 @@ const SetRoseChartDemo = () => {
             labelWidth: 15,
             border: false,
             borderWidth: 2,
-            borderColor: "#FFFFFF"
+            borderColor: "#FFFFFF",
+            reverse: true
           }
         }
       },

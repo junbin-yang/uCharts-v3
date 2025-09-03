@@ -113,7 +113,8 @@ export abstract class BaseRenderer {
         fontColor: GlobalConfig.fontColor,
         lineHeight: 11,
         hiddenColor: "#CECECE",
-        itemGap: 10
+        itemGap: 10,
+        legendShape: undefined
       },
       touchMoveLimit: 60,
       dataLabel: true,

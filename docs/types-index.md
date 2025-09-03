@@ -126,6 +126,7 @@
 - `lineHeight: number` 行高
 - `hiddenColor: string` 隐藏时颜色
 - `itemGap: number` 分类间距
+- `legendShape: 'diamond' | 'circle' | 'triangle' | 'square' | 'rect' | 'line' | 'none'` 图例标识样式，如果Series中没有设置该属性，则判断尝试使用当前属性值。
 
 ## Point（点坐标）
 - `x: number` 横坐标

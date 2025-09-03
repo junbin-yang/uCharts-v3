@@ -83,7 +83,8 @@ const SetPieChartDemo = () => {
             labelWidth: 15,
             border: false,
             borderWidth: 3,
-            borderColor: "#FFFFFF"
+            borderColor: "#FFFFFF",
+            reverse: true
           }
         }
       },

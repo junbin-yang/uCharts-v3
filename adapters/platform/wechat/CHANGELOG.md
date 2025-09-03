@@ -1,5 +1,19 @@
 # 版本记录
 
+## 1.0.8
+#### 新增：
+1. 环形图、饼图、玫瑰图扩展配置新增reverse属性，支持逆时针渲染；
+2. legend 选项新增 legendShape 配置，如果Series中没有设置该属性，则判断尝试使用当前属性值；
+3. 新增UChartsVersion属性获取当前版本号；
+#### 优化：
+1. 删除UChartsControllerV2，统一UCharts和UChartsV2的控制器；
+#### Bug修复
+1. UChartsV2 宽高无效；
+
+## 1.0.7
+#### Bug修复
+1. categories字段为文字数组第一次渲染不显示；
+
 ## 1.0.6
 #### 优化：
 1. X轴Y轴改为可选配置；

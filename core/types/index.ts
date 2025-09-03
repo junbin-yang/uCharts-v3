@@ -161,6 +161,7 @@ export interface LegendOptions {
   lineHeight: number                             //字体行高，默认11
   hiddenColor: string                            //点击隐藏时图例标识及文字颜色，默认#CECECE
   itemGap: number                                //各个分类（类别）之间的间隔，默认10
+  legendShape: 'diamond' | 'circle' | 'triangle' | 'square' | 'rect' | 'line' | 'none'  //图例标识样式，如果Series中没有设置该属性，则判断尝试使用当前属性值。
 }
 
 export interface Point {

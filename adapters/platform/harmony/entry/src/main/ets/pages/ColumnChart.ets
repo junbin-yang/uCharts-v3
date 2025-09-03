@@ -2,7 +2,7 @@ import { IBestButton, IBestDialogUtil, IBestNavBar } from "@ibestservices/ibest-
 import RouterUtil from "./common/utils"
 import ComponentShowContainer from "./ComponentShowContainer"
 import { LengthMetrics } from '@ohos.arkui.node'
-import { Series, UCharts, UChartsController, UChartsControllerV2, UChartsV2 } from '@ibestservices/ucharts'
+import { Series, UCharts, UChartsController, UChartsV2 } from '@ibestservices/ucharts'
 import { chartDemoType } from "./common/type"
 import { CollapseAndExpand } from "./CollapseAndExpand"
 import { GetColumnDemoCodeStr } from "./common/desc"
@@ -329,7 +329,7 @@ export struct ColumnChartV2 {
     this.icon = Param.icon as Resource
   }
 
-  @Local easyChart:UChartsControllerV2 =  new UChartsControllerV2({
+  @Local easyChart:UChartsController =  new UChartsController({
     type: "column",
     categories: ["2018","2019","2020","2021"],
     series: [
@@ -372,7 +372,7 @@ export struct ColumnChartV2 {
               wrap: FlexWrap.Wrap,
               space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
             }) {
-              UChartsV2({controller: this.easyChart}).height(260)
+              UChartsV2({controller: this.easyChart})
               CollapseAndExpand({ value: GetColumnDemoCodeStr(-2) })
             }
           }

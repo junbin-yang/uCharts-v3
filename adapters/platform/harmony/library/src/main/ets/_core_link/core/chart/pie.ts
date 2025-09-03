@@ -26,6 +26,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
       centerColor: '#FFFFFF',
       linearType: 'none',
       customColor: [],
+      reverse: false
     }, this.opts.type == "pie" ? this.opts.extra.pie! : this.opts.extra.ring!);
     let centerPosition: Point = {
       x: this.opts.area[3] + (this.opts.width - this.opts.area[1] - this.opts.area[3]) / 2,
@@ -71,6 +72,7 @@ export abstract class BasePieRenderer extends BaseRenderer {
     if (pieOption.customRadius > 0) {
       radius = pieOption.customRadius * this.opts.pixelRatio!;
     }
+    if(pieOption.reverse) series = ChartsUtil.clockwiseToCounterclockwise(series);
     series = this.getPieDataPoints(series, radius, process);
     let activeRadius = pieOption.activeRadius *  this.opts.pixelRatio!;
     pieOption.customColor = ChartsUtil.fillCustomColor(pieOption.linearType, pieOption.customColor, series);

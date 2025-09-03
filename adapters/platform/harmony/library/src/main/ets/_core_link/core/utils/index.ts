@@ -139,20 +139,24 @@ export class ChartsUtil {
         item.pointShape = "circle";
       }
       if (!item.legendShape) {
-        switch (item.type) {
-          case 'line':
-            item.legendShape = "line";
-            break;
-          case 'column':
-          case 'bar':
-            item.legendShape = "rect";
-            break;
-          case 'area':
-          case 'mount':
-            item.legendShape = "triangle";
-            break;
-          default:
-            item.legendShape = "circle";
+        if(opts.legend?.legendShape) {
+          item.legendShape = opts.legend?.legendShape
+        } else {
+          switch (item.type) {
+            case 'line':
+              item.legendShape = "line";
+              break;
+            case 'column':
+            case 'bar':
+              item.legendShape = "rect";
+              break;
+            case 'area':
+            case 'mount':
+              item.legendShape = "triangle";
+              break;
+            default:
+              item.legendShape = "circle";
+          }
         }
       }
     }
@@ -333,5 +337,23 @@ export class ChartsUtil {
 
   static approximatelyEqual(num1: number, num2: number) {
     return Math.abs(num1 - num2) < 1e-10;
+  }
+
+  /**
+   * 将顺时针排列的数组转换为逆时针排列
+   * 规则：第一个元素保持不变，其余元素反转
+   * 示例：[1,2,3,4,5] → [1,5,4,3,2]
+   */
+  static clockwiseToCounterclockwise<T>(arr: T[]): T[] {
+    // 处理空数组或只有一个元素的数组
+    if (arr.length <= 1) {
+      return [...arr]; // 返回副本避免修改原数组
+    }
+
+    // 第一个元素保持不变，其余元素反转
+    const first = arr[0];
+    const rest = arr.slice(1).reverse();
+
+    return [first, ...rest];
   }
 }

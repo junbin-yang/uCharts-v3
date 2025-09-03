@@ -105,6 +105,7 @@ export class RoseChartRenderer extends BasePieRenderer {
       borderColor: '#FFFFFF',
       linearType: 'none',
       customColor: [],
+      reverse: false
     }, this.opts.extra.rose!);
     if (GlobalConfig.pieChartLinePadding == 0) {
       GlobalConfig.pieChartLinePadding = roseOption.activeRadius * this.opts.pixelRatio!;
@@ -119,6 +120,7 @@ export class RoseChartRenderer extends BasePieRenderer {
     if(radius < minRadius){
       radius = minRadius + 10;
     }
+    if(roseOption.reverse) series = ChartsUtil.clockwiseToCounterclockwise(series);
     series = this.getRoseDataPoints(series, roseOption.type, minRadius, radius, process);
     let activeRadius = roseOption.activeRadius * this.opts.pixelRatio!;
     roseOption.customColor = ChartsUtil.fillCustomColor(roseOption.linearType, roseOption.customColor, series);

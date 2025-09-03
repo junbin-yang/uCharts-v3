@@ -163,6 +163,7 @@ export interface PieExtra {
   borderColor: string		        //分割线的颜色，默认#FFFFFF
   linearType: 'none'|'custom'		//渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
   customColor: string[]		      //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+  reverse: boolean              //是否逆时针渲染，默认false
 }
 
 /**
@@ -181,6 +182,7 @@ export interface RingExtra {
   borderColor: string	        //分割线的颜色，默认	#FFFFFF
   linearType: 'none'|'custom'	//渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
   customColor:	string[]		    //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+  reverse: boolean              //是否逆时针渲染，默认false
 }
 
 /**
@@ -198,6 +200,7 @@ export interface RoseExtra {
   borderColor: string	      //分割线的颜色，默认#FFFFFF
   linearType: 'none'|'custom'  //渐变类型，可选值："none"关闭渐变,"custom"开启渐变，默认none
   customColor: string[]		  //自定义渐变颜色，数组类型对应series的数组长度以匹配不同series颜色的不同配色方案，例如["#FA7D8D", "#EB88E2"]
+  reverse: boolean              //是否逆时针渲染，默认false
 }
 
 /**

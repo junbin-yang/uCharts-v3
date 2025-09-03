@@ -1,4 +1,4 @@
 import { HAR_VERSION } from './BuildProfile';
-export { UChartsController, UCharts, UChartsControllerV2, UChartsV2 } from './src/main/ets/components/uCharts';
+export { UChartsController, UCharts, UChartsV2 } from './src/main/ets/components/uCharts';
 export * from './src/main/ets/_core_link/interface';
 export const UChartsVersion = HAR_VERSION;
