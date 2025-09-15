@@ -137,7 +137,7 @@ export struct DebugChart {
     series: [
       {
         name: "目标值",
-        data: [244,92,10,371,0,0]
+        data: [244,{"value": 92,"color":"#F66A69"},10,371,0,0]
       }
     ],
     padding: [15,30,0,5],
@@ -184,6 +184,18 @@ export struct DebugChart {
             this.chart.updateData(this.option)
           }
         }).border({ width: 1 })
+
+        Button("update").onClick(()=>{
+          this.chart.updateData({
+            animation: true,
+            series: [
+              {
+                name: "目标值",
+                data: [244,{"value": 192,"color":"#F66A69"},10,371,0,0]
+              }
+            ]
+          })
+        })
       }
       .padding({ left: 12, right: 12 })
     }.hideTitleBar(true)

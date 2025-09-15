@@ -3,7 +3,7 @@ import { ChartOptions } from "../types";
 import { GlobalConfig } from "../types/config";
 import { ChartsUtil } from "../utils";
 import { Animation } from '../animation';
-import { Series } from "../types/series";
+import { Series, SeriesDataItem, ValueAndColorData } from "../types/series";
 import { BarExtra } from "../types/extra";
 import { CanvasGradient } from "../../interface/canvas.type";
 import { EventListener } from "../event";
@@ -177,7 +177,7 @@ export class BarChartRenderer extends BaseRenderer {
       ranges = [].concat(this.opts.chartData.xAxisData.ranges);
       maxRange = ranges.pop()!;
       minRange = ranges.shift()!;
-      let data: number[] = eachSeries.data;
+      let data: SeriesDataItem[] = eachSeries.data;
 
       let points: (DataPoints | null)[] = []
       switch (columnOption.type) {
@@ -280,7 +280,7 @@ export class BarChartRenderer extends BaseRenderer {
         ranges = [].concat(this.opts.chartData.xAxisData.ranges);
         maxRange = ranges.pop()!;
         minRange = ranges.shift()!;
-        let data: number[] = eachSeries.data;
+        let data: SeriesDataItem[] = eachSeries.data;
         let points: (DataPoints | null)[] = []
         switch (columnOption.type) {
           case 'group':
@@ -318,7 +318,7 @@ export class BarChartRenderer extends BaseRenderer {
     this.setFillStyle("#FFFFFF");
   }
 
-  private getBarDataPoints(data: number[], minRange: number, maxRange: number, yAxisPoints: number[], eachSpacing: number, process: number = 1) {
+  private getBarDataPoints(data: SeriesDataItem[], minRange: number, maxRange: number, yAxisPoints: number[], eachSpacing: number, process: number = 1) {
     let points: Array<DataPoints|null> = [];
     //let validHeight = this.opts.height - this.opts.area[0] - this.opts.area[2];
     let validWidth = this.opts.width - this.opts.area[1] - this.opts.area[3];
@@ -332,11 +332,16 @@ export class BarChartRenderer extends BaseRenderer {
           y: 0
         };
         point.y = yAxisPoints[index];
-        let value = item;
-        let height = validWidth * (value - minRange) / (maxRange - minRange);
+        let value: number | number[] | ValueAndColorData | Record<string, number> = item;
+        if (typeof item === 'object' && item !== null) {
+          value = (item as ValueAndColorData).value;
+          point.color = (item as ValueAndColorData).color
+        }
+
+        let height = validWidth * (value as number - minRange) / (maxRange - minRange);
         height *= process;
         point.height = height;
-        point.value = value;
+        point.value = value as number;
         point.x = height + this.opts.area[3];
         points.push(point);
       }
@@ -344,7 +349,7 @@ export class BarChartRenderer extends BaseRenderer {
     return points;
   }
 
-  private getBarStackDataPoints(data: number[], minRange: number, maxRange: number, yAxisPoints: number[], eachSpacing: number, seriesIndex: number, stackSeries: Series[], process: number = 1) {
+  private getBarStackDataPoints(data: SeriesDataItem[], minRange: number, maxRange: number, yAxisPoints: number[], eachSpacing: number, seriesIndex: number, stackSeries: Series[], process: number = 1) {
     let points: Array<DataPoints|null> = [];
     let validHeight = this.opts.width - this.opts.area[1] - this.opts.area[3];
     data.forEach((item, index) => {
@@ -364,12 +369,16 @@ export class BarChartRenderer extends BaseRenderer {
           for (let i = 0; i <= seriesIndex; i++) {
             value += stackSeries[i].data[index];
           }
-          let value0 = value - item;
+          let value0 = value - (item as number);
           height = validHeight * (value - minRange) / (maxRange - minRange);
           height0 = validHeight * (value0 - minRange) / (maxRange - minRange);
         } else {
           let value = item;
-          height = validHeight * (value - minRange) / (maxRange - minRange);
+          if (typeof item === 'object' && item !== null) {
+            value = (item as ValueAndColorData).value;
+            point.color = (item as ValueAndColorData).color
+          }
+          height = validHeight * (Number(value) - minRange) / (maxRange - minRange);
           height0 = 0;
         }
         let heightc = height0;
@@ -426,7 +435,7 @@ export class BarChartRenderer extends BaseRenderer {
 
   private drawBarPointText(points: (DataPoints | null)[], series: Series) {
     // 绘制数据文案
-    let data: number[] = series.data;
+    let data = series.data as SeriesDataItem[];
     let textOffset = series.textOffset ? series.textOffset : 0;
     points.forEach((item, index) => {
       if (item !== null) {
@@ -435,7 +444,11 @@ export class BarChartRenderer extends BaseRenderer {
         this.setFontSize(fontSize);
         this.setFillStyle(series.textColor || this.opts.fontColor!);
         let value = data[index]
-        let formatVal = series.formatter ? series.formatter(value,index,series,this.opts) : value;
+        if (typeof data[index] === 'object' && data[index] !== null) {
+          const _tmp = data[index] as ValueAndColorData
+          value = _tmp.value
+        }
+        let formatVal = series.formatter ? series.formatter(String(value),index,series,this.opts) : value;
         this.setTextAlign('left');
         this.context.fillText(String(formatVal), item.x + 4 * this.opts.pixelRatio! , item.y + fontSize / 2 - 3 );
         this.context.closePath();

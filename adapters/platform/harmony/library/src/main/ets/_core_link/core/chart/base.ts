@@ -194,6 +194,10 @@ export abstract class BaseRenderer {
   public updateData(data: Partial<ChartOptions>) {
     this.opts = ChartsUtil.objectAssign({} as ChartOptions, this.opts, data);
     this.opts.updateData = true;
+    // 更新时自动隐藏tooltip
+    this.opts.tooltip = {
+      show: false,
+    }
     let scrollPosition = data.scrollPosition || 'current';
     this.opts.width = this.context.width;
     this.opts.height = this.context.height;
