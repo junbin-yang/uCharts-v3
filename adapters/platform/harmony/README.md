@@ -33,6 +33,7 @@ UCharts 是一款类型丰富、高性能、可扩展、支持主题定制的图
 - **漏斗图 (funnel)**
 - **K线图 (candle)**
 - **地图 (map)**
+- **热力贡献图 (heatmap)**
 - **更多类型持续开发中...**
 
 ## 体验预览
@@ -120,6 +121,8 @@ struct Index {
 | @ibestservices/ibest_ui    | 一个**轻量、简单易用、可定制主题、支持深色模式和浅色模式**的鸿蒙开源UI组件库。            | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-ui')">地址</a>    |
 | @ibestservices/ibest_ui_v2 | 一个**轻量、简单易用、可定制主题、支持深色模式和浅色模式**的鸿蒙开源UI组件库，基于状态管理v2版本。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-ui-v2')">地址</a> |
 | @ibestservices/area-data | 中国省市区数据，适用于鸿蒙 ArkUI 的 TextPicker 和 IBest-UI 的 IBestCascader 等组件。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Farea-data')">地址</a> |
+| @ibestservices/ibest-barcode | 一个轻量、简单易用的鸿蒙开源条形码组件, 支持CODE39、CODE93、CODE128、EAN13、UPC、ITF、MSI、Pharmacode、Codabar等多种条码类型。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-barcode')">地址</a> |
+| @ibestservices/ibest-orm | 一个轻量、简单易用、全功能、支持实体关联、事务、自动迁移的鸿蒙开源 ORM 工具库。 | <a style="color:#0366d6;" onclick="openPage('https://ohpm.openharmony.cn/#/cn/detail/@ibestservices%2Fibest-orm')">地址</a> |
 
 ## 链接
 - [Github](https://github.com/junbin-yang/uCharts-v3)

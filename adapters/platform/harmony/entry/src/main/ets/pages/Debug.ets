@@ -133,11 +133,11 @@ export struct DebugChart {
   }
   private option: Partial<ChartOptions> = {
     type: "bar",
-    categories: ["官团","学者","观察员","媒体","听会人员","驻华武官"],
+    categories: ["官团", "官团2"],
     series: [
       {
         name: "目标值",
-        data: [244,{"value": 92,"color":"#F66A69"},10,371,0,0]
+        data: [{"value": 244, "color":"#F66A69", "start": 50},{"value": 92, "color":"#F66A69", "start": 50}]
       }
     ],
     padding: [15,30,0,5],

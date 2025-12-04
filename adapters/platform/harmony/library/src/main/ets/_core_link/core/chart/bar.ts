@@ -237,11 +237,12 @@ export class BarChartRenderer extends BaseRenderer {
                 this.context.arc(item.x - r1, top + width - r1, r1, 0, Math.PI / 2);
                 this.context.arc(left + r2, top + width - r2, r2, Math.PI / 2, Math.PI);
               } else {
-                this.context.moveTo(startX, startY);
+                let drawStartX = item.x0 !== undefined ? item.x0 : startX;
+                this.context.moveTo(drawStartX, startY);
                 this.context.lineTo(item.x, startY);
                 this.context.lineTo(item.x, startY + item.width!);
-                this.context.lineTo(startX, startY + item.width!);
-                this.context.lineTo(startX, startY);
+                this.context.lineTo(drawStartX, startY + item.width!);
+                this.context.lineTo(drawStartX, startY);
                 this.setLineWidth(1)
                 this.setStrokeStyle(strokeColor!);
               }
@@ -333,16 +334,22 @@ export class BarChartRenderer extends BaseRenderer {
         };
         point.y = yAxisPoints[index];
         let value: number | number[] | ValueAndColorData | Record<string, number> = item;
+        let startValue = minRange;
         if (typeof item === 'object' && item !== null) {
           value = (item as ValueAndColorData).value;
-          point.color = (item as ValueAndColorData).color
+          point.color = (item as ValueAndColorData).color;
+          if ((item as any).start !== undefined && (item as any).start < value) {
+            startValue = (item as any).start;
+          }
         }
 
-        let height = validWidth * (value as number - minRange) / (maxRange - minRange);
+        let height = validWidth * (value as number - startValue) / (maxRange - minRange);
         height *= process;
+        let startX = validWidth * (startValue - minRange) / (maxRange - minRange);
         point.height = height;
         point.value = value as number;
-        point.x = height + this.opts.area[3];
+        point.x = startX + height + this.opts.area[3];
+        point.x0 = startX + this.opts.area[3];
         points.push(point);
       }
     });

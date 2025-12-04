@@ -55,6 +55,7 @@
         <div class="controls">
             <button onclick="createLineChart()">折线图</button>
             <button onclick="createColumnChart()">柱状图</button>
+            <button onclick="createColumnChart1()">区间柱状图</button>
             <button onclick="createBarChart()">条形图</button>
             <button onclick="createAreaChart()">面积图</button>
             <button onclick="createMixChart()">混合图</button>
@@ -171,6 +172,52 @@
                       "#FA7D8D",
                       "#EB88E2"
                     ]
+                  }
+                }
+            });
+        }
+
+        function createColumnChart1() {
+            const canvas = document.getElementById('chart');
+            const ctx = new UCharts.H5CanvasContext(canvas.getContext("2d"));
+            const chart = new UCharts({
+                type: "column",
+                context: ctx,
+                categories: ["2018","2019","2020","2021"],
+                series: [
+                  {
+                    name: "目标值",
+                    data: [
+                      {"value": 92, "color":"#FAC858", "start": 130},
+                      {"value": 60, "color":"#FAC858", "start": 25},
+                      {"value": 120, "color":"#FAC858", "start": 30},
+                      {"value": 100, "color":"#FAC858", "start": 10}
+                    ]
+                  }
+                ],
+                animation: true,
+                background: "#FFFFFF",
+                color: ["#FAC858","#EE6666","#FAC858","#EE6666","#73C0DE","#3CA272","#FC8452","#9A60B4","#ea7ccc"],
+                padding: [15,15,0,5],
+                enableScroll: false,
+                legend: {},
+                xAxis: {
+                  disableGrid: true
+                },
+                yAxis: {
+                  data: [
+                    {
+                      min: 0,
+                      max: 150
+                    }
+                  ]
+                },
+                extra: {
+                  column: {
+                    type: "group",
+                    width: 30,
+                    activeBgColor: "#000000",
+                    activeBgOpacity: 0.08
                   }
                 }
             });

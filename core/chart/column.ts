@@ -174,6 +174,7 @@ export class ColumnChartRenderer extends BaseRenderer {
           y: 0
         };
         let value: number | number[] | ValueAndColorData | Record<string, number> = item;
+        let startValue = minRange;
         if (typeof item === 'object' && item !== null) {
           if (item.constructor.toString().indexOf('Array') > -1) {
             let xranges: number[], xminRange: number, xmaxRange: number;
@@ -184,12 +185,19 @@ export class ColumnChartRenderer extends BaseRenderer {
             point.x = this.opts.area[3] + validWidth * ((item as number[])[0] - xminRange) / (xmaxRange - xminRange);
           } else {
             value = (item as ValueAndColorData).value;
-            point.color = (item as ValueAndColorData).color
+            point.color = (item as ValueAndColorData).color;
+            if ((item as any).start !== undefined && (item as any).start < value) {
+              startValue = (item as any).start;
+            }
           }
         }
         point.x += eachSpacing / 2;
-        let height = validHeight * (Number(value) * process - minRange) / (maxRange - minRange);
-        point.y = this.opts.height - height - this.opts.area[2];
+        let valueY = validHeight * (Number(value) - minRange) / (maxRange - minRange);
+        let startY = validHeight * (startValue - minRange) / (maxRange - minRange);
+        valueY *= process;
+        startY *= process;
+        point.y = this.opts.height - valueY - this.opts.area[2];
+        point.y0 = this.opts.height - startY - this.opts.area[2];
         points.push(point);
       }
     });
@@ -417,13 +425,14 @@ export class ColumnChartRenderer extends BaseRenderer {
               // 圆角边框
               if ((columnOption.barBorderRadius && columnOption.barBorderRadius.length === 4) || columnOption.barBorderCircle === true) {
                 const left = startX;
-                const top = item.y > zeroPoints ? zeroPoints : item.y;
+                let drawZeroPoints = item.y0 !== undefined ? item.y0 : zeroPoints;
+                const top = item.y > drawZeroPoints ? drawZeroPoints : item.y;
                 const width = item.width!;
-                const height = Math.abs(zeroPoints - item.y);
+                const height = Math.abs(drawZeroPoints - item.y);
                 if (columnOption.barBorderCircle) {
                   columnOption.barBorderRadius = [width / 2, width / 2, 0, 0];
                 }
-                if(item.y > zeroPoints){
+                if(item.y > drawZeroPoints){
                   columnOption.barBorderRadius = [0, 0,width / 2, width / 2];
                 }
 
@@ -446,10 +455,11 @@ export class ColumnChartRenderer extends BaseRenderer {
                 this.context.arc(left + width - r2, top + height - r2, r2, 0, Math.PI / 2);
                 this.context.arc(left + r3, top + height - r3, r3, Math.PI / 2, Math.PI);
               } else {
+                let drawZeroPoints = item.y0 !== undefined ? item.y0 : zeroPoints;
                 this.context.moveTo(startX, item.y);
                 this.context.lineTo(startX + item.width!, item.y);
-                this.context.lineTo(startX + item.width!, zeroPoints);
-                this.context.lineTo(startX, zeroPoints);
+                this.context.lineTo(startX + item.width!, drawZeroPoints);
+                this.context.lineTo(startX, drawZeroPoints);
                 this.context.lineTo(startX, item.y);
                 this.setLineWidth(1)
                 this.setStrokeStyle(strokeColor);

@@ -143,6 +143,7 @@ export interface NameAndValueData extends BaseSeries {
 export interface ValueAndColorData {
   value: number
   color: string
+  start: number
 
   [key: string]: any;
 }

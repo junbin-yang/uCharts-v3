@@ -45,6 +45,32 @@ export struct ColumnChart {
       }
     }
   })
+  @State rangeChart:UChartsController =  new UChartsController({
+    type: "column",
+    categories: ["2018","2019","2020","2021"],
+    series: [
+      {
+        name: "目标",
+        data: [
+          {"value": 92, "color":"#ff0566b1", "start": 130}, // 起始值大于目标值，不会生效
+          {"value": 60, "color":"#ff0566b1", "start": 25},
+          {"value": 120, "color":"#ff0566b1", "start": 30},
+          {"value": 100, "color":"#ff0566b1", "start": 10}
+        ]
+      }
+    ],
+    padding: [15,15,0,5],
+    xAxis: { disableGrid: true },
+    yAxis: { data: [{ min: 0, max: 150 }] },
+    extra: {
+      column: {
+        type: "group",
+        width: 30,
+        activeBgColor: "#000000",
+        activeBgOpacity: 0.08
+      }
+    }
+  })
 
   build() {
     NavDestination() {
@@ -65,6 +91,16 @@ export struct ColumnChart {
             }) {
               UCharts({controller: this.easyChart})
               CollapseAndExpand({ value: GetColumnDemoCodeStr(-1) })
+            }
+          }
+        }
+        ListItem() {
+          ComponentShowContainer({title: "区间柱状图"}) {
+            Flex({
+              wrap: FlexWrap.Wrap,
+              space: { main: LengthMetrics.vp(12), cross: LengthMetrics.vp(12) }
+            }) {
+              UCharts({controller: this.rangeChart})
             }
           }
         }
