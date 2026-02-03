@@ -270,7 +270,7 @@ Component({
       }
       let type2d = false;
       let _pixel = 1;
-      if (this.data.canvas2d === false || deviceInfo.platform === 'windows' || deviceInfo.platform === 'mac') {
+      if (this.data.canvas2d === false) {
         type2d = false;
       }else{
         type2d = true;
